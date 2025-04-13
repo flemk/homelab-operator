@@ -1,0 +1,25 @@
+{% if confirm %}
+    <form method="post" action="/confirm">
+        {% csrf_token %}
+        <input type="hidden" name="redirect_url_confirmed" value="{{ redirect_url_confirmed }}">
+        <input type="hidden" name="redirect_url_declined" value="{{ redirect_url_declined }}">
+        <input type="hidden" name="title" value="{{ title }}">
+        <input type="hidden" name="message" value="{{ message }}">
+
+        <a class="info button" style="text-align: center; height: unset; max-width: 10rem; padding: 0.5rem;" onclick="event.preventDefault(); this.closest('form').submit();">
+            <i class="fa-solid {{ fa_icon }} fa-1x"></i>
+            {% if label %}
+                &nbsp;
+                <span>{{ label }}</span>
+            {% endif %}
+        </a>
+    </form>
+{% else %}
+    <a href="{{ href | default:'#' }}" class="info button {% if not href %}no{% endif %}" style="text-align: center; height: unset; max-width: 10rem; padding: 0.5rem;" {% if target %}target="{{ target }}"{% endif %}{% if download %}download="{{ download }}"{% endif %}>
+        <i class="fa-solid {{ fa_icon }} fa-1x"></i>
+        {% if label %}
+            &nbsp;
+            <span>{{ label }}</span>
+        {% endif %}
+    </a>
+{% endif %}

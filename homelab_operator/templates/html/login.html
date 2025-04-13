@@ -1,0 +1,17 @@
+{% extends 'html/base.html' %}
+
+{% block content %}
+    <div class="login" style="width: 30vw; display: block; margin: auto;">
+        <h2>Login</h2>
+        {% if login_error %}
+            <div class="message error soft">{{ login_error }}</div>
+        {% endif %}
+        <form method="post" style="display: grid;">
+            {% csrf_token %}
+            <input type="text"  name="username" id="username" placeholder="Username">
+            <input type="password" name="password" id="password" placeholder="Password">
+            <input type="submit" value="Login">
+        </form>
+    </div>
+    <div class="spacer"></div>
+{% endblock %}

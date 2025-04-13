@@ -1,0 +1,36 @@
+{% extends 'html/base.html' %}
+
+{% block content %}
+    <div class="login" style="width: 50vw; display: block; margin: auto;">
+        <h2>
+            {% if form_title %}
+                {{ form_title }}
+            {% else %}
+                Form
+            {% endif %}
+        </h2>
+        {% if form %}
+            <form method="post" style="display: grid;">
+                {% csrf_token %}
+                {% for field in form %}
+                    <label class="soft" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% for error in field.errors %}
+                        <div class="message error retain soft">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    {{ field }}
+                    <div class="spacer" style="height: 0.25rem;"></div>
+                {% endfor %}
+                <div class="spacer"></div>
+                <input type="submit" value="Complete">
+                {% if complete_hint %}
+                    <div class="soft" style="text-align: center;">
+                        {{ complete_hint }}
+                    </div>
+                {% endif %}
+            </form>
+        {% endif %}
+    </div>
+    <div class="spacer"></div>
+{% endblock %}
