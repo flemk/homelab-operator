@@ -211,9 +211,9 @@ h3 {
 
 .tile-display {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(45.5vw, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     grid-gap: .5rem;
-    margin: 1rem 1rem 0 auto;
+    /*margin: 1rem 1rem 0 auto;*/
 }
 
 .tile {

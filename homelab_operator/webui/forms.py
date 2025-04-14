@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django.utils.html import format_html
-from .models import Server, Service
+from .models import Server, Service, Network
 
 class ServerForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -26,4 +26,18 @@ class ServiceForm(ModelForm):
         
     class Meta:
         model = Service
+        fields = '__all__'
+
+class NetworkForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+
+        super(NetworkForm, self).__init__(*args, **kwargs)
+
+        if user:
+            self.fields['user'].initial = user
+            self.fields['user'].disabled = True
+        
+    class Meta:
+        model = Network
         fields = '__all__'

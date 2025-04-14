@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Server
-from .forms import ServerForm, ServiceForm
+from .models import Server, Service, Network
+from .forms import ServerForm, ServiceForm, NetworkForm
 
 def login_view(request):
     context = {}
@@ -29,9 +29,11 @@ def logout_view(request):
 def dashboard(request):
     user = request.user
     servers = Server.objects.filter(user=user)
+    networks = Network.objects.filter(user=user)
 
     context = {
         'servers': servers,
+        'networks': networks,
     }
     return render(request, 'html/dashboard.html', context)
 
@@ -66,7 +68,7 @@ def shutdown(request, server_id):
 @login_required
 def edit_server(request, server_id):
     user = request.user
-    server = Server.objects.get(id=server_id)
+    server = Server.objects.get(id=server_id, user=user)
 
     if request.method == 'POST':
         form = ServerForm(request.POST, instance=server)
@@ -124,5 +126,48 @@ def create_service(request):
     context = {
         'form': form,
         'form_title': 'Create Service',
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def create_network(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = NetworkForm(request.POST)
+        if form.is_valid():
+            network = form.save(commit=False)
+            network.user = user
+            network.save()
+            messages.success(request, f"Network {network.name} created successfully")
+            return redirect('dashboard')
+    else:
+        form = NetworkForm(user=user)
+
+    context = {
+        'form': form,
+        'form_title': 'Create Network',
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def edit_network(request, network_id):
+    user = request.user
+    network = Network.objects.get(id=network_id, user=user)
+
+    if request.method == 'POST':
+        form = NetworkForm(request.POST, instance=network)
+        if form.is_valid():
+            network = form.save()
+            network.user = user
+            network.save()
+            messages.success(request, f"Network {network.name} updated successfully")
+            return redirect('dashboard')
+    else:
+        form = NetworkForm(instance=network, user=user)
+
+    context = {
+        'form': form,
+        'form_title': 'Edit Network',
     }
     return render(request, 'html_components/form.html', context)
