@@ -1,6 +1,6 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, DateTimeInput
 from django.utils.html import format_html
-from .models import Server, Service, Network
+from .models import Server, Service, Network, WOLSchedule
 
 class ServerForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -41,3 +41,20 @@ class NetworkForm(ModelForm):
     class Meta:
         model = Network
         fields = '__all__'
+
+class WOLScheduleForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+
+        super(WOLScheduleForm, self).__init__(*args, **kwargs)
+
+        if user:
+            self.fields['user'].initial = user
+            self.fields['user'].disabled = True
+        
+    class Meta:
+        model = WOLSchedule
+        fields = '__all__'
+        widgets = {
+            'schedule_time': DateTimeInput(attrs={'type': 'datetime-local'}),
+        }

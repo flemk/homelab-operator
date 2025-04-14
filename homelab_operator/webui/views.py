@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Server, Service, Network
-from .forms import ServerForm, ServiceForm, NetworkForm
+from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm
 
 def login_view(request):
     context = {}
@@ -171,3 +171,30 @@ def edit_network(request, network_id):
         'form_title': 'Edit Network',
     }
     return render(request, 'html_components/form.html', context)
+
+@login_required
+def create_schedule(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = WOLScheduleForm(request.POST)
+        if form.is_valid():
+            schedule = form.save(commit=False)
+            schedule.user = user
+            schedule.save()
+            messages.success(request, f"Schedule created successfully")
+            return redirect('dashboard')
+    else:
+        form = WOLScheduleForm(user=user)
+
+    context = {
+        'form': form,
+        'form_title': 'Create Schedule',
+    }
+    return render(request, 'html_components/form.html', context)
+
+def cron_job():
+    # This function will be called by the cron job
+    # It should check the schedules and send WOL packets if needed
+    # TODO make this endpoint acessible only locally
+    pass

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Server, Service, Network
+from .models import Server, Service, Network, WOLSchedule
 
 class ServerAdmin(admin.ModelAdmin):
     list_display = ('name', 'ip_address', 'mac_address')
@@ -12,3 +12,7 @@ admin.site.register(Service, ServiceAdmin)
 class NetworkAdmin(admin.ModelAdmin):
     list_display = ('name', 'user')
 admin.site.register(Network, NetworkAdmin)
+
+class WOLScheduleAdmin(admin.ModelAdmin):
+    list_display = ('server', 'schedule_time', 'repeat', 'repeat_type')
+admin.site.register(WOLSchedule, WOLScheduleAdmin)

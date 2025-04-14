@@ -65,9 +65,11 @@
             </span>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 auto 0;">
-                {% with server_id=server.id|stringformat:'s' %}
-                    {% include 'html_components/inline_button.html' with label='Service' fa_icon='fa-plus' href='/create/service/' %}
-                {% endwith %}
+                {% include 'html_components/inline_button.html' with label='Service' fa_icon='fa-plus' href='/create/service/' %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 auto 0;">
+                {% include 'html_components/inline_button.html' with label='Schedule' fa_icon='fa-plus' href='/create/schedule' %}
             </span>
         </span>
     </div>
@@ -133,6 +135,33 @@
                         {% endfor %}
                     {% else %}
                         <div class="soft">No services found.</div>
+                    {% endif %}
+                </div>
+                <div class="spacer"></div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="spacer"></div>
+                <b>Schedules for this server</b>
+                <div>
+                    {% if server.wol_schedules.all %}
+                        <div class="spacer" style="height: .5rem;"></div>
+                        {% for schedule in server.wol_schedules.all %}
+                            <div>
+                                <div>
+                                    {% if schedule.repeat %}
+                                        <i class="fas fa-sync" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                        {{ schedule.repeat_type }}
+                                    {% else %}
+                                        <i class="fas fa-clock" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                    {% endif %}
+                                    {{ schedule.schedule_time }}
+                                </div>
+                                <div class="soft">
+                                    {{ schedule.note }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="soft">No schedules defined.</div>
                     {% endif %}
                 </div>
             </div>

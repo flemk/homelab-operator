@@ -78,7 +78,7 @@ select {
 
 input[type=checkbox] {
     width: auto;
-    margin: auto 0 auto 0;
+    margin: auto auto auto 0;
     height: auto;
 }
 

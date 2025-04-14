@@ -10,6 +10,7 @@ class Server(models.Model):
     network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True, blank=True, related_name='servers')
     ssh_username = models.CharField(max_length=100, null=True, blank=True)
     ssh_password = models.CharField(max_length=100, null=True, blank=True)
+    auto_wake = models.BooleanField(default=False)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -66,3 +67,19 @@ class Network(models.Model):
 
     def __str__(self):
         return self.name
+
+class WOLSchedule(models.Model):
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='wol_schedules')
+    schedule_time = models.DateTimeField()
+    repeat = models.BooleanField(default=False)
+    repeat_type = models.CharField(max_length=10,
+                                   choices=[
+                                       ('daily', 'Daily'),
+                                       ('weekly', 'Weekly'),
+                                       ('monthly', 'Monthly'),
+                                       ], null=True, blank=True)
+    note = models.TextField(null=True, blank=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"WOL for {self.server.name} at {self.schedule_time}"
