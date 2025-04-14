@@ -1,11 +1,14 @@
 from django.db import models
 import socket
+import paramiko
 
 class Server(models.Model):
     name = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField()
     mac_address = models.CharField(max_length=17)
     note = models.TextField(null=True, blank=True)
+    ssh_username = models.CharField(max_length=100, null=True, blank=True)
+    ssh_password = models.CharField(max_length=100, null=True, blank=True)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -21,6 +24,20 @@ class Server(models.Model):
             return False
         except Exception as e:
             return str(e)
+        
+    def shutdown(self):
+        try:
+            if self.ssh_username and self.ssh_password:
+                client = paramiko.SSHClient()
+                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                client.connect(self.ip_address, username=self.ssh_username, password=self.ssh_password)
+                stdin, stdout, stderr = client.exec_command('sudo shutdown now')
+                client.close()
+                return True
+            else:
+                return False
+        except Exception as e:
+            return str(e)
 
     def is_online(self):
         try:
@@ -33,10 +50,10 @@ class Server(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=100)
-    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
     port = models.IntegerField()
-    protocol = models.CharField(max_length=10, choices=[('TCP', 'TCP'), ('UDP', 'UDP')])
-    status = models.BooleanField(default=False)
+    icon_url = models.URLField(null=True, blank=True)
+    note = models.TextField(null=True, blank=True) 
 
     def __str__(self):
         return f"{self.name} on {self.server.name}"

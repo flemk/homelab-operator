@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Server
-from .forms import ServerForm
+from .forms import ServerForm, ServiceForm
 
 def login_view(request):
     context = {}
@@ -37,13 +37,28 @@ def dashboard(request):
 
 @login_required
 def wake(request, server_id):
-    server = Server.objects.get(id=server_id)
+    user = request.user
+    server = Server.objects.get(id=server_id, user=user)
     if server:
         response = server.wake()
         if response is False:
             messages.success(request, f"Magic packet sent to {server.name}")
         else:
             messages.error(request, f"Failed to send magic packet to {server.name}: {response}")
+        return redirect('dashboard')
+    messages.error(request, "Server not found")
+    return redirect('dashboard')
+
+@login_required
+def shutdown(request, server_id):
+    user = request.user
+    server = Server.objects.get(id=server_id, user=user)
+    if server:
+        response = server.shutdown()
+        if response is True:
+            messages.success(request, f"Shutdown command sent to {server.name}")
+        else:
+            messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
         return redirect('dashboard')
     messages.error(request, "Server not found")
     return redirect('dashboard')
@@ -88,5 +103,26 @@ def create_server(request):
     context = {
         'form': form,
         'form_title': 'Create Server',
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def create_service(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            service = form.save(commit=False)
+            service.user = user
+            service.save()
+            messages.success(request, f"Service {service.name} created successfully")
+            return redirect('dashboard')
+    else:
+        form = ServiceForm()
+
+    context = {
+        'form': form,
+        'form_title': 'Create Service',
     }
     return render(request, 'html_components/form.html', context)

@@ -3,11 +3,15 @@
 {% block content %}
     <div style="width: min-content;">
         <span style="display: flex;">
-            <h2>Servers</h2>
-            <div style="width: 2rem;"></div>
+            <h2>Overview</h2>
+            <div style="width: 1rem;"></div>
             <span style="margin: auto;">
-                {% with project_id=project.id|stringformat:'s' %}
-                    {% include 'html_components/inline_button.html' with label='Add Server' fa_icon='fa-plus' href='/create/server/' %}
+                {% include 'html_components/inline_button.html' with label='Add Server' fa_icon='fa-plus' href='/create/server/' %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto;">
+                {% with server_id=server.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Add Service' fa_icon='fa-plus' href='/create/service/' %}
                 {% endwith %}
             </span>
             <div class="spacer" style="height: 0; width: 1rem;"></div>
@@ -33,13 +37,13 @@
                     <span style="display: flex;">
                         <span style="margin: auto;">
                             {% with server_id=server.id|stringformat:'s' %}
-                                {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-power-off' href='/wake/'|add:server_id %}
+                                {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='/wake/'|add:server_id %}
                             {% endwith %}
                         </span>
                         <div style="width: 1rem;"></div>
                         <span style="margin: auto;">
-                            {% with project_id=project.id|stringformat:'s' %}
-                                {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-pen-to-square' href='/'|add:project_id|add:'/customer/edit/'|add:server.id|stringformat:'s' %}
+                            {% with server_id=server.id|stringformat:'s' %}
+                                {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='/shutdown/'|add:server_id %}
                             {% endwith %}
                         </span>
                         <div style="width: 1rem;"></div>
@@ -53,11 +57,25 @@
                 <div class="spacer"></div>
                 <div style="border-top: 1px solid #ccc;"></div>
                 <div class="spacer"></div>
-                <b>Services</b>
+                <b>Services on this server</b>
                 <div>
-                    {% if server.services %}
+                    {% if server.services.all %}
+                        <div class="spacer" style="height: .5rem;"></div>
                         {% for service in server.services.all %}
-                            <div>{{ service.name }}</div>
+                            <div>
+                                <div>
+                                    {% if service.icon_url %}
+                                        <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                                    {% else %}
+                                        <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                    {% endif %}
+                                    {{ service.name }}
+                                </div>
+                                <div class="soft">
+                                    {{ service.note }}
+                                </div>
+                            </div>
+                            <div class="spacer" style="height: .5rem;"></div>
                         {% endfor %}
                     {% else %}
                         <div class="soft">No services found.</div>

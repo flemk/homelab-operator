@@ -6,5 +6,5 @@ class ServerAdmin(admin.ModelAdmin):
 admin.site.register(Server, ServerAdmin)
 
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'server', 'port', 'protocol', 'status')
+    list_display = ('name', 'server', 'port')
 admin.site.register(Service, ServiceAdmin)
