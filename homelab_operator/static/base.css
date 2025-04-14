@@ -11,6 +11,10 @@ html, body {
     overflow-x: hidden;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 .header, .main, .footer {
     padding-left: 1rem;
     width: calc(100vw - 1rem);
@@ -260,4 +264,10 @@ h3 {
         opacity: 0;
         display: none;
     }
+}
+
+@keyframes highlight {
+    0% { background-color: #efefef; }
+    50% { background-color: #ddd; }
+    100% { background-color: #efefef; }
 }
