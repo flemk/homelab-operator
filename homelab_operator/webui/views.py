@@ -1,5 +1,5 @@
 import os
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
@@ -88,8 +88,31 @@ def edit_server(request, server_id):
     context = {
         'form': form,
         'form_title': 'Edit Server',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/delete/server/{server.id}/",
+        'delete_url_declined': f"/edit/server/{server.id}/",
+        'delete_title': 'Delete Server',
+        'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
+
+@login_required
+def delete_server(request, server_id):
+    user = request.user
+    server = Server.objects.get(id=server_id, user=user)
+
+    if server.user != user:
+        messages.error(request, "You do not have permission to delete this server")
+        return redirect('dashboard')
+
+    if server:
+        server_name = server.name
+        server.delete()
+        messages.success(request, f"Server {server_name} deleted successfully")
+        return redirect('dashboard')
+
+    messages.error(request, "Server not found")
+    return redirect('dashboard')
 
 @login_required
 def create_server(request):
@@ -134,6 +157,50 @@ def create_service(request):
     return render(request, 'html_components/form.html', context)
 
 @login_required
+def edit_service(request, service_id):
+    user = request.user
+    service = Service.objects.get(id=service_id)
+    if service.server.user != user:
+        messages.error(request, "You do not have permission to edit this service")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = ServiceForm(request.POST, instance=service)
+        if form.is_valid():
+            service = form.save()
+            service.user = user
+            service.save()
+            messages.success(request, f"Service {service.name} updated successfully")
+            return redirect('dashboard')
+    else:
+        form = ServiceForm(instance=service)
+
+    context = {
+        'form': form,
+        'form_title': 'Edit Service',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/delete/service/{service.id}/",
+        'delete_url_declined': f"/edit/service/{service.id}/",
+        'delete_title': 'Delete Service',
+        'delete_message': f"You are about to delete Service {service.name}. Do you want to proceed?",
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def delete_service(request, service_id):
+    user = request.user
+    service = Service.objects.get(id=service_id)
+
+    if service.server.user != user:
+        messages.error(request, "You do not have permission to delete this service")
+        return redirect('dashboard')
+
+    service_name = service.name
+    service.delete()
+    messages.success(request, f"Service {service_name} deleted successfully")
+    return redirect('dashboard')
+
+@login_required
 def create_network(request):
     user = request.user
 
@@ -173,8 +240,27 @@ def edit_network(request, network_id):
     context = {
         'form': form,
         'form_title': 'Edit Network',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/delete/network/{network.id}/",
+        'delete_url_declined': f"/edit/network/{network.id}/",
+        'delete_title': 'Delete Network',
+        'delete_message': f"You are about to delete Network {network.name}. Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
+
+@login_required
+def delete_network(request, network_id):
+    user = request.user
+    network = Network.objects.get(id=network_id, user=user)
+
+    if network.user != user:
+        messages.error(request, "You do not have permission to delete this network")
+        return redirect('dashboard')
+
+    network_name = network.name
+    network.delete()
+    messages.success(request, f"Network {network_name} deleted successfully")
+    return redirect('dashboard')
 
 @login_required
 def create_schedule(request):
@@ -196,6 +282,51 @@ def create_schedule(request):
         'form_title': 'Create Schedule',
     }
     return render(request, 'html_components/form.html', context)
+
+@login_required
+def edit_schedule(request, schedule_id):
+    user = request.user
+    schedule = WOLSchedule.objects.get(id=schedule_id)
+
+    if schedule.user != user:
+        messages.error(request, "You do not have permission to edit this schedule")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = WOLScheduleForm(request.POST, instance=schedule, user=user)
+        if form.is_valid():
+            schedule = form.save()
+            schedule.user = user
+            schedule.save()
+            messages.success(request, f"Schedule updated successfully")
+            return redirect('dashboard')
+    else:
+        form = WOLScheduleForm(instance=schedule, user=user)
+
+    context = {
+        'form': form,
+        'form_title': 'Edit Schedule',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/delete/schedule/{schedule.id}/",
+        'delete_url_declined': f"/edit/schedule/{schedule.id}/",
+        'delete_title': 'Delete Schedule',
+        'delete_message': f"You are about to delete Schedule {schedule.id} for {schedule.server.name}. Do you want to proceed?",
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def delete_schedule(request, schedule_id):
+    user = request.user
+    schedule = WOLSchedule.objects.get(id=schedule_id)
+
+    if schedule.user != user:
+        messages.error(request, "You do not have permission to delete this schedule")
+        return redirect('dashboard')
+
+    schedule_id = schedule.id
+    schedule.delete()
+    messages.success(request, f"Schedule {schedule_id} deleted successfully")
+    return redirect('dashboard')
 
 def cron(request, api_key):
     # This function will be called by the cron job
@@ -232,3 +363,20 @@ def cron(request, api_key):
             print(f"Server not found for schedule ID {schedule.id}")
 
     return HttpResponse("Cron job executed successfully")
+
+@login_required
+def confirm(request):
+    if request.method == 'POST':
+        redirect_url_confirmed = request.POST.get('redirect_url_confirmed')
+        redirect_url_declined = request.POST.get('redirect_url_declined')
+        title = request.POST.get('title')
+        message = request.POST.get('message')
+
+        context = {
+            'redirect_url_confirmed': redirect_url_confirmed,
+            'redirect_url_declined': redirect_url_declined,
+            'title': title,
+            'message': message,
+        }
+        return render(request, 'html_components/confirm.html', context)
+    return HttpResponseBadRequest()

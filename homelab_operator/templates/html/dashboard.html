@@ -118,7 +118,7 @@
                     {% if server.services.all %}
                         <div class="spacer" style="height: .5rem;"></div>
                         {% for service in server.services.all %}
-                            <div>
+                            <a href="/edit/service/{{ service.id }}" style="text-decoration: none; color: inherit;">
                                 <div>
                                     {% if service.icon_url %}
                                         <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
@@ -130,7 +130,7 @@
                                 <div class="soft">
                                     {{ service.note }}
                                 </div>
-                            </div>
+                            </a>
                             <div class="spacer" style="height: .5rem;"></div>
                         {% endfor %}
                     {% else %}
@@ -145,7 +145,7 @@
                     {% if server.wol_schedules.all %}
                         <div class="spacer" style="height: .5rem;"></div>
                         {% for schedule in server.wol_schedules.all %}
-                            <div>
+                            <a href="/edit/schedule/{{ schedule.id }}" style="text-decoration: none; color: inherit;">
                                 <div>
                                     {% if schedule.repeat %}
                                         <i class="fas fa-sync" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
@@ -158,7 +158,7 @@
                                 <div class="soft">
                                     {{ schedule.note }}
                                 </div>
-                            </div>
+                            </a>
                         {% endfor %}
                     {% else %}
                         <div class="soft">No schedules defined.</div>

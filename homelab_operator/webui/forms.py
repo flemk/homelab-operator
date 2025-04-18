@@ -23,6 +23,8 @@ class ServerForm(ModelForm):
 class ServiceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ServiceForm, self).__init__(*args, **kwargs)
+
+    # TODO only display servers that belong to the user
         
     class Meta:
         model = Service

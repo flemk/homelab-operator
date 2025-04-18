@@ -2,13 +2,20 @@
 
 {% block content %}
     <div class="login" style="width: 50vw; display: block; margin: auto;">
-        <h2>
-            {% if form_title %}
-                {{ form_title }}
-            {% else %}
-                Form
+        <div style="display: flex;">
+            <h2>
+                {% if form_title %}
+                    {{ form_title }}
+                {% else %}
+                    Form
+                {% endif %}
+            </h2>
+            {% if show_delete_option %}
+                <div style="margin: auto 0 auto auto;">
+                    {% include 'html_components/inline_button.html' with label='Delete' fa_icon='fa-trash-can' confirm=True redirect_url_confirmed=delete_url_confirmed title=delete_title message=delete_message redirect_url_declined=delete_url_declined %}
+                </div>
             {% endif %}
-        </h2>
+        </div>
         {% if form %}
             <form method="post" style="display: grid;">
                 {% csrf_token %}
@@ -36,6 +43,7 @@
                 {% endif %}
             </form>
         {% endif %}
+        <div class="spacer"></div>
     </div>
     <div class="spacer"></div>
 {% endblock %}
