@@ -71,6 +71,12 @@ class Network(models.Model):
 class WOLSchedule(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='wol_schedules')
     schedule_time = models.DateTimeField()
+    type = models.CharField(max_length=10,
+                                   choices=[
+                                       ('WAKE', 'WAKE'),
+                                       ('SHUTDOWN', 'SHUTDOWN'),
+                                       ])
+    enabled = models.BooleanField(default=True)
     repeat = models.BooleanField(default=False)
     repeat_type = models.CharField(max_length=10,
                                    choices=[

@@ -1,9 +1,13 @@
+import os
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Server, Service, Network
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm
+from datetime import datetime
+from .models import WOLSchedule, Server
 
 def login_view(request):
     context = {}
@@ -193,8 +197,38 @@ def create_schedule(request):
     }
     return render(request, 'html_components/form.html', context)
 
-def cron_job():
+def cron(request, api_key):
     # This function will be called by the cron job
     # It should check the schedules and send WOL packets if needed
-    # TODO make this endpoint acessible only locally
-    pass
+    # TODO make this callable locally only
+
+    if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
+        return HttpResponseForbidden("Unauthorized access")
+
+    now = datetime.now()
+    schedules = WOLSchedule.objects.filter(
+        enabled=True,
+        schedule_time__hour=now.hour,
+        schedule_time__minute__gte=(now.minute - 5) % 60,
+        schedule_time__minute__lte=(now.minute + 5) % 60
+    )
+
+    for schedule in schedules:
+        server = schedule.server
+        if server:
+            if schedule.type == 'WAKE':
+                response = server.wake()
+                if response is False:
+                    print(f"Magic packet sent to {server.name} (Scheduled by {schedule.user.username})")
+                else:
+                    print(f"Failed to send magic packet to {server.name}: {response}")
+            elif schedule.type == 'SHUTDOWN':
+                response = server.shutdown()
+                if response is True:
+                    print(f"Shutdown command sent to {server.name} (Scheduled by {schedule.user.username})")
+                else:
+                    print(f"Failed to send shutdown command to {server.name}: {response}")
+        else:
+            print(f"Server not found for schedule ID {schedule.id}")
+
+    return HttpResponse("Cron job executed successfully")

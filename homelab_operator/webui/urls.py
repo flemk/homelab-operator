@@ -15,4 +15,5 @@ urlpatterns = [
     path('edit/server/<int:server_id>/', views.edit_server, name='edit_server'),
     #path('edit/service/<int:service_id>/', views.edit_service, name='edit_service'),
     path('edit/network/<int:network_id>/', views.edit_network, name='edit_network'),
+    path('cron/<str:api_key>/', views.cron, name='cron'),
 ]
