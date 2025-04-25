@@ -1,2 +1,6 @@
-paramiko
-Django
+Django>=5.2
+waitress>=3.0.0
+Werkzeug>=3.0.1
+psycopg >= 3.1.18
+psycopg2-binary >= 2.8.6
+paramiko >= 3.5.1
