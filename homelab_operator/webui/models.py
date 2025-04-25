@@ -1,22 +1,27 @@
-from django.db import models
-import socket
+'''Models for the web UI of the homelab operator.'''
+
 import paramiko
+import socket
+from django.db import models
 
 class Server(models.Model):
+    '''Model representing a server.'''
     name = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField()
     mac_address = models.CharField(max_length=17)
     note = models.TextField(null=True, blank=True)
-    network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True, blank=True, related_name='servers')
+    network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True,
+                                blank=True, related_name='servers')
     ssh_username = models.CharField(max_length=100, null=True, blank=True)
     ssh_password = models.CharField(max_length=100, null=True, blank=True)
     auto_wake = models.BooleanField(default=False)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return self.name
-    
+        return str(self.name)
+
     def wake(self):
+        '''Sends a Wake-on-LAN magic packet to the server.'''
         try:
             mac_bytes = bytes.fromhex(self.mac_address.replace(":", "").replace("-", ""))
             magic_packet = b'\xff' * 6 + mac_bytes * 16
@@ -26,22 +31,25 @@ class Server(models.Model):
             return False
         except Exception as e:
             return str(e)
-        
+
     def shutdown(self):
+        '''Shuts down the server using SSH.'''
         try:
             if self.ssh_username and self.ssh_password:
                 client = paramiko.SSHClient()
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                client.connect(self.ip_address, username=self.ssh_username, password=self.ssh_password)
+                client.connect(self.ip_address,
+                               username=self.ssh_username,
+                               password=self.ssh_password)
                 stdin, stdout, stderr = client.exec_command('sudo shutdown now')
                 client.close()
                 return True
-            else:
-                return False
+            return False
         except Exception as e:
             return str(e)
 
     def is_online(self):
+        '''Checks if the server is online by attempting to connect to SSH.'''
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
@@ -51,6 +59,7 @@ class Server(models.Model):
             return False
 
 class Service(models.Model):
+    '''Model representing a service running on a server.'''
     name = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
     port = models.IntegerField()
@@ -61,6 +70,7 @@ class Service(models.Model):
         return f"{self.name} on {self.server.name}"
 
 class Network(models.Model):
+    '''Model representing a network.'''
     name = models.CharField(max_length=20)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
@@ -69,6 +79,7 @@ class Network(models.Model):
         return self.name
 
 class WOLSchedule(models.Model):
+    '''Model representing a Wake-on-LAN schedule.'''
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='wol_schedules')
     schedule_time = models.DateTimeField()
     type = models.CharField(max_length=10,
