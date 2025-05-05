@@ -1,5 +1,6 @@
 '''Models for the web UI of the homelab operator.'''
 
+import os
 import paramiko
 import socket
 from django.db import models
@@ -25,12 +26,14 @@ class Server(models.Model):
         try:
             mac_bytes = bytes.fromhex(self.mac_address.replace(":", "").replace("-", ""))
             magic_packet = b'\xff' * 6 + mac_bytes * 16
+
+            broadcast_address = os.getenv('BROADCAST_ADDRESS', '255.255.255.255')
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-                sock.sendto(magic_packet, ("255.255.255.255", 9))
+                sock.sendto(magic_packet, (broadcast_address, 9))
             return False
         except Exception as e:
-            return str(e)
+            return str(e)    
 
     def shutdown(self):
         '''Shuts down the server using SSH.'''
@@ -53,7 +56,7 @@ class Server(models.Model):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
-                sock.connect((self.ip_address, 22))
+                sock.connect((self.ip_address, 80))  # On port 80
             return True
         except (socket.timeout, socket.error):
             return False
