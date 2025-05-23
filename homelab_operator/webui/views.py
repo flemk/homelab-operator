@@ -94,7 +94,7 @@ def edit_server(request, server_id):
         'delete_title': 'Delete Server',
         'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
     }
-    if server.shutdown_url.all()[0]:
+    if server.shutdown_url.all()[0]:  # TODO this caused some issues
         context['additional_information'] = [
             {
                 'title': 'A shutdown URL is configured for this server',
@@ -369,6 +369,8 @@ def cron(request, api_key):
     for schedule in schedules:
         server = schedule.server
         if server:
+            if not server.auto_wake:
+                continue
             if schedule.type == 'WAKE':
                 response = server.wake()
                 if response is False:

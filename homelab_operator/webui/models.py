@@ -35,7 +35,7 @@ class Server(models.Model):
                 sock.sendto(magic_packet, (broadcast_address, 9))
             return False
         except Exception as e:
-            return str(e)    
+            return str(e)
 
     def shutdown(self):
         '''calls the shutdown URL of the server.'''
@@ -43,7 +43,7 @@ class Server(models.Model):
             return 'No shutdown URL provided.'
         if self.shutdown_url.all().count() > 1:
             return 'Multiple shutdown URLs provided.'
-        shutdown_url = self.shutdown_url.all()[0]
+        shutdown_url = self.shutdown_url.all().first()  # TODO this caused some issues
 
         try:
             response = requests.post(
