@@ -56,3 +56,4 @@ To use the auto-wake functionality properly, you need to create a system level c
 ```bash
 # TODO
 ```
+You need to call the cron endpoint every 10min for full coverage.

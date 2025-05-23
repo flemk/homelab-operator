@@ -99,7 +99,7 @@ def edit_server(request, server_id):
             {
                 'title': 'A shutdown URL is configured for this server',
                 'description': 'The shutdown URL is configured separately.',
-                'link': '/shutdown_url/',
+                'link': '#',
                 'link_text': 'View',
             },
         ]
@@ -338,12 +338,12 @@ def delete_schedule(request, schedule_id):
     return redirect('dashboard')
 
 def cron(request, api_key):
-    # This function will be called by the cron job
-    # It should check the schedules and send WOL packets if needed
+    '''This function will be called by the cron job
+    It should check the schedules and send WOL packets if needed'''
     # TODO make this callable locally only
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
-        return HttpResponseForbidden("Unauthorized access")
+        return HttpResponseForbidden(403, "Forbidden")
 
     now = datetime.now()
     schedules = WOLSchedule.objects.filter(
@@ -352,6 +352,19 @@ def cron(request, api_key):
         schedule_time__minute__gte=(now.minute - 5) % 60,
         schedule_time__minute__lte=(now.minute + 5) % 60
     )
+
+    for schedule in schedules.all():
+        if schedule.repeat:
+            if schedule.repeat_type == 'daily':
+                # schedule should be executed every day, no action needed
+                continue
+            elif schedule.repeat_type == 'weekly':
+                if schedule.schedule_time.weekday() != now.weekday():
+                    schedules.exclude(id=schedule.id)
+            elif schedule.repeat_type == 'monthly':
+                if schedule.schedule_time.month != now.month \
+                    and schedule.schedule_time.day != now.day:
+                    schedules.exclude(id=schedule.id)
 
     for schedule in schedules:
         server = schedule.server
@@ -371,7 +384,7 @@ def cron(request, api_key):
         else:
             print(f"Server not found for schedule ID {schedule.id}")
 
-    return HttpResponse("Cron job executed successfully")
+    return HttpResponse(200, "OK")
 
 @login_required
 def confirm(request):
