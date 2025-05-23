@@ -16,6 +16,29 @@
                 </div>
             {% endif %}
         </div>
+        {% if additional_information %}
+            {% for field in additional_information %}
+                <div class="tile" style="display: flex; margin-bottom: 1rem;">
+                    <div>
+                        {% if field.title %}
+                            <b>
+                                {{ field.title }}
+                            </b>
+                        {% endif %}
+                        {% if field.description %}
+                            <div class="soft">
+                                {{ field.description }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if field.link and field.link_text %}
+                        <span style="margin: auto 1rem auto auto;">
+                            {% include 'html_components/inline_button.html' with label=field.link_text fa_icon='fa-arrow-up-right-from-square' href=field.link %}
+                        </span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
         {% if form %}
             <form method="post" style="display: grid;">
                 {% csrf_token %}

@@ -51,3 +51,8 @@ docker network create \
 docker network connect macvlan_net <container>
 ```
 You also may need to adjust the `BROADCAST_ADDRESS=255.255.255.255` environment variable.
+
+To use the auto-wake functionality properly, you need to create a system level cron job in `crontab -e`:
+```bash
+# TODO
+```

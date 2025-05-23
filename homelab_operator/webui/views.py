@@ -61,7 +61,7 @@ def shutdown(request, server_id):
     server = Server.objects.get(id=server_id, user=user)
     if server:
         response = server.shutdown()
-        if response is True:
+        if response is False:
             messages.success(request, f"Shutdown command sent to {server.name}")
         else:
             messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
@@ -94,6 +94,15 @@ def edit_server(request, server_id):
         'delete_title': 'Delete Server',
         'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
     }
+    if server.shutdown_url.all()[0]:
+        context['additional_information'] = [
+            {
+                'title': 'A shutdown URL is configured for this server',
+                'description': 'The shutdown URL is configured separately.',
+                'link': '/shutdown_url/',
+                'link_text': 'View',
+            },
+        ]
     return render(request, 'html_components/form.html', context)
 
 @login_required

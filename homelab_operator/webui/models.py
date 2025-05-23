@@ -1,20 +1,20 @@
 '''Models for the web UI of the homelab operator.'''
 
 import os
-import paramiko
+import requests
 import socket
 from django.db import models
 
 class Server(models.Model):
     '''Model representing a server.'''
     name = models.CharField(max_length=100)
-    ip_address = models.GenericIPAddressField()
-    mac_address = models.CharField(max_length=17)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    port = models.IntegerField(default=80, null=True, blank=True)
+    mac_address = models.CharField(max_length=17, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
     network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True,
                                 blank=True, related_name='servers')
-    ssh_username = models.CharField(max_length=100, null=True, blank=True)
-    ssh_password = models.CharField(max_length=100, null=True, blank=True)
+    status_url = models.URLField(null=True, blank=True)
     auto_wake = models.BooleanField(default=False)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
 
@@ -23,6 +23,8 @@ class Server(models.Model):
 
     def wake(self):
         '''Sends a Wake-on-LAN magic packet to the server.'''
+        if not self.mac_address:
+            return 'No MAC address provided.'
         try:
             mac_bytes = bytes.fromhex(self.mac_address.replace(":", "").replace("-", ""))
             magic_packet = b'\xff' * 6 + mac_bytes * 16
@@ -36,19 +38,27 @@ class Server(models.Model):
             return str(e)    
 
     def shutdown(self):
-        '''Shuts down the server using SSH.'''
+        '''calls the shutdown URL of the server.'''
+        if not self.shutdown_url:
+            return 'No shutdown URL provided.'
+        if self.shutdown_url.all().count() > 1:
+            return 'Multiple shutdown URLs provided.'
+        shutdown_url = self.shutdown_url.all()[0]
+
         try:
-            if self.ssh_username and self.ssh_password:
-                client = paramiko.SSHClient()
-                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                client.connect(self.ip_address,
-                               username=self.ssh_username,
-                               password=self.ssh_password)
-                stdin, stdout, stderr = client.exec_command('sudo shutdown now')
-                client.close()
-                return True
-            return False
-        except Exception as e:
+            response = requests.post(
+                shutdown_url.url,
+                headers=shutdown_url.headers,
+                data=shutdown_url.data,
+                verify=False,  # Disable SSL verification for testing
+                )
+            if response.status_code == 200:
+                return False
+            else:
+                print(f"Shutdown failed with status code: {response.status_code}")
+                return f"Shutdown failed with status code: {response.status_code}"
+        except requests.RequestException as e:
+            print(f"Error: {e}")
             return str(e)
 
     def is_online(self):
@@ -56,7 +66,7 @@ class Server(models.Model):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
-                sock.connect((self.ip_address, 80))  # On port 80
+                sock.connect((self.ip_address, self.port))  # On port 80
             return True
         except (socket.timeout, socket.error):
             return False
@@ -65,12 +75,22 @@ class Service(models.Model):
     '''Model representing a service running on a server.'''
     name = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
-    port = models.IntegerField()
+    port = models.IntegerField(default=80)
     icon_url = models.URLField(null=True, blank=True)
     note = models.TextField(null=True, blank=True) 
 
     def __str__(self):
         return f"{self.name} on {self.server.name}"
+    
+    def is_online(self):
+        '''Checks if the service is online by attempting to connect to the specified port.'''
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(1)
+                sock.connect((self.server.ip_address, self.port))
+            return True
+        except (socket.timeout, socket.error):
+            return False
 
 class Network(models.Model):
     '''Model representing a network.'''
@@ -103,3 +123,18 @@ class WOLSchedule(models.Model):
 
     def __str__(self):
         return f"WOL for {self.server.name} at {self.schedule_time}"
+
+class ShutdownURLConfiguration(models.Model):
+    '''Model representing a shutdown URL configuration.'''
+    name = models.CharField(max_length=100)
+    url = models.URLField(max_length=300)
+    headers = models.JSONField(null=True, blank=True)
+    data = models.TextField(null=True, blank=True)
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='shutdown_url')
+
+    def __str__(self):
+        return self.name
+
+    def is_valid(self):
+        '''Checks if the shutdown URL is valid by sending a test request.'''
+        ...

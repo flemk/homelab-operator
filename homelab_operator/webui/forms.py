@@ -2,7 +2,7 @@
 
 from django.forms import ModelForm, DateTimeInput
 from django.utils.html import format_html
-from .models import Server, Service, Network, WOLSchedule
+from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration
 
 class ServerForm(ModelForm):
     '''Form for creating and updating Server instances.'''
@@ -14,12 +14,6 @@ class ServerForm(ModelForm):
         if user:
             self.fields['user'].initial = user
             self.fields['user'].disabled = True
-
-        self.fields['ssh_username'].label = 'SSH Username'
-        self.fields['ssh_password'].label = 'SSH Password'
-        self.fields['ssh_password'].help_text = format_html(
-            '<span class="soft error">SSH credentials are stored in plain text.' + \
-                'Use this feature with caution.</span>')
 
     class Meta:
         model = Server
@@ -68,3 +62,12 @@ class WOLScheduleForm(ModelForm):
         widgets = {
             'schedule_time': DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+class ShutdownURLConfigurationForm(ModelForm):
+    '''Form for creating and updating ShutdownURLConfiguration instances.'''
+    def __init__(self, *args, **kwargs):
+        super(ShutdownURLConfigurationForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = ShutdownURLConfiguration
+        fields = '__all__'
