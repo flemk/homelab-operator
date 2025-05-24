@@ -44,13 +44,15 @@ class Server(models.Model):
         if self.shutdown_url.all().count() > 1:
             return 'Multiple shutdown URLs provided.'
         shutdown_url = self.shutdown_url.all().first()  # TODO this caused some issues
+        if shutdown_url is None:
+            return 'No shutdown URL configuration found.'
 
         try:
             response = requests.post(
                 shutdown_url.url,
                 headers=shutdown_url.headers,
                 data=shutdown_url.data,
-                verify=False,  # Disable SSL verification for testing
+                verify=False,  # Disable SSL verification for testing or self-signed certificates
                 )
             if response.status_code == 200:
                 return False

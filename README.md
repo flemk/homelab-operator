@@ -55,6 +55,6 @@ You also may need to adjust the `BROADCAST_ADDRESS=255.255.255.255` environment 
 To use the auto-wake functionality properly, you need to create a system level cron job in `crontab -e`:
 ```bash
 # Call /cron inside the homelab-operator container
-*/5 * * * * docker exec <container> php /var/www/html/cron.php
+*/10 * * * * docker exec <container> curl http://localhost:8000/cron/<API_KEY>/
 ```
 You need to call the cron endpoint every 10min for full coverage.

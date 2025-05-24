@@ -27,6 +27,7 @@ if DEBUG: print('-'*100, '\nDEBUG is set to True, this is not recommended for pr
 
 ALLOWED_HOSTS = [
     os.getenv('ALLOWED_HOST', 'localhost'),
+    'localhost',
     ]
 
 CSRF_TRUSTED_ORIGINS = [

@@ -95,7 +95,7 @@ def edit_server(request, server_id):
         'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
     }
     if server.shutdown_url:
-        if server.shutdown_url.all()[0]:  # TODO this caused some issues
+        if server.shutdown_url.all().first():  # TODO this caused some issues
             context['additional_information'] = [
                 {
                     'title': 'A shutdown URL is configured for this server',
