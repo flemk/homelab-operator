@@ -425,11 +425,11 @@ def cron(request, api_key):
         return HttpResponseForbidden("Forbidden", status=403)
 
     now = datetime.now()
+    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     schedules = WOLSchedule.objects.filter(
         enabled=True,
         schedule_time__hour=now.hour,
-        schedule_time__minute__gte=(now.minute - 5) % 60,
-        schedule_time__minute__lte=(now.minute + 5) % 60
+        schedule_time__minute__in=minute_window
     )
 
     for schedule in schedules.all():

@@ -1,7 +1,6 @@
 '''Forms for the web UI of the homelab operator project.'''
 
 from django.forms import ModelForm, DateTimeInput
-from django.utils.html import format_html
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration
 
 class ServerForm(ModelForm):
