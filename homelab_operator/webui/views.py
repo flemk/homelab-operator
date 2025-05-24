@@ -94,15 +94,16 @@ def edit_server(request, server_id):
         'delete_title': 'Delete Server',
         'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
     }
-    if server.shutdown_url.all()[0]:  # TODO this caused some issues
-        context['additional_information'] = [
-            {
-                'title': 'A shutdown URL is configured for this server',
-                'description': 'The shutdown URL is configured separately.',
-                'link': '#',
-                'link_text': 'View',
-            },
-        ]
+    if server.shutdown_url:
+        if server.shutdown_url.all()[0]:  # TODO this caused some issues
+            context['additional_information'] = [
+                {
+                    'title': 'A shutdown URL is configured for this server',
+                    'description': 'The shutdown URL is configured separately.',
+                    'link': '#',
+                    'link_text': 'View',
+                },
+            ]
     return render(request, 'html_components/form.html', context)
 
 @login_required
@@ -343,7 +344,7 @@ def cron(request, api_key):
     # TODO make this callable locally only
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
-        return HttpResponseForbidden(403, "Forbidden")
+        return HttpResponseForbidden("Forbidden", status=403)
 
     now = datetime.now()
     schedules = WOLSchedule.objects.filter(
@@ -386,7 +387,7 @@ def cron(request, api_key):
         else:
             print(f"Server not found for schedule ID {schedule.id}")
 
-    return HttpResponse(200, "OK")
+    return HttpResponse("OK", status=200)
 
 @login_required
 def confirm(request):
