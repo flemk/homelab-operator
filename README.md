@@ -39,3 +39,22 @@ services:
     volumes:
       - ./db-data:/var/lib/postgresql/data
 ```
+
+For WOL to work you need to have a route to the target machine(s). You may need to add the docker container to a macvlan network:
+```bash
+docker network create \
+  -d macvlan \
+  --subnet=192.168.1.0/24 \
+  --gateway=192.168.1.1 \
+  -o parent=eth0 \
+  macvlan_net
+docker network connect macvlan_net <container>
+```
+You also may need to adjust the `BROADCAST_ADDRESS=255.255.255.255` environment variable.
+
+To use the auto-wake functionality properly, you need to create a system level cron job in `crontab -e`:
+```bash
+# Call /cron inside the homelab-operator container
+*/10 * * * * docker exec <container> curl http://localhost:8000/cron/<API_KEY>/
+```
+You need to call the cron endpoint every 10min for full coverage.

@@ -14,8 +14,8 @@ RUN python ./homelab_operator/manage.py collectstatic --noinput
 
 RUN sed -i 's/%HOMELAB_OPERATOR_VERSION%/'"$HOMELAB_OPERATOR_VERSION"'/g' ./homelab_operator/templates/html/base.html
 
-RUN openssl req -x509 -newkey rsa:4096 -keyout ./crt/key.pem -out ./crt/cert.pem -days 365 -nodes -subj '/CN=localhost'
+RUN openssl req -x509 -newkey rsa:4096 -keyout ./crt/key.key -out ./crt/cert.crt -days 365 -nodes -subj '/CN=localhost'
 RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 COPY nginx.conf /etc/nginx/sites-available/default
 
-CMD python ./homelab_operator/manage.py migrate && nginx -c /app/nginx.conf && cd ./homelab_operator && waitress-serve --listen=*:8000 homelab_operator.wsgi:application
+CMD python ./homelab_operator/manage.py makemigrations && python ./homelab_operator/manage.py migrate && nginx -c /app/nginx.conf && cd ./homelab_operator && waitress-serve --listen=*:8000 homelab_operator.wsgi:application
