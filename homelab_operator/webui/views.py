@@ -1,13 +1,13 @@
 import os
+from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Server, Service, Network, ShutdownURLConfiguration
-from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, ShutdownURLConfigurationForm
-from datetime import datetime
-from .models import WOLSchedule, Server
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule
+from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
+    ShutdownURLConfigurationForm
 
 def login_view(request):
     context = {}
@@ -108,7 +108,8 @@ def edit_server(request, server_id):
             context['additional_information'] = [
                 {
                     'title': 'No shutdown URL configured',
-                    'description': 'You can create a shutdown URL for this server to allow remote shutdown.',
+                    'description':
+                        'You can create a shutdown URL for this server to allow remote shutdown.',
                     'link': f'/create/shutdown_url/{server.id}',
                     'link_text': 'Create Shutdown URL',
                 },
@@ -201,7 +202,8 @@ def edit_service(request, service_id):
         'delete_url_confirmed': f"/delete/service/{service.id}/",
         'delete_url_declined': f"/edit/service/{service.id}/",
         'delete_title': 'Delete Service',
-        'delete_message': f"You are about to delete Service {service.name}. Do you want to proceed?",
+        'delete_message':
+            f"You are about to delete Service {service.name}. Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
 
@@ -263,7 +265,8 @@ def edit_network(request, network_id):
         'delete_url_confirmed': f"/delete/network/{network.id}/",
         'delete_url_declined': f"/edit/network/{network.id}/",
         'delete_title': 'Delete Network',
-        'delete_message': f"You are about to delete Network {network.name}. Do you want to proceed?",
+        'delete_message':
+            f"You are about to delete Network {network.name}. Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
 
@@ -291,7 +294,7 @@ def create_schedule(request):
             schedule = form.save(commit=False)
             schedule.user = user
             schedule.save()
-            messages.success(request, f"Schedule created successfully")
+            messages.success(request, "Schedule created successfully")
             return redirect('dashboard')
     else:
         form = WOLScheduleForm(user=user)
@@ -317,7 +320,7 @@ def edit_schedule(request, schedule_id):
             schedule = form.save()
             schedule.user = user
             schedule.save()
-            messages.success(request, f"Schedule updated successfully")
+            messages.success(request, "Schedule updated successfully")
             return redirect('dashboard')
     else:
         form = WOLScheduleForm(instance=schedule, user=user)
@@ -329,7 +332,9 @@ def edit_schedule(request, schedule_id):
         'delete_url_confirmed': f"/delete/schedule/{schedule.id}/",
         'delete_url_declined': f"/edit/schedule/{schedule.id}/",
         'delete_title': 'Delete Schedule',
-        'delete_message': f"You are about to delete Schedule {schedule.id} for {schedule.server.name}. Do you want to proceed?",
+        'delete_message':
+            f"You are about to delete Schedule {schedule.id} for {schedule.server.name}. " + \
+                "Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
 
@@ -398,7 +403,8 @@ def edit_shutdown_url(request, shutdown_url_id):
         'delete_url_confirmed': f"/delete/shutdown_url/{shutdown_url.id}/",
         'delete_url_declined': f"/edit/shutdown_url/{shutdown_url.id}/",
         'delete_title': 'Delete Shutdown URL',
-        'delete_message': f"You are about to delete Shutdown URL {shutdown_url.name}. Do you want to proceed?",
+        'delete_message':
+            f"You are about to delete Shutdown URL {shutdown_url.name}. Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
 
@@ -437,7 +443,7 @@ def cron(request, api_key):
             if schedule.repeat_type == 'daily':
                 # schedule should be executed every day, no action needed
                 continue
-            elif schedule.repeat_type == 'weekly':
+            if schedule.repeat_type == 'weekly':
                 if schedule.schedule_time.weekday() != now.weekday():
                     schedules.exclude(id=schedule.id)
             elif schedule.repeat_type == 'monthly':
@@ -453,13 +459,15 @@ def cron(request, api_key):
             if schedule.type == 'WAKE':
                 response = server.wake()
                 if response is False:
-                    print(f"Magic packet sent to {server.name} (Scheduled by {schedule.user.username})")
+                    print(f"Magic packet sent to {server.name}" + \
+                          f"(Scheduled by {schedule.user.username})")
                 else:
                     print(f"Failed to send magic packet to {server.name}: {response}")
             elif schedule.type == 'SHUTDOWN':
                 response = server.shutdown()
                 if response is True:
-                    print(f"Shutdown command sent to {server.name} (Scheduled by {schedule.user.username})")
+                    print(f"Shutdown command sent to {server.name} " + \
+                          f"(Scheduled by {schedule.user.username})")
                 else:
                     print(f"Failed to send shutdown command to {server.name}: {response}")
         else:

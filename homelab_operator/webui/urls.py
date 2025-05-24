@@ -28,7 +28,10 @@ urlpatterns = [
     path('edit/schedule/<int:schedule_id>/', views.edit_schedule, name='edit_schedule'),
     path('delete/schedule/<int:schedule_id>/', views.delete_schedule, name='delete_schedule'),
 
-    path('create/shutdown_url/<int:server_id>', views.create_shutdown_url, name='create_shutdown_url'),
-    path('edit/shutdown_url/<int:shutdown_url_id>/', views.edit_shutdown_url, name='edit_shutdown_url'),
-    path('delete/shutdown_url/<int:shutdown_url_id>/', views.delete_shutdown_url, name='delete_shutdown_url'),
+    path('create/shutdown_url/<int:server_id>',
+         views.create_shutdown_url, name='create_shutdown_url'),
+    path('edit/shutdown_url/<int:shutdown_url_id>/',
+         views.edit_shutdown_url, name='edit_shutdown_url'),
+    path('delete/shutdown_url/<int:shutdown_url_id>/',
+         views.delete_shutdown_url, name='delete_shutdown_url'),
 ]

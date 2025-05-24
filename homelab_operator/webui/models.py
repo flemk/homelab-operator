@@ -52,15 +52,13 @@ class Server(models.Model):
                 shutdown_url.url,
                 headers=shutdown_url.headers,
                 data=shutdown_url.data,
+                timeout=10,
                 verify=False,  # Disable SSL verification for testing or self-signed certificates
                 )
             if response.status_code == 200:
                 return False
-            else:
-                print(f"Shutdown failed with status code: {response.status_code}")
-                return f"Shutdown failed with status code: {response.status_code}"
+            return f"Shutdown failed with status code: {response.status_code}"
         except requests.RequestException as e:
-            print(f"Error: {e}")
             return str(e)
 
     def is_online(self):
@@ -79,11 +77,11 @@ class Service(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
     port = models.IntegerField(default=80)
     icon_url = models.URLField(null=True, blank=True)
-    note = models.TextField(null=True, blank=True) 
+    note = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} on {self.server.name}"
-    
+
     def is_online(self):
         '''Checks if the service is online by attempting to connect to the specified port.'''
         try:
@@ -101,7 +99,7 @@ class Network(models.Model):
     note = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 class WOLSchedule(models.Model):
     '''Model representing a Wake-on-LAN schedule.'''
@@ -135,8 +133,8 @@ class ShutdownURLConfiguration(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='shutdown_url')
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     def is_valid(self):
         '''Checks if the shutdown URL is valid by sending a test request.'''
-        ...
+        pass
