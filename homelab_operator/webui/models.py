@@ -43,7 +43,7 @@ class Server(models.Model):
             return 'No shutdown URL provided.'
         if self.shutdown_url.all().count() > 1:
             return 'Multiple shutdown URLs provided.'
-        shutdown_url = self.shutdown_url.all().first()  # TODO this caused some issues
+        shutdown_url = self.shutdown_url.all().first()
         if shutdown_url is None:
             return 'No shutdown URL configuration found.'
 
@@ -68,7 +68,7 @@ class Server(models.Model):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
-                sock.connect((self.ip_address, self.port))  # On port 80
+                sock.connect((self.ip_address, self.port))
             return True
         except (socket.timeout, socket.error):
             return False

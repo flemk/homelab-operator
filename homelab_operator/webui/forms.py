@@ -66,7 +66,13 @@ class WOLScheduleForm(ModelForm):
 class ShutdownURLConfigurationForm(ModelForm):
     '''Form for creating and updating ShutdownURLConfiguration instances.'''
     def __init__(self, *args, **kwargs):
+        server = kwargs.pop('server', None)
+
         super(ShutdownURLConfigurationForm, self).__init__(*args, **kwargs)
+
+        if server:
+            self.fields['server'].initial = server
+            self.fields['server'].disabled = True
 
     class Meta:
         model = ShutdownURLConfiguration
