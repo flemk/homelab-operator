@@ -450,6 +450,9 @@ def cron(request, api_key):
                 if schedule.schedule_time.month != now.month \
                     and schedule.schedule_time.day != now.day:
                     schedules.exclude(id=schedule.id)
+        else:
+            if schedule.schedule_time.date() != now.date():
+                schedules.exclude(id=schedule.id)
 
     for schedule in schedules:
         server = schedule.server

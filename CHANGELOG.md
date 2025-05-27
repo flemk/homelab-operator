@@ -1,4 +1,8 @@
 # Changelog
+# [1.0.1]
+Changed:
+- Fix executing non-repeating schedules every day
+
 # [1.0.0] - Starting to get useful
 Added:
 - Shutdown via POST request
