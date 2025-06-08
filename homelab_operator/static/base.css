@@ -103,8 +103,8 @@ input[type=submit], .button {
 .inline-button {
     text-align: center;
     height: unset;
-    max-width: 10rem;
-    color: black;;
+    /*max-width: 10rem;*/
+    color: black;
     border: 1px solid black !important;
     /*background-color: white; *//* Too neo-brutalistic for now... might be something for the future*/
 }

@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm
 
@@ -21,7 +21,7 @@ def login_view(request):
         context['login_error'] = 'Invalid credentials'
 
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('dashboard', homelab_id=None)
 
     return render(request, 'html/login.html', context)
 
@@ -30,14 +30,31 @@ def logout_view(request):
     return redirect('login')
 
 @login_required
-def dashboard(request):
+def dashboard(request, homelab_id=None):
+    '''Dashboard view for the user, showing servers, networks, and homelabs.'''
     user = request.user
-    servers = Server.objects.filter(user=user)
-    networks = Network.objects.filter(user=user)
 
+    if homelab_id is None:
+        if user.homelabs.exists():
+            homelab_id = user.homelabs.first().id
+        else:
+            messages.info(request, "No homelabs found for this user")
+            context = {
+                'homelab': None,
+                'homelabs': None,
+            }
+            return render(request, 'html/dashboard.html', context)
+
+    homelab = user.homelabs.get(id=homelab_id)
+    homelabs = user.homelabs.all()
+    servers = homelab.servers.all()
+    networks = homelab.networks.all()
+    
     context = {
         'servers': servers,
         'networks': networks,
+        'homelabs': homelabs,
+        'homelab': homelab,
     }
     return render(request, 'html/dashboard.html', context)
 

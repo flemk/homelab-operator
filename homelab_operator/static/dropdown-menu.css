@@ -1,0 +1,43 @@
+ .dropbtn {
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #efefef;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  z-index: 1;
+  padding-top: 0.5rem;
+  min-width: 15rem;
+}
+
+.dropdown-content div[class="dropdown-item"] {
+  display: flex;
+  color: black;
+  padding: .5rem;
+  font-size: 1rem;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.dropdown-content div[class="dropdown-item"] a {
+    color: black;
+    text-decoration: none;
+}
+
+.dropdown-content div[class="dropdown-item"]:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+}

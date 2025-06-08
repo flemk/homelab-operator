@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path('', views.login_view, name='index'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', views.dashboard, name='dashboard_default'),
+    path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('confirm', views.confirm, name='confirm'),

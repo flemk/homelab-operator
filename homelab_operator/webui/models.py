@@ -14,9 +14,13 @@ class Server(models.Model):
     note = models.TextField(null=True, blank=True)
     network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True,
                                 blank=True, related_name='servers')
-    status_url = models.URLField(null=True, blank=True)
+    status_url = models.URLField(null=True, blank=True)  # TODO implement status URL check
     auto_wake = models.BooleanField(default=False)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
+                                related_name='servers')
+    # TODO Shutdown URL configuration (related_name): implement as shutdown_adapther, which can be
+    # a ShutdownURLConfiguration, ShutdownSSLConfiguration, similar ...
 
     def __str__(self):
         return str(self.name)
@@ -63,6 +67,7 @@ class Server(models.Model):
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
+        # TODO this could be as well implemented in the browser as JS/ping ... reduces loading time
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
@@ -97,6 +102,8 @@ class Network(models.Model):
     name = models.CharField(max_length=20)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
+    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
+                                related_name='networks')
 
     def __str__(self):
         return str(self.name)
@@ -138,3 +145,23 @@ class ShutdownURLConfiguration(models.Model):
     def is_valid(self):
         '''Checks if the shutdown URL is valid by sending a test request.'''
         pass
+
+class Homelab(models.Model):
+    '''Model representing a homelab.'''
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True,
+                             related_name='homelabs')
+    wiki = models.ForeignKey('Wiki', on_delete=models.CASCADE, null=True, blank=True,
+                             related_name='homelab')
+
+    def __str__(self):
+        return str(self.name)
+
+class Wiki(models.Model):
+    '''Model representing a wiki page for a homelab.'''
+    public = models.BooleanField(default=False)
+    description = models.TextField(null=True, blank=True)
+    show_networks = models.BooleanField(default=True)
+    show_servers = models.BooleanField(default=True)
+    show_services = models.BooleanField(default=True)

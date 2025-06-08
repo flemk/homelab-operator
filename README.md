@@ -5,7 +5,7 @@ Homelab Operator displays your homelab infrastructure and provides actions such 
 
 This tool is still in development.
 
-![Dashboard](./src/dashboard.png)
+![Dashboard](./src/img/dashboard.png)
 
 ## Installation
 ### Docker Compose

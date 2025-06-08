@@ -1,6 +1,63 @@
 {% extends 'html/base.html' %}
 
+{% block headline %}
+    <div class="dropdown">
+        <span class="dropbtn">
+            {% if homelab %}
+                {{ homelab.name }}
+            {% else %}
+                Homelab Operator
+            {% endif %}
+            </span>
+        <i class="soft fa-solid fa-chevron-down"></i>
+        <div class="dropdown-content">
+            {% if homelabs %}
+                <div class="soft" style="font-weight: normal; margin-left: 0.5rem;">Switch homelab:</div>
+                <div class="spacer" style="height: 0.25rem;"></div>
+                {% for h in homelabs %}
+                    <div class="dropdown-item">
+                        <a href="/dashboard/{{ h.id }}">
+                            <div>
+                                {{ h.name }}
+                                {% if h.id == homelab.id %}
+                                    <i class="fa-solid fa-check" style="color: #4CAF50;"></i>
+                                {% endif %}
+                                <br>
+                                <span class="soft">{{ h.description }}</span>
+                            </div>
+                            <div style="margin: auto 0 auto auto;">
+                                {% with homelab_id=homelab.id|stringformat:'s' %}
+                                    {% include 'html_components/inline_button.html' with label='' fa_icon='fa-pen-to-square' href='/edit/homelab/'|add:homelab_id %}
+                                {% endwith %}
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="soft" style="font-weight: normal; margin-left: 0.5rem;">No Homelabs found...</div>
+                <div class="spacer" style="height: 0.25rem;"></div>
+            {% endif %}
+            <span style="display: block; padding: 0 0.5rem 0 0.5rem; font-size: 1rem; font-weight: normal;">
+                {% include 'html_components/inline_button.html' with label='Homelab' fa_icon='fa-plus' href='/create/homelab/' %}
+            </span>
+        </div>
+    </div>
+{% endblock %}
+
 {% block content %}
+{% if not homelabs %}
+    <div>
+        <h2>Welcome to Homelab Operator!</h2>
+        <p>
+            It seems you haven't set up any homelabs yet. Please create a homelab to get started.<br>
+            You can create a homelab by clicking the button below:
+        </p>
+        <span style="display: flex; width: 10rem;">
+            {% include 'html_components/inline_button.html' with label='Create Homelab' fa_icon='fa-plus' href='/create/homelab/' %}
+        </span>
+    </div>
+{% else %}
+
     <div>
         <span style="display: flex;">
             <h2>Networks</h2>
@@ -172,4 +229,6 @@
             <div class="soft">There are no servers associated with this user.</div>
         </div>
     {% endif %}
+
+{% endif %}
 {% endblock %}
