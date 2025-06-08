@@ -152,8 +152,6 @@ class Homelab(models.Model):
     description = models.TextField(null=True, blank=True)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True,
                              related_name='homelabs')
-    wiki = models.ForeignKey('Wiki', on_delete=models.CASCADE, null=True, blank=True,
-                             related_name='homelab')
 
     def __str__(self):
         return str(self.name)
@@ -165,3 +163,4 @@ class Wiki(models.Model):
     show_networks = models.BooleanField(default=True)
     show_servers = models.BooleanField(default=True)
     show_services = models.BooleanField(default=True)
+    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, related_name='wiki')

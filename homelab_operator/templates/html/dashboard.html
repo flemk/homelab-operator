@@ -26,7 +26,7 @@
                                 <span class="soft">{{ h.description }}</span>
                             </div>
                             <div style="margin: auto 0 auto auto;">
-                                {% with homelab_id=homelab.id|stringformat:'s' %}
+                                {% with homelab_id=h.id|stringformat:'s' %}
                                     {% include 'html_components/inline_button.html' with label='' fa_icon='fa-pen-to-square' href='/edit/homelab/'|add:homelab_id %}
                                 {% endwith %}
                             </div>

@@ -1,7 +1,7 @@
 '''Forms for the web UI of the homelab operator project.'''
 
 from django.forms import ModelForm, DateTimeInput
-from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration
+from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab
 
 class ServerForm(ModelForm):
     '''Form for creating and updating Server instances.'''
@@ -75,4 +75,19 @@ class ShutdownURLConfigurationForm(ModelForm):
 
     class Meta:
         model = ShutdownURLConfiguration
+        fields = '__all__'
+
+class HomelabForm(ModelForm):
+    '''Form for creating and updating Homelab instances.'''
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+
+        super(HomelabForm, self).__init__(*args, **kwargs)
+
+        if user:
+            self.fields['user'].initial = user
+            self.fields['user'].disabled = True
+
+    class Meta:
+        model = Homelab
         fields = '__all__'

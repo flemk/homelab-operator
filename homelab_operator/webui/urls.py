@@ -13,6 +13,10 @@ urlpatterns = [
     path('wake/<int:server_id>/', views.wake, name='wake'),
     path('shutdown/<int:server_id>/', views.shutdown, name='shutdown'),
 
+    path('create/homelab/', views.create_homelab, name='create_homelab'),
+    path('edit/homelab/<int:homelab_id>/', views.edit_homelab, name='edit_homelab'),
+    path('delete/homelab/<int:homelab_id>/', views.delete_homelab, name='delete_homelab'),
+
     path('create/server/', views.create_server, name='create_server'),
     path('edit/server/<int:server_id>/', views.edit_server, name='edit_server'),
     path('delete/server/<int:server_id>/', views.delete_server, name='delete_server'),
