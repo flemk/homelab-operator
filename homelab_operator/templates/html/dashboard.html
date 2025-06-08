@@ -1,5 +1,11 @@
 {% extends 'html/base.html' %}
 
+{% if homelab %}
+    {% block title %}
+        {{ homelab.name }} - Homelab Operator
+    {% endblock %}
+{% endif %}
+
 {% block headline %}
     <div class="dropdown">
         <span class="dropbtn">
@@ -58,9 +64,55 @@
     </div>
 {% else %}
 
+    {# Wiki #}
     <div>
         <span style="display: flex;">
-            <h2>Networks</h2>
+            <h2 style="margin-bottom: 0.25rem;">Wiki</h2>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 auto auto;">
+                {% if wiki %}
+                    {% with wiki_id=wiki.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/wiki/'|add:wiki_id %}
+                    {% endwith %}
+                {% else %}
+                    {% include 'html_components/inline_button.html' with label='Wiki' fa_icon='fa-plus' href='/create/wiki/' %}
+                {% endif %}
+            </span>
+        </span>
+    </div>
+    {% if wiki %}
+        <div class="soft">{{ wiki.description|safe }}</div> 
+        <div class="spacer" style="height: 0.5rem;"></div>
+        {% if wiki.show_services %}
+            <div>
+                <b>Services:</b>
+                {% for server in servers %}
+                    {% for service in server.services.all %}
+                        <div>
+                            <a href="{{ service.endpoint }}" target="_blank" style="text-decoration: none; color: inherit;">
+                                {% if service.icon_url %}
+                                    <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                                {% else %}
+                                    <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                {% endif %}
+                                {{ service.name }}
+                            </a>
+                        </div>
+                    {% endfor %}    
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div>
+            <b style="color: #666;">No wiki was found.</b>
+            <div class="soft">There is no wiki associated with this user.</div>
+        </div>
+    {% endif %}
+
+    {# Networks #}
+    <div>
+        <span style="display: flex;">
+            <h2 style="margin-bottom: 0.25rem;">Networks</h2>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 auto auto;">
                 {% include 'html_components/inline_button.html' with label='Network' fa_icon='fa-plus' href='/create/network/' %}
@@ -108,14 +160,15 @@
         </div>
     {% else %}
         <div>
-            <b>No networks were found.</b>
+            <b style="color: #666;">No networks were found.</b>
             <div class="soft">There are no networks associated with this user.</div>
         </div>
     {% endif %}
 
+    {# Servers #}
     <div>
         <span style="display: flex;">
-            <h2>Servers</h2>
+            <h2 style="margin-bottom: 0.25rem;">Servers</h2>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 auto auto;">
                 {% include 'html_components/inline_button.html' with label='Server' fa_icon='fa-plus' href='/create/server/' %}
@@ -225,7 +278,7 @@
         {% endfor %}
     {% else %}
         <div>
-            <b>No servers were found.</b>
+            <b style="color: #666;">No servers were found.</b>
             <div class="soft">There are no servers associated with this user.</div>
         </div>
     {% endif %}

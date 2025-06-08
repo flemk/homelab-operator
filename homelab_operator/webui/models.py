@@ -80,6 +80,7 @@ class Service(models.Model):
     '''Model representing a service running on a server.'''
     name = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
+    endpoint = models.CharField(max_length=100, null=True, blank=True)
     port = models.IntegerField(default=80)
     icon_url = models.URLField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
@@ -160,7 +161,11 @@ class Wiki(models.Model):
     '''Model representing a wiki page for a homelab.'''
     public = models.BooleanField(default=False)
     description = models.TextField(null=True, blank=True)
-    show_networks = models.BooleanField(default=True)
+    show_network_graph = models.BooleanField(default=True)
     show_servers = models.BooleanField(default=True)
     show_services = models.BooleanField(default=True)
-    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, related_name='wiki')
+    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE,
+                                related_name='wiki')  # Homelab expected to only have one wiki
+
+    def __str__(self):
+        return f"Wiki for {self.homelab.name}" if self.homelab else "Dangling Wiki"
