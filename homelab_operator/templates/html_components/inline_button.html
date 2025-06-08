@@ -6,7 +6,7 @@
         <input type="hidden" name="title" value="{{ title }}">
         <input type="hidden" name="message" value="{{ message }}">
 
-        <a class="info button {{ class }}" style="text-align: center; height: unset; max-width: 10rem; padding: 0.5rem;" onclick="event.preventDefault(); this.closest('form').submit();">
+        <a class="info button inline-button {{ class }}" onclick="event.preventDefault(); this.closest('form').submit();">
             <i class="fa-solid {{ fa_icon }} fa-1x"></i>
             {% if label %}
                 &nbsp;
@@ -15,7 +15,7 @@
         </a>
     </form>
 {% else %}
-    <a href="{{ href | default:'#' }}" class="info button {% if not href %}no{% endif %}" style="text-align: center; height: unset; max-width: 10rem; padding: 0.5rem;" {% if target %}target="{{ target }}"{% endif %}{% if download %}download="{{ download }}"{% endif %}>
+    <a href="{{ href | default:'#' }}" class="info button inline-button {% if not href %}no{% endif %}" {% if target %}target="{{ target }}"{% endif %}{% if download %}download="{{ download }}"{% endif %}>
         <i class="fa-solid {{ fa_icon }} fa-1x"></i>
         {% if label %}
             &nbsp;
