@@ -1,10 +1,4 @@
 '''Models for the web UI of the homelab operator.'''
-
-import os
-import requests
-import socket
-'''Models for the web UI of the homelab operator.'''
-
 import os
 import requests
 import socket
@@ -22,7 +16,6 @@ class UserProfile(models.Model):
         return f"Profile of {self.user.username}"
 
 class Server(models.Model):
-    '''Model representing a server.'''
     '''Model representing a server.'''
     name = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
@@ -45,12 +38,7 @@ class Server(models.Model):
     def __str__(self):
         return str(self.name)
 
-        return str(self.name)
-
     def wake(self):
-        '''Sends a Wake-on-LAN magic packet to the server.'''
-        if not self.mac_address:
-            return 'No MAC address provided.'
         '''Sends a Wake-on-LAN magic packet to the server.'''
         if not self.mac_address:
             return 'No MAC address provided.'
@@ -59,36 +47,14 @@ class Server(models.Model):
             magic_packet = b'\xff' * 6 + mac_bytes * 16
 
             broadcast_address = os.getenv('BROADCAST_ADDRESS', '255.255.255.255')
-
-            broadcast_address = os.getenv('BROADCAST_ADDRESS', '255.255.255.255')
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-                sock.sendto(magic_packet, (broadcast_address, 9))
                 sock.sendto(magic_packet, (broadcast_address, 9))
             return False
         except Exception as e:
             return str(e)
 
-
     def shutdown(self):
-        '''calls the shutdown URL of the server.'''
-        if not self.shutdown_url:
-            return 'No shutdown URL provided.'
-        if self.shutdown_url.all().count() > 1:
-            return 'Multiple shutdown URLs provided.'
-        shutdown_url = self.shutdown_url.all().first()
-        if shutdown_url is None:
-            return 'No shutdown URL configuration found.'
-
-        try:
-            response = requests.post(
-                shutdown_url.url,
-                headers=shutdown_url.headers,
-                data=shutdown_url.data,
-                timeout=10,
-                verify=False,  # Disable SSL verification for testing or self-signed certificates
-                )
-            if response.status_code == 200:
         '''calls the shutdown URL of the server.'''
         if not self.shutdown_url:
             return 'No shutdown URL provided.'
@@ -111,8 +77,6 @@ class Server(models.Model):
             return f"Shutdown failed with status code: {response.status_code}"
         except requests.RequestException as e:
             return f"Shutdown failed with status code: {response.status_code}"
-        except requests.RequestException as e:
-            return str(e)
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
@@ -127,7 +91,6 @@ class Server(models.Model):
             return False
 
 class Service(models.Model):
-    '''Model representing a service running on a server.'''
     '''Model representing a service running on a server.'''
     name = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
@@ -155,7 +118,6 @@ class Service(models.Model):
 
 class Network(models.Model):
     '''Model representing a network.'''
-    '''Model representing a network.'''
     name = models.CharField(max_length=20)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
@@ -164,10 +126,8 @@ class Network(models.Model):
 
     def __str__(self):
         return str(self.name)
-        return str(self.name)
 
 class WOLSchedule(models.Model):
-    '''Model representing a Wake-on-LAN schedule.'''
     '''Model representing a Wake-on-LAN schedule.'''
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='wol_schedules')
     schedule_time = models.DateTimeField()

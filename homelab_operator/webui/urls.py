@@ -27,20 +27,11 @@ urlpatterns = [
 
     path('create/service/', views.create_service, name='create_service'),
     path('edit/service/<int:service_id>/', views.edit_service, name='edit_service'),
-
-    path('create/service/', views.create_service, name='create_service'),
-    path('edit/service/<int:service_id>/', views.edit_service, name='edit_service'),
     path('delete/service/<int:service_id>/', views.delete_service, name='delete_service'),
 
     path('create/network/', views.create_network, name='create_network'),
     path('edit/network/<int:network_id>/', views.edit_network, name='edit_network'),
-
-    path('create/network/', views.create_network, name='create_network'),
-    path('edit/network/<int:network_id>/', views.edit_network, name='edit_network'),
     path('delete/network/<int:network_id>/', views.delete_network, name='delete_network'),
-
-    path('create/schedule/', views.create_schedule, name='create_schedule'),
-    path('edit/schedule/<int:schedule_id>/', views.edit_schedule, name='edit_schedule'),
 
     path('create/schedule/', views.create_schedule, name='create_schedule'),
     path('edit/schedule/<int:schedule_id>/', views.edit_schedule, name='edit_schedule'),

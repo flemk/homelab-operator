@@ -118,7 +118,6 @@ def shutdown(request, server_id):
     if server:
         response = server.shutdown()
         if response is False:
-        if response is False:
             messages.success(request, f"Shutdown command sent to {server.name}")
         else:
             messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
@@ -199,12 +198,9 @@ def delete_shutdown_url(request, shutdown_url_id):
 def cron(request, api_key):
     '''This function will be called by the cron job
     It should check the schedules and send WOL packets if needed'''
-    '''This function will be called by the cron job
-    It should check the schedules and send WOL packets if needed'''
     # TODO make this callable locally only
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
-        return HttpResponseForbidden("Forbidden", status=403)
         return HttpResponseForbidden("Forbidden", status=403)
 
     now = datetime.now()
@@ -260,7 +256,6 @@ def cron(request, api_key):
         else:
             print(f"Server not found for schedule ID {schedule.id}")
 
-    return HttpResponse("OK", status=200)
     return HttpResponse("OK", status=200)
 
 @login_required
