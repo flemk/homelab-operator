@@ -7,6 +7,8 @@ Changed:
 
 Added:
 - Introduced Homelab and Wiki model
+- Added Wiki / overview section on top of dashboard
+- Added Homelab selection
 
 # [1.0.0] - Starting to get useful
 Added:
