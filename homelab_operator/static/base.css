@@ -100,6 +100,15 @@ input[type=submit], .button {
     min-width: max-content;
 }
 
+.inline-button {
+    text-align: center;
+    height: unset;
+    /*max-width: 10rem;*/
+    color: black;
+    border: 1px solid black !important;
+    /*background-color: white; *//* Too neo-brutalistic for now... might be something for the future*/
+}
+
 input[type=submit]:hover, .button:hover {
     background-color: var(--button-color-hover);
 }
@@ -224,6 +233,28 @@ h3 {
     padding: 1rem;
     border: 1px solid #ccc;
     border-radius: .5rem;
+}
+
+.indicator-dot {
+    margin: auto 0 auto .25rem;
+    border-radius: 50%;
+    background-color: #666;
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+}
+
+.indicator-dot.success-dot {
+    background-color: #4CAF50;
+}
+.indicator-dot.error-dot {
+    background-color: #f44336;
+}
+.indicator-dot.info-dot {
+    background-color: #2196F3;
+}
+.indicator-dot.warning-dot {
+    background-color: #f0c800;
 }
 
 /* Disable showing strange radio buttons in safari*/

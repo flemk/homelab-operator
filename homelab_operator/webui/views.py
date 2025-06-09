@@ -1,13 +1,22 @@
 import os
 from datetime import datetime
+from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm
+    ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
+
+from .views_exp.homelab import create_homelab, edit_homelab, delete_homelab
+from .views_exp.server import edit_server, delete_server, create_server
+from .views_exp.service import create_service, edit_service, delete_service
+from .views_exp.network import create_network, edit_network, delete_network
+from .views_exp.schedule import create_schedule, edit_schedule, delete_schedule
+from .views_exp.shutdown_url import create_shutdown_url, edit_shutdown_url, delete_shutdown_url
+from .views_exp.wiki import create_wiki, edit_wiki, delete_wiki
 
 def login_view(request):
     context = {}
@@ -21,7 +30,7 @@ def login_view(request):
         context['login_error'] = 'Invalid credentials'
 
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('dashboard', homelab_id=None)
 
     return render(request, 'html/login.html', context)
 
@@ -30,14 +39,61 @@ def logout_view(request):
     return redirect('login')
 
 @login_required
-def dashboard(request):
+def edit_profile(request):
+    '''View to edit the user's profile.'''
     user = request.user
-    servers = Server.objects.filter(user=user)
-    networks = Network.objects.filter(user=user)
+    profile = user.profile
 
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=profile, user=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully")
+            return redirect('dashboard_default')
+    else:
+        form = UserProfileForm(instance=profile, user=user)
+
+    context = {
+        'form': form,
+        'user': user,
+        'form_title': 'Edit User Profile',
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def dashboard(request, homelab_id=None):
+    '''Dashboard view for the user, showing servers, networks, and homelabs.'''
+    user = request.user
+
+    if homelab_id is None:
+        if user.profile.last_selected_homelab:
+            homelab_id = user.profile.last_selected_homelab.id
+        elif user.homelabs.exists():
+            homelab_id = user.homelabs.first().id
+        else:
+            messages.info(request, "No homelabs found for this user")
+            context = {
+                'homelab': None,
+                'homelabs': None,
+            }
+            return render(request, 'html/dashboard.html', context)
+    else:
+        user.profile.last_selected_homelab = Homelab.objects.get(id=homelab_id)
+        user.profile.save()
+
+    homelab = user.homelabs.get(id=homelab_id)
+    homelabs = user.homelabs.all()
+    servers = homelab.servers.all()
+    networks = homelab.networks.all()
+    
     context = {
         'servers': servers,
         'networks': networks,
+        'homelabs': homelabs,
+        'homelab': homelab,
+        'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
+        'user_show_wiki': user.profile.show_wiki,
+        'user_show_networks': user.profile.show_networks,
     }
     return render(request, 'html/dashboard.html', context)
 
@@ -51,9 +107,9 @@ def wake(request, server_id):
             messages.success(request, f"Magic packet sent to {server.name}")
         else:
             messages.error(request, f"Failed to send magic packet to {server.name}: {response}")
-        return redirect('dashboard')
+        return redirect('dashboard_default')
     messages.error(request, "Server not found")
-    return redirect('dashboard')
+    return redirect('dashboard_default')
 
 @login_required
 def shutdown(request, server_id):
@@ -65,292 +121,9 @@ def shutdown(request, server_id):
             messages.success(request, f"Shutdown command sent to {server.name}")
         else:
             messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
-        return redirect('dashboard')
+        return redirect('dashboard_default')
     messages.error(request, "Server not found")
-    return redirect('dashboard')
-
-@login_required
-def edit_server(request, server_id):
-    user = request.user
-    server = Server.objects.get(id=server_id, user=user)
-
-    if request.method == 'POST':
-        form = ServerForm(request.POST, instance=server)
-        if form.is_valid():
-            server = form.save()
-            server.user = user
-            server.save()
-            messages.success(request, f"Server {server.name} updated successfully")
-            return redirect('dashboard')
-    else:
-        form = ServerForm(instance=server, user=user)
-
-    context = {
-        'form': form,
-        'form_title': 'Edit Server',
-        'show_delete_option': True,
-        'delete_url_confirmed': f"/delete/server/{server.id}/",
-        'delete_url_declined': f"/edit/server/{server.id}/",
-        'delete_title': 'Delete Server',
-        'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
-    }
-    if server.shutdown_url:
-        if server.shutdown_url.all().first():  # TODO this caused some issues
-            context['additional_information'] = [
-                {
-                    'title': 'A shutdown URL is configured for this server',
-                    'description': 'The shutdown URL is configured separately.',
-                    'link': '/edit/shutdown_url/' + str(server.shutdown_url.all().first().id) + '/',
-                    'link_text': 'View',
-                },
-            ]
-        else:
-            context['additional_information'] = [
-                {
-                    'title': 'No shutdown URL configured',
-                    'description':
-                        'You can create a shutdown URL for this server to allow remote shutdown.',
-                    'link': f'/create/shutdown_url/{server.id}',
-                    'link_text': 'Create Shutdown URL',
-                },
-            ]
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def delete_server(request, server_id):
-    user = request.user
-    server = Server.objects.get(id=server_id, user=user)
-
-    if server.user != user:
-        messages.error(request, "You do not have permission to delete this server")
-        return redirect('dashboard')
-
-    if server:
-        server_name = server.name
-        server.delete()
-        messages.success(request, f"Server {server_name} deleted successfully")
-        return redirect('dashboard')
-
-    messages.error(request, "Server not found")
-    return redirect('dashboard')
-
-@login_required
-def create_server(request):
-    user = request.user
-
-    if request.method == 'POST':
-        form = ServerForm(request.POST)
-        if form.is_valid():
-            server = form.save(commit=False)
-            server.user = user
-            server.save()
-            messages.success(request, f"Server {server.name} created successfully")
-            return redirect('dashboard')
-    else:
-        form = ServerForm(user=user)
-
-    context = {
-        'form': form,
-        'form_title': 'Create Server',
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def create_service(request):
-    user = request.user
-
-    if request.method == 'POST':
-        form = ServiceForm(request.POST)
-        if form.is_valid():
-            service = form.save(commit=False)
-            service.user = user
-            service.save()
-            messages.success(request, f"Service {service.name} created successfully")
-            return redirect('dashboard')
-    else:
-        form = ServiceForm()
-
-    context = {
-        'form': form,
-        'form_title': 'Create Service',
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def edit_service(request, service_id):
-    user = request.user
-    service = Service.objects.get(id=service_id)
-    if service.server.user != user:
-        messages.error(request, "You do not have permission to edit this service")
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        form = ServiceForm(request.POST, instance=service)
-        if form.is_valid():
-            service = form.save()
-            service.user = user
-            service.save()
-            messages.success(request, f"Service {service.name} updated successfully")
-            return redirect('dashboard')
-    else:
-        form = ServiceForm(instance=service)
-
-    context = {
-        'form': form,
-        'form_title': 'Edit Service',
-        'show_delete_option': True,
-        'delete_url_confirmed': f"/delete/service/{service.id}/",
-        'delete_url_declined': f"/edit/service/{service.id}/",
-        'delete_title': 'Delete Service',
-        'delete_message':
-            f"You are about to delete Service {service.name}. Do you want to proceed?",
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def delete_service(request, service_id):
-    user = request.user
-    service = Service.objects.get(id=service_id)
-
-    if service.server.user != user:
-        messages.error(request, "You do not have permission to delete this service")
-        return redirect('dashboard')
-
-    service_name = service.name
-    service.delete()
-    messages.success(request, f"Service {service_name} deleted successfully")
-    return redirect('dashboard')
-
-@login_required
-def create_network(request):
-    user = request.user
-
-    if request.method == 'POST':
-        form = NetworkForm(request.POST)
-        if form.is_valid():
-            network = form.save(commit=False)
-            network.user = user
-            network.save()
-            messages.success(request, f"Network {network.name} created successfully")
-            return redirect('dashboard')
-    else:
-        form = NetworkForm(user=user)
-
-    context = {
-        'form': form,
-        'form_title': 'Create Network',
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def edit_network(request, network_id):
-    user = request.user
-    network = Network.objects.get(id=network_id, user=user)
-
-    if request.method == 'POST':
-        form = NetworkForm(request.POST, instance=network)
-        if form.is_valid():
-            network = form.save()
-            network.user = user
-            network.save()
-            messages.success(request, f"Network {network.name} updated successfully")
-            return redirect('dashboard')
-    else:
-        form = NetworkForm(instance=network, user=user)
-
-    context = {
-        'form': form,
-        'form_title': 'Edit Network',
-        'show_delete_option': True,
-        'delete_url_confirmed': f"/delete/network/{network.id}/",
-        'delete_url_declined': f"/edit/network/{network.id}/",
-        'delete_title': 'Delete Network',
-        'delete_message':
-            f"You are about to delete Network {network.name}. Do you want to proceed?",
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def delete_network(request, network_id):
-    user = request.user
-    network = Network.objects.get(id=network_id, user=user)
-
-    if network.user != user:
-        messages.error(request, "You do not have permission to delete this network")
-        return redirect('dashboard')
-
-    network_name = network.name
-    network.delete()
-    messages.success(request, f"Network {network_name} deleted successfully")
-    return redirect('dashboard')
-
-@login_required
-def create_schedule(request):
-    user = request.user
-
-    if request.method == 'POST':
-        form = WOLScheduleForm(request.POST)
-        if form.is_valid():
-            schedule = form.save(commit=False)
-            schedule.user = user
-            schedule.save()
-            messages.success(request, "Schedule created successfully")
-            return redirect('dashboard')
-    else:
-        form = WOLScheduleForm(user=user)
-
-    context = {
-        'form': form,
-        'form_title': 'Create Schedule',
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def edit_schedule(request, schedule_id):
-    user = request.user
-    schedule = WOLSchedule.objects.get(id=schedule_id)
-
-    if schedule.user != user:
-        messages.error(request, "You do not have permission to edit this schedule")
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        form = WOLScheduleForm(request.POST, instance=schedule, user=user)
-        if form.is_valid():
-            schedule = form.save()
-            schedule.user = user
-            schedule.save()
-            messages.success(request, "Schedule updated successfully")
-            return redirect('dashboard')
-    else:
-        form = WOLScheduleForm(instance=schedule, user=user)
-
-    context = {
-        'form': form,
-        'form_title': 'Edit Schedule',
-        'show_delete_option': True,
-        'delete_url_confirmed': f"/delete/schedule/{schedule.id}/",
-        'delete_url_declined': f"/edit/schedule/{schedule.id}/",
-        'delete_title': 'Delete Schedule',
-        'delete_message':
-            f"You are about to delete Schedule {schedule.id} for {schedule.server.name}. " + \
-                "Do you want to proceed?",
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def delete_schedule(request, schedule_id):
-    user = request.user
-    schedule = WOLSchedule.objects.get(id=schedule_id)
-
-    if schedule.user != user:
-        messages.error(request, "You do not have permission to delete this schedule")
-        return redirect('dashboard')
-
-    schedule_id = schedule.id
-    schedule.delete()
-    messages.success(request, f"Schedule {schedule_id} deleted successfully")
-    return redirect('dashboard')
+    return redirect('dashboard_default')
 
 @login_required
 def create_shutdown_url(request, server_id):
@@ -432,6 +205,7 @@ def cron(request, api_key):
 
     now = datetime.now()
     minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
+    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     schedules = WOLSchedule.objects.filter(
         enabled=True,
         schedule_time__hour=now.hour,
@@ -450,10 +224,15 @@ def cron(request, api_key):
                 if schedule.schedule_time.month != now.month \
                     and schedule.schedule_time.day != now.day:
                     schedules.exclude(id=schedule.id)
+        else:
+            if schedule.schedule_time.date() != now.date():
+                schedules.exclude(id=schedule.id)
 
     for schedule in schedules:
         server = schedule.server
         if server:
+            if not server.auto_wake:
+                continue
             if not server.auto_wake:
                 continue
             if schedule.type == 'WAKE':
@@ -461,11 +240,15 @@ def cron(request, api_key):
                 if response is False:
                     print(f"Magic packet sent to {server.name}" + \
                           f"(Scheduled by {schedule.user.username})")
+                    print(f"Magic packet sent to {server.name}" + \
+                          f"(Scheduled by {schedule.user.username})")
                 else:
                     print(f"Failed to send magic packet to {server.name}: {response}")
             elif schedule.type == 'SHUTDOWN':
                 response = server.shutdown()
                 if response is True:
+                    print(f"Shutdown command sent to {server.name} " + \
+                          f"(Scheduled by {schedule.user.username})")
                     print(f"Shutdown command sent to {server.name} " + \
                           f"(Scheduled by {schedule.user.username})")
                 else:

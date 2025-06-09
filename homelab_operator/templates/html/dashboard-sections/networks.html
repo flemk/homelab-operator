@@ -1,0 +1,54 @@
+    <div>
+        <span style="display: flex;">
+            <h2 style="margin-bottom: 0.25rem;">Networks</h2>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 auto auto;">
+                {% include 'html_components/inline_button.html' with label='Network' fa_icon='fa-plus' href='/create/network/' %}
+            </span>
+        </span>
+    </div>
+    {% if networks %}
+        <div class="tile-display">
+            {% for network in networks %}
+                <div class="tile">
+                    <div style="display: flex;">
+                        <div>
+                            <h3 style="display: flex;">
+                                {{ network.name }}
+                            </h3>
+                            <div class="soft">
+                                {{ network.note }}
+                            </div>
+                        </div>
+                        <span style="margin: auto 0 auto auto; width: min-content;">
+                            {% with network_id=network.id|stringformat:'s' %}
+                                {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/network/'|add:network_id %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div style="border-top: 1px solid #ccc;"></div>
+                    <div class="spacer"></div>
+                    <div>
+                        {% if network.servers.all %}
+                            {% for server in network.servers.all %}
+                                <div onclick="el=document.getElementById('{{ server.name }}'); window.scrollTo({top: el.getBoundingClientRect().top - 6 * parseFloat(getComputedStyle(document.documentElement).fontSize)}); el.style.animation='highlight 0.5s';" style="cursor: pointer;">
+                                    {{ server.name }}
+                                </div>
+                                <div class="soft">
+                                    {{ server.note }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="soft">No servers associated with this network.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div>
+            <b style="color: #666;">No networks were found.</b>
+            <div class="soft">There are no networks associated with this user.</div>
+        </div>
+    {% endif %}

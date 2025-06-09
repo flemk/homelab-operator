@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
     <title>{% block title %}Homelab Operator{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'tooltip.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'dropdown-menu.css' %}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.6.0/css/all.css">
 </head>
 <body>
 
     <div class="header">
         <h1 class="headline">
-            <a href="/" style="text-decoration: none; color: black;">
-                {% block headline %}Homelab Operator{% endblock %}
-            </a>
+            {% block headline %}Homelab Operator{% endblock %}
         </h1>
         {% if user.is_authenticated %}
             <div class="no" style="margin: auto;">
@@ -27,22 +27,15 @@
                     {{ message }}
                 </div>
             {% endfor %}
-        {% else %}
-            {% if user.is_authenticated and not messages %}
+        {% endif %}
+        {% if user.is_authenticated %}
             <div style="margin: auto 2rem auto 1rem; width: max-content; display: flex;">
                 <div style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
                 <div class="spacer" style="width: 2rem;"></div>
                 {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
                 <div class="spacer" style="width: 2rem;"></div>
-                {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='' %}
+                {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
             </div>
-            <!-- <div class="floating message info">
-                <div>You are logged in as <i>{{ user.username }}</i>.</div>
-                <a href="/logout_view" class="button">Not you?</a>
-            </div> -->
-            {% else %}
-                <!-- <div class="floating message info">You are not logged in.</div> -->
-            {% endif %}
         {% endif %}
         
     </div>
@@ -52,7 +45,6 @@
     </div>
     <div class="footer">
         <div>
-            <a class="soft" href="/about">About this project</a>
             <a class="soft" href="https://github.com/flemk/homelab-operator" target="_blank">GitHub</a>
         </div>
         <div class="spacer" style="height: 0.15rem;"></div>

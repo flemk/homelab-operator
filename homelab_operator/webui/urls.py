@@ -3,14 +3,23 @@ from . import views
 
 urlpatterns = [
     path('', views.login_view, name='index'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', views.dashboard, name='dashboard_default'),
+    path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('confirm', views.confirm, name='confirm'),
+    path('cron/<str:api_key>/', views.cron, name='cron'),
     path('confirm', views.confirm, name='confirm'),
     path('cron/<str:api_key>/', views.cron, name='cron'),
 
     path('wake/<int:server_id>/', views.wake, name='wake'),
     path('shutdown/<int:server_id>/', views.shutdown, name='shutdown'),
+
+    path('edit/profile/', views.edit_profile, name='edit_profile'),
+
+    path('create/homelab/', views.create_homelab, name='create_homelab'),
+    path('edit/homelab/<int:homelab_id>/', views.edit_homelab, name='edit_homelab'),
+    path('delete/homelab/<int:homelab_id>/', views.delete_homelab, name='delete_homelab'),
 
     path('create/server/', views.create_server, name='create_server'),
     path('edit/server/<int:server_id>/', views.edit_server, name='edit_server'),
@@ -28,6 +37,10 @@ urlpatterns = [
     path('edit/schedule/<int:schedule_id>/', views.edit_schedule, name='edit_schedule'),
     path('delete/schedule/<int:schedule_id>/', views.delete_schedule, name='delete_schedule'),
 
+    path('create/wiki/<int:homelab_id>/', views.create_wiki, name='create_wiki'),
+    path('edit/wiki/<int:wiki_id>/', views.edit_wiki, name='edit_wiki'),
+    path('delete/wiki/<int:wiki_id>/', views.delete_wiki, name='delete_wiki'),
+
     path('create/shutdown_url/<int:server_id>',
          views.create_shutdown_url, name='create_shutdown_url'),
     path('edit/shutdown_url/<int:shutdown_url_id>/',
@@ -35,3 +48,4 @@ urlpatterns = [
     path('delete/shutdown_url/<int:shutdown_url_id>/',
          views.delete_shutdown_url, name='delete_shutdown_url'),
 ]
+

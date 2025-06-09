@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration
+from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
+    Wiki, UserProfile
+
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+admin.site.register(UserProfile, UserProfileAdmin)
 
 class ServerAdmin(admin.ModelAdmin):
     list_display = ('name', 'ip_address', 'mac_address')
@@ -20,3 +25,11 @@ admin.site.register(WOLSchedule, WOLScheduleAdmin)
 class ShutdownURLConfigurationAdmin(admin.ModelAdmin):
     list_display = ('name', 'url', 'server')
 admin.site.register(ShutdownURLConfiguration, ShutdownURLConfigurationAdmin)
+
+class HomelabAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'user')
+admin.site.register(Homelab, HomelabAdmin)
+
+class WikiAdmin(admin.ModelAdmin):
+    list_display = ('homelab',)
+admin.site.register(Wiki, WikiAdmin)
