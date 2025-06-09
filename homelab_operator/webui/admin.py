@@ -1,6 +1,10 @@
 from django.contrib import admin
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki
+    Wiki, UserProfile
+
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+admin.site.register(UserProfile, UserProfileAdmin)
 
 class ServerAdmin(admin.ModelAdmin):
     list_display = ('name', 'ip_address', 'mac_address')

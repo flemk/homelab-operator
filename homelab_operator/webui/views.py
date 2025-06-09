@@ -43,7 +43,9 @@ def dashboard(request, homelab_id=None):
     user = request.user
 
     if homelab_id is None:
-        if user.homelabs.exists():
+        if user.profile.last_selected_homelab:
+            homelab_id = user.profile.last_selected_homelab.id
+        elif user.homelabs.exists():
             homelab_id = user.homelabs.first().id
         else:
             messages.info(request, "No homelabs found for this user")
@@ -52,6 +54,9 @@ def dashboard(request, homelab_id=None):
                 'homelabs': None,
             }
             return render(request, 'html/dashboard.html', context)
+    else:
+        user.profile.last_selected_homelab = Homelab.objects.get(id=homelab_id)
+        user.profile.save()
 
     homelab = user.homelabs.get(id=homelab_id)
     homelabs = user.homelabs.all()

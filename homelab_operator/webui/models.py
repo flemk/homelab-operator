@@ -5,6 +5,15 @@ import requests
 import socket
 from django.db import models
 
+class UserProfile(models.Model):
+    '''Model representing a user profile.'''
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='profile')
+    last_selected_homelab = models.ForeignKey('Homelab', on_delete=models.SET_NULL,
+                                              null=True, blank=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
+
 class Server(models.Model):
     '''Model representing a server.'''
     name = models.CharField(max_length=100)
@@ -89,11 +98,14 @@ class Service(models.Model):
         return f"{self.name} on {self.server.name}"
 
     def is_online(self):
-        '''Checks if the service is online by attempting to connect to the specified port.'''
+        '''Checks if the service is online by attempting to connect to the endpoint (domain or IP) and port.'''
+        if not self.endpoint:
+            return 'No endpoint provided.'
+
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
-                sock.connect((self.server.ip_address, self.port))
+                sock.connect((self.endpoint, self.port))
             return True
         except (socket.timeout, socket.error):
             return False
@@ -159,8 +171,9 @@ class Homelab(models.Model):
 
 class Wiki(models.Model):
     '''Model representing a wiki page for a homelab.'''
-    public = models.BooleanField(default=False)
+    title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
+    public = models.BooleanField(default=False)
     show_network_graph = models.BooleanField(default=True)
     show_servers = models.BooleanField(default=True)
     show_services = models.BooleanField(default=True)

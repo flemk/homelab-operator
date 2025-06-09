@@ -67,7 +67,13 @@
     {# Wiki #}
     <div>
         <span style="display: flex;">
-            <h2 style="margin-bottom: 0.25rem;">Wiki</h2>
+            <h2 style="margin-bottom: 0.25rem;">
+                {% if wiki %}
+                    {{ wiki.title }}
+                {% else %}
+                    Wiki
+                {% endif %}
+            </h2>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 auto auto;">
                 {% if wiki %}
@@ -89,12 +95,23 @@
                 {% for server in servers %}
                     {% for service in server.services.all %}
                         <div>
-                            <a href="{{ service.endpoint }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            <a href="{{ service.endpoint }}" target="_blank" style="text-decoration: none; color: inherit; display: flex;">
                                 {% if service.icon_url %}
-                                    <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                                    <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;">
                                 {% else %}
-                                    <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                    <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;"></i>
                                 {% endif %}
+                                {% if service.is_online == True %}
+                                    <div class="indicator-dot success-dot">&nbsp;</div>
+                                {% elif not service.is_online %}
+                                    <div class="indicator-dot error-dot">&nbsp;</div>
+                                {% else %}
+                                    <div class="indicator-dot warning-dot tooltip">
+                                        &nbsp;
+                                        <span class="tooltiptext">{{ service.is_online }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="spacer" style="width: 0.5rem;"></div>
                                 {{ service.name }}
                             </a>
                         </div>
@@ -190,9 +207,9 @@
                     <h3 style="display: flex;">
                         {{ server.name }}
                         {% if server.is_online %}
-                            <div style="margin: auto 0 auto .25rem; border-radius: 50%; background-color: #4CAF50; width: 1rem; height: 1rem;">&nbsp;</div>
+                            <div class="indicator-dot success-dot">&nbsp;</div>
                         {% else %}
-                            <div style="margin: auto 0 auto .25rem; border-radius: 50%; background-color: #f44336; width: 1rem; height: 1rem;">&nbsp;</div>
+                            <div class="indicator-dot error-dot">&nbsp;</div>
                         {% endif %}
                     </h3>
                     <div class="soft">{{ server.note }}</div>
