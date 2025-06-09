@@ -1,0 +1,96 @@
+    <div>
+        <span style="display: flex;">
+            <h2 style="margin-bottom: 0.25rem;">
+                {% if wiki %}
+                    {{ wiki.title }}
+                {% else %}
+                    Wiki
+                {% endif %}
+            </h2>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 auto auto;">
+                {% if wiki %}
+                    {% with wiki_id=wiki.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/wiki/'|add:wiki_id %}
+                    {% endwith %}
+                {% else %}
+                    {% include 'html_components/inline_button.html' with label='Wiki' fa_icon='fa-plus' href='/create/wiki/' %}
+                {% endif %}
+            </span>
+        </span>
+    </div>
+    {% if wiki %}
+        <div class="soft">{{ wiki.description|safe }}</div> 
+        <div class="spacer" style="height: 0.5rem;"></div>
+        <div class="tile-display">
+        {% if wiki.show_services %}
+            <div class="tile">
+                <div style="display: flex;">
+                    <div>
+                        <h3 style="display: flex;">
+                            Services
+                        </h3>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="spacer"></div>
+                {% for server in servers %}
+                    {% for service in server.services.all %}
+                        <div>
+                            <a href="http://{{ service.endpoint }}" target="_blank" style="text-decoration: none; color: inherit; display: flex;">
+                                {% if service.icon_url %}
+                                    <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;">
+                                {% else %}
+                                    <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;"></i>
+                                {% endif %}
+                                {% if service.is_online == True %}
+                                    <div class="indicator-dot success-dot">&nbsp;</div>
+                                {% elif not service.is_online %}
+                                    <div class="indicator-dot error-dot">&nbsp;</div>
+                                {% else %}
+                                    <div class="indicator-dot warning-dot tooltip">
+                                        &nbsp;
+                                        <span class="tooltiptext">{{ service.is_online }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="spacer" style="width: 0.5rem;"></div>
+                                {{ service.name }}
+                            </a>
+                        </div>
+                    {% endfor %}    
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if wiki.show_servers %}
+            <div class="tile">
+                <div style="display: flex;">
+                    <div>
+                        <h3 style="display: flex;">
+                            Servers
+                        </h3>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="spacer"></div>
+                {% for server in servers %}
+                    <div style="display: flex;">
+                        {% if server.is_online %}
+                            <div class="indicator-dot success-dot" style="margin-left: 0;">&nbsp;</div>
+                        {% else %}
+                            <div class="indicator-dot error-dot" style="margin-left: 0;">&nbsp;</div>
+                        {% endif %}
+                        <div class="spacer" style="width: 0.5rem;"></div>
+                        {{ server.name }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        </div>
+    {% else %}
+        <div>
+            <b style="color: #666;">No wiki was found.</b>
+            <div class="soft">There is no wiki associated with this user.</div>
+        </div>
+    {% endif %}
