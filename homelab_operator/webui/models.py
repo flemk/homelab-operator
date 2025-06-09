@@ -10,6 +10,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='profile')
     last_selected_homelab = models.ForeignKey('Homelab', on_delete=models.SET_NULL,
                                               null=True, blank=True)
+    show_wiki = models.BooleanField(default=True)
+    show_networks = models.BooleanField(default=True)
 
     def __str__(self):
         return f"Profile of {self.user.username}"

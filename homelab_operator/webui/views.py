@@ -7,7 +7,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm, HomelabForm
+    ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
 from .views_exp.homelab import create_homelab, edit_homelab, delete_homelab
 from .views_exp.server import edit_server, delete_server, create_server
@@ -36,6 +36,28 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+@login_required
+def edit_profile(request):
+    '''View to edit the user's profile.'''
+    user = request.user
+    profile = user.profile
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=profile, user=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully")
+            return redirect('dashboard_default')
+    else:
+        form = UserProfileForm(instance=profile, user=user)
+
+    context = {
+        'form': form,
+        'user': user,
+        'form_title': 'Edit User Profile',
+    }
+    return render(request, 'html_components/form.html', context)
 
 @login_required
 def dashboard(request, homelab_id=None):
@@ -69,6 +91,8 @@ def dashboard(request, homelab_id=None):
         'homelabs': homelabs,
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
+        'user_show_wiki': user.profile.show_wiki,
+        'user_show_networks': user.profile.show_networks,
     }
     return render(request, 'html/dashboard.html', context)
 

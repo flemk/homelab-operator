@@ -65,10 +65,14 @@
     {% else %}
 
         {# Wiki #}
-        {% include 'html/dashboard-sections/wiki.html' with servers=servers wiki=wiki %}
+        {% if user_show_wiki %}
+            {% include 'html/dashboard-sections/wiki.html' with servers=servers wiki=wiki %}
+        {% endif %}
 
         {# Networks #}
-        {% include 'html/dashboard-sections/networks.html' with networks=networks %}
+        {% if user_show_networks %}
+            {% include 'html/dashboard-sections/networks.html' with networks=networks %}
+        {% endif %}
 
         {# Servers #}
         {% include 'html/dashboard-sections/servers.html' with servers=servers %}
