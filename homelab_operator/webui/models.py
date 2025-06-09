@@ -56,6 +56,7 @@ class Server(models.Model):
 
     def shutdown(self):
         '''calls the shutdown URL of the server.'''
+        # TODO move this implementation to ShutdownURLConfiguration model
         if not self.shutdown_url:
             return 'No shutdown URL provided.'
         if self.shutdown_url.all().count() > 1:
@@ -75,6 +76,8 @@ class Server(models.Model):
             if response.status_code == 200:
                 return False
             return f"Shutdown failed with status code: {response.status_code}"
+        except requests.exceptions.ConnectTimeout:
+            return "Connection timed out."
         except requests.RequestException as e:
             return f"Shutdown failed with status code: {response.status_code}"
 

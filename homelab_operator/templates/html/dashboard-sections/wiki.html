@@ -38,7 +38,7 @@
                 {% for server in servers %}
                     {% for service in server.services.all %}
                         <div>
-                            <a href="http://{{ service.endpoint }}" target="_blank" style="text-decoration: none; color: inherit; display: flex;">
+                            <a href="{{ service.endpoint }}" target="_blank" style="text-decoration: none; color: inherit; display: flex;">
                                 {% if service.icon_url %}
                                     <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;">
                                 {% else %}
