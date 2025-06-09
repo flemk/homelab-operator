@@ -1,5 +1,7 @@
 '''Forms for the web UI of the homelab operator project.'''
 
+'''Forms for the web UI of the homelab operator project.'''
+
 from django.forms import ModelForm, DateTimeInput
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
     Wiki, UserProfile
@@ -21,6 +23,7 @@ class UserProfileForm(ModelForm):
 
 class ServerForm(ModelForm):
     '''Form for creating and updating Server instances.'''
+    '''Form for creating and updating Server instances.'''
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
 
@@ -30,22 +33,26 @@ class ServerForm(ModelForm):
             self.fields['user'].initial = user
             self.fields['user'].disabled = True
 
+
     class Meta:
         model = Server
         fields = '__all__'
 
 class ServiceForm(ModelForm):
     '''Form for creating and updating Service instances.'''
+    '''Form for creating and updating Service instances.'''
     def __init__(self, *args, **kwargs):
         super(ServiceForm, self).__init__(*args, **kwargs)
 
     # TODO only display servers that belong to the user
+
 
     class Meta:
         model = Service
         fields = '__all__'
 
 class NetworkForm(ModelForm):
+    '''Form for creating and updating Network instances.'''
     '''Form for creating and updating Network instances.'''
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -56,11 +63,13 @@ class NetworkForm(ModelForm):
             self.fields['user'].initial = user
             self.fields['user'].disabled = True
 
+
     class Meta:
         model = Network
         fields = '__all__'
 
 class WOLScheduleForm(ModelForm):
+    '''Form for creating and updating WOLSchedule instances.'''
     '''Form for creating and updating WOLSchedule instances.'''
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -70,6 +79,7 @@ class WOLScheduleForm(ModelForm):
         if user:
             self.fields['user'].initial = user
             self.fields['user'].disabled = True
+
 
     class Meta:
         model = WOLSchedule

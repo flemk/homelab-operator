@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -117,6 +118,7 @@ def shutdown(request, server_id):
     if server:
         response = server.shutdown()
         if response is False:
+        if response is False:
             messages.success(request, f"Shutdown command sent to {server.name}")
         else:
             messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
@@ -124,15 +126,89 @@ def shutdown(request, server_id):
     messages.error(request, "Server not found")
     return redirect('dashboard_default')
 
+@login_required
+def create_shutdown_url(request, server_id):
+    user = request.user
+    server = Server.objects.get(id=server_id, user=user)
+
+    if not server:
+        messages.error(request, "Server not found")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = ShutdownURLConfigurationForm(request.POST)
+        if form.is_valid():
+            shutdown_url = form.save(commit=False)
+            shutdown_url.server = server
+            shutdown_url.save()
+            messages.success(request, f"Shutdown URL created successfully for {server.name}")
+            return redirect('dashboard')
+    else:
+        form = ShutdownURLConfigurationForm(server=server)
+
+    context = {
+        'form': form,
+        'form_title': f'Create Shutdown URL for {server.name}',
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def edit_shutdown_url(request, shutdown_url_id):
+    user = request.user
+    shutdown_url = ShutdownURLConfiguration.objects.get(id=shutdown_url_id)
+
+    if shutdown_url.server.user != user:
+        messages.error(request, "You do not have permission to edit this shutdown URL")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = ShutdownURLConfigurationForm(request.POST, instance=shutdown_url)
+        if form.is_valid():
+            shutdown_url = form.save()
+            messages.success(request, f"Shutdown URL {shutdown_url.name} updated successfully")
+            return redirect('dashboard')
+    else:
+        form = ShutdownURLConfigurationForm(instance=shutdown_url)
+
+    context = {
+        'form': form,
+        'form_title': f'Edit Shutdown URL for {shutdown_url.server.name}',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/delete/shutdown_url/{shutdown_url.id}/",
+        'delete_url_declined': f"/edit/shutdown_url/{shutdown_url.id}/",
+        'delete_title': 'Delete Shutdown URL',
+        'delete_message':
+            f"You are about to delete Shutdown URL {shutdown_url.name}. Do you want to proceed?",
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def delete_shutdown_url(request, shutdown_url_id):
+    user = request.user
+    shutdown_url = ShutdownURLConfiguration.objects.get(id=shutdown_url_id)
+
+    if shutdown_url.server.user != user:
+        messages.error(request, "You do not have permission to delete this shutdown URL")
+        return redirect('dashboard')
+
+    shutdown_url_name = shutdown_url.name
+    shutdown_url.delete()
+    messages.success(request, f"Shutdown URL {shutdown_url_name} deleted successfully")
+    return redirect('dashboard')
+
 def cron(request, api_key):
+    '''This function will be called by the cron job
+    It should check the schedules and send WOL packets if needed'''
     '''This function will be called by the cron job
     It should check the schedules and send WOL packets if needed'''
     # TODO make this callable locally only
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
+        return HttpResponseForbidden("Forbidden", status=403)
 
     now = datetime.now()
+    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     schedules = WOLSchedule.objects.filter(
         enabled=True,
@@ -161,9 +237,13 @@ def cron(request, api_key):
         if server:
             if not server.auto_wake:
                 continue
+            if not server.auto_wake:
+                continue
             if schedule.type == 'WAKE':
                 response = server.wake()
                 if response is False:
+                    print(f"Magic packet sent to {server.name}" + \
+                          f"(Scheduled by {schedule.user.username})")
                     print(f"Magic packet sent to {server.name}" + \
                           f"(Scheduled by {schedule.user.username})")
                 else:
@@ -173,11 +253,14 @@ def cron(request, api_key):
                 if response is True:
                     print(f"Shutdown command sent to {server.name} " + \
                           f"(Scheduled by {schedule.user.username})")
+                    print(f"Shutdown command sent to {server.name} " + \
+                          f"(Scheduled by {schedule.user.username})")
                 else:
                     print(f"Failed to send shutdown command to {server.name}: {response}")
         else:
             print(f"Server not found for schedule ID {schedule.id}")
 
+    return HttpResponse("OK", status=200)
     return HttpResponse("OK", status=200)
 
 @login_required
