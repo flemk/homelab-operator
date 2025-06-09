@@ -1,5 +1,5 @@
 # Changelog
-# [1.0.1]
+# [1.1.0]
 Changed:
 - Fix executing non-repeating schedules every day
 - Fix not showing profile and logout information when a message is present
