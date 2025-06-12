@@ -50,6 +50,10 @@
         <div class="spacer" style="height: 0.15rem;"></div>
         <div class="soft">&copy; 2024 Franz Ludwig Kostelezky (info@kostelezky.com)</div>
         <div class="soft">Version reference: %HOMELAB_OPERATOR_VERSION%</div>
+        {% if server_time %}
+            <div class="soft">Server Time: {{ server_time }}</div>
+        {% endif %}
+        <div class="spacer" style="height: 0.15rem;"></div>
     </div>
 </body>
 </html>

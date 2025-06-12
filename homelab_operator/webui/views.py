@@ -93,6 +93,8 @@ def dashboard(request, homelab_id=None):
     homelabs = user.homelabs.all()
     servers = homelab.servers.all()
     networks = homelab.networks.all()
+
+    server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     context = {
         'servers': servers,
@@ -102,6 +104,7 @@ def dashboard(request, homelab_id=None):
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
         'user_show_wiki': user.profile.show_wiki,
         'user_show_networks': user.profile.show_networks,
+        'server_time': server_time,
     }
     return render(request, 'html/dashboard.html', context)
 
