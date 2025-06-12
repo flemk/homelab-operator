@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, UserProfile
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
@@ -64,6 +64,14 @@ def edit_profile(request):
 def dashboard(request, homelab_id=None):
     '''Dashboard view for the user, showing servers, networks, and homelabs.'''
     user = request.user
+
+    if not hasattr(user, "profile"):
+        profile = UserProfile.objects.create(user=user)
+        profile.save()
+        user.profile = profile
+        user.save()
+        messages.info(request, "Please update your profile preferences.")
+        return redirect('edit_profile')
 
     if homelab_id is None:
         if user.profile.last_selected_homelab:

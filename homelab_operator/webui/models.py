@@ -88,7 +88,6 @@ class Server(models.Model):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
                 sock.connect((self.ip_address, self.port))
-                sock.connect((self.ip_address, self.port))
             return True
         except (socket.timeout, socket.error):
             return False
