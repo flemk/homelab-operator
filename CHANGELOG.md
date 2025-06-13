@@ -1,4 +1,11 @@
 # Changelog
+# [1.2.0]
+Added:
+- Server Time display in footer
+
+Fixed:
+- Bugfixes that occured after 1.1.0 release
+
 # [1.1.0]
 Changed:
 - Fix executing non-repeating schedules every day
