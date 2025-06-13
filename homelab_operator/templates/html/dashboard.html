@@ -8,7 +8,7 @@
 
 {% block headline %}
     <div class="dropdown">
-        <span class="dropbtn">
+        <span class="dropbtn" onclick="document.querySelector('.dropdown-content').classList.toggle('dropdown-show');">
             {% if homelab %}
                 {{ homelab.name }}
             {% else %}

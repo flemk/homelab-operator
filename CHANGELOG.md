@@ -3,6 +3,7 @@
 Changed:
 - Clarified docker compose instruction in README.md
 - Improved mobile (phone) appearance
+- Improved Homelab dropdown menu selectability on mobile
 
 # [1.2.0]
 Added:
