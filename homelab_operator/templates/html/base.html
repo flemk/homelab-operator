@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.6.0/css/all.css">
 </head>
 <body>
-
+    <script src="{% static 'check_online.js' %}"></script>
     <div class="header">
         <h1 class="headline">
             {% block headline %}Homelab Operator{% endblock %}
@@ -38,7 +38,6 @@
                 {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
             </div>
         {% endif %}
-        
     </div>
     <div class="main">
         {% block content %}{% endblock %}

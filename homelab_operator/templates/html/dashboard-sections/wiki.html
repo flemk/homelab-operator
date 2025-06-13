@@ -1,3 +1,4 @@
+
     <div>
         <span style="display: flex;">
             <h2 style="margin-bottom: 0.25rem;">
@@ -44,16 +45,27 @@
                                 {% else %}
                                     <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;"></i>
                                 {% endif %}
-                                {% if service.is_online == True %}
-                                    <div class="indicator-dot success-dot">&nbsp;</div>
-                                {% elif not service.is_online %}
-                                    <div class="indicator-dot error-dot">&nbsp;</div>
-                                {% else %}
-                                    <div class="indicator-dot warning-dot tooltip">
+
+                                {% if api_key %}
+                                    <div class="indicator-dot loading-dot" id="service_{{ service.id }}">
                                         &nbsp;
-                                        <span class="tooltiptext">{{ service.is_online }}</span>
                                     </div>
+                                    <script>
+                                        check_online("/is_online/{{ api_key }}/{{ service.id }}/0/", "service_{{ service.id }}");
+                                    </script>
+                                {% else %}
+                                    {% if service.is_online == True %}
+                                        <div class="indicator-dot success-dot">&nbsp;</div>
+                                    {% elif not service.is_online %}
+                                        <div class="indicator-dot error-dot">&nbsp;</div>
+                                    {% else %}
+                                        <div class="indicator-dot warning-dot tooltip">
+                                            &nbsp;
+                                            <span class="tooltiptext">{{ service.is_online }}</span>
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
+
                                 <div class="spacer" style="width: 0.5rem;"></div>
                                 {{ service.name }}
                             </a>
@@ -76,10 +88,19 @@
                 <div class="spacer"></div>
                 {% for server in servers %}
                     <div style="display: flex;">
-                        {% if server.is_online %}
-                            <div class="indicator-dot success-dot" style="margin-left: 0;">&nbsp;</div>
+                        {% if api_key %}
+                            <div class="indicator-dot loading-dot" id="server_{{ server.id }}" style="margin-left: 0;">
+                                &nbsp;
+                            </div>
+                            <script>
+                                check_online("/is_online/{{ api_key }}/0/{{ server.id }}/", "server_{{ server.id }}");
+                            </script>
                         {% else %}
-                            <div class="indicator-dot error-dot" style="margin-left: 0;">&nbsp;</div>
+                            {% if server.is_online %}
+                                <div class="indicator-dot success-dot" style="margin-left: 0;">&nbsp;</div>
+                            {% else %}
+                                <div class="indicator-dot error-dot" style="margin-left: 0;">&nbsp;</div>
+                            {% endif %}
                         {% endif %}
                         <div class="spacer" style="width: 0.5rem;"></div>
                         {{ server.name }}

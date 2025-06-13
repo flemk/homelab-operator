@@ -102,6 +102,7 @@ def dashboard(request, homelab_id=None):
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
         'user_show_wiki': user.profile.show_wiki,
         'user_show_networks': user.profile.show_networks,
+        'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
     }
     return render(request, 'html/dashboard.html', context)
 
@@ -136,7 +137,6 @@ def shutdown(request, server_id):
 def cron(request, api_key):
     '''This function will be called by the cron job
     It should check the schedules and send WOL packets if needed'''
-    # TODO make this callable locally only
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
@@ -212,3 +212,27 @@ def confirm(request):
         }
         return render(request, 'html_components/confirm.html', context)
     return HttpResponseBadRequest()
+
+def is_online(request, api_key, service_id, server_id):
+    '''This function is used to check if services or servers are online.
+    Returns 200 OK if the service is online, 503 Service Unavailable if not.'''    
+    if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
+        return HttpResponseForbidden("Forbidden", status=403)
+    
+    if service_id != 0:
+        service = Service.objects.get(id=service_id)
+        is_online = service.is_online()
+        if is_online is True:
+            return HttpResponse("OK", status=200)
+        elif is_online is False:
+            return HttpResponse("Service Unavailable", status=503)
+        else:
+            return HttpResponse(is_online, status=500)
+    if server_id != 0:
+        server = Server.objects.get(id=server_id)
+        if server.is_online():
+            return HttpResponse("OK", status=200)
+        else:
+            return HttpResponse("Service Unavailable", status=503)
+    
+    return HttpResponseBadRequest("Bad Request", status=400)

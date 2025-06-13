@@ -6,6 +6,9 @@ Added:
 Fixed:
 - Bugfixes that occured after 1.1.0 release
 
+Changed:
+- Provided alternative in_online check: Added an endpoint that can be triggered by JS in the browser -> Reduced loading times
+
 # [1.1.0]
 Changed:
 - Fix executing non-repeating schedules every day
