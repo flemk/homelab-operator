@@ -1,0 +1,50 @@
+.message {
+    padding: 0.5rem;
+    background-color: grey;
+    border-radius: 0.5rem;
+    animation-name: fade-out;
+    animation-duration: 1s;
+    animation-delay: 5s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+.retain {
+    animation: none;
+}
+
+.floating {
+    position: absolute;
+    top: 1rem;
+    left: 50vw;
+    transform: translate(-50%, 0);
+}
+
+.success {
+    background-color: green !important;
+    color: white !important;
+}
+
+.success:hover {
+    background-color: darkgreen !important;
+}
+
+.info {
+    background-color: #efefef !important;
+    color: black !important;
+    border: 1px solid #ccc;
+}
+
+.info:hover {
+    background-color: #ddd !important;
+}
+
+.error {
+    background-color: #ffe5e5 !important;
+    color: black !important;
+    border: 1px solid red;
+}
+
+.error:hover {
+    background-color: #fdd !important;
+}

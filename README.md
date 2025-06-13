@@ -25,11 +25,14 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
       - ALLOWED_HOST=${ALLOWED_HOST}
       - CSRF_TRUSTED_ORIGIN=${CSRF_TRUSTED_ORIGIN}
+      - BROADCAST_ADDRESS=${BROADCAST_ADDRESS}
+      - TIME_ZONE=${TIME_ZONE}
+      - API_KEY=${API_KEY}
     ports:
       - "${WEB_PORT}:80"
       - "${WEB_SSL_PORT}:443"
-    volumes:
-      - ./web-crt:/app/crt  # Use your own certificates
+    #volumes:
+    #  - ./crt:/app/crt  # Use your own certificates
   db:
     image: postgres:14
     environment:

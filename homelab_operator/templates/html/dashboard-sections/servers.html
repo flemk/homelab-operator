@@ -42,19 +42,19 @@
                 </div>
                 <div style="width: min-content;">
                     <span style="display: flex;">
-                        <span style="margin: auto;">
+                        <span style="margin: auto 0 auto 0;">
                             {% with server_id=server.id|stringformat:'s' %}
                                 {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='/wake/'|add:server_id %}
                             {% endwith %}
                         </span>
                         <div style="width: 1rem;"></div>
-                        <span style="margin: auto;">
+                        <span style="margin: auto 0 auto 0;">
                             {% with server_id=server.id|stringformat:'s' %}
                                 {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='/shutdown/'|add:server_id %}
                             {% endwith %}
                         </span>
                         <div style="width: 1rem;"></div>
-                        <span style="margin: auto;">
+                        <span style="margin: auto 0 auto 0;">
                             {% with server_id=server.id|stringformat:'s' %}
                                 {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/server/'|add:server_id %}
                             {% endwith %}

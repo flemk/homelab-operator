@@ -1,0 +1,36 @@
+@media screen and (max-width: 970px) {
+    .header {
+        height: 7rem;
+        display: block;
+    }
+
+    .headline {
+        margin-bottom: 0;
+    }
+
+    .header .menu {
+        margin: auto auto auto 0;
+        width: max-content;
+        display: flex;
+        flex-direction: row-reverse;
+    }
+
+    .header .spacer {
+        height: 0;
+    }
+
+    .main {
+        width: 90vw;
+        margin-top: 7rem;
+    }
+
+    .search {
+        display: none;
+    }
+
+    .login {
+        width: 90vw !important;
+        display: block;
+        margin: auto;
+    }
+}

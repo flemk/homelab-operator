@@ -26,6 +26,7 @@ html {
     background-color: #efefef50;
     position: fixed;
     height: 5.5rem;
+    z-index: 1;
 }
 
 .main {
@@ -35,6 +36,7 @@ html {
     width: 70vw;
     margin-left: auto;
     margin-right: auto;
+    padding-left: 0;
 }
 
 .footer {
@@ -46,171 +48,20 @@ html {
     padding-bottom: .7rem;
 }
 
-input, .input, textarea {
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.25rem;
-    width: 100%;
-    margin: .25rem 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    text-decoration: none;
-    height: 2rem;
+.header .menu {
+    margin: auto 2rem auto 1rem;
+    width: max-content;
+    display: flex;
 }
 
-textarea {
-    min-height: 5rem;
-}
-
-select {
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.25rem;
-    width: 100%;
-    margin: .25rem 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    text-decoration: none;
-    height: 2rem;
-}
-
-input[type=checkbox] {
-    width: auto;
-    margin: auto auto auto 0;
-    height: auto;
-}
-
-input[type=submit], .button {
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.25rem;
-    width: 100%;
-    margin: .25rem 0;
-    display: inline-block;
-    box-sizing: border-box;
-    text-decoration: none;
-    height: 2rem;
-    cursor: pointer;
-    background-color: var(--button-color);
-    color: #efefef;
-    text-align: center;
-    align-content: center;
-    min-width: max-content;
-}
-
-.inline-button {
-    text-align: center;
-    height: unset;
-    /*max-width: 10rem;*/
-    color: black;
-    border: 1px solid black !important;
-    /*background-color: white; *//* Too neo-brutalistic for now... might be something for the future*/
-}
-
-input[type=submit]:hover, .button:hover {
-    background-color: var(--button-color-hover);
-}
-
-.large {
-    min-width: 7rem;
-    min-height: 3rem;
-}
-
-.device-list {
-    border-spacing: 4rem 0;
-    margin-left: -4rem;
-}
-
-.message {
-    padding: 0.5rem;
-    background-color: grey;
-    border-radius: 0.5rem;
-    animation-name: fade-out;
-    animation-duration: 1s;
-    animation-delay: 5s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-}
-
-.retain {
-    animation: none;
-}
-
-.floating {
-    position: absolute;
-    top: 1rem;
-    left: 50vw;
-    transform: translate(-50%, 0);
-}
-
-.success {
-    background-color: green !important;
-    color: white !important;
-}
-
-.success:hover {
-    background-color: darkgreen !important;
-}
-
-.info {
-    background-color: #efefef !important;
-    color: black !important;
-    border: 1px solid #ccc;
-}
-
-.info:hover {
-    background-color: #ddd !important;
-}
-
-.error {
-    background-color: #ffe5e5 !important;
-    color: black !important;
-    border: 1px solid red;
-}
-
-.error:hover {
-    background-color: #fdd !important;
-}
-
-.soft {
-    color: #666 !important;
-    border: none !important;
-    font-size: .8rem !important;
-}
-
-.helptext {
-    font-size: 0.8rem;
-    color: #666;
+.login {
+    width: 30vw;
+    display: block;
+    margin: auto;
 }
 
 .spacer {
     height: 1rem;
-}
-
-.navigation {
-    display: flex;
-    align-items: center;
-}
-
-.navigation-item {
-    margin: 0 .5rem 0 0;
-    font-size: 1.5rem;
-}
-
-.navigation-item a {
-    text-decoration: none;
-    color: black;
-}
-
-.navigation-item a:hover {
-    color: var(--button-color);
-}
-
-h3 {
-    margin-bottom: .1rem;
-    margin-top: 0;
 }
 
 .no {
@@ -235,77 +86,7 @@ h3 {
     border-radius: .5rem;
 }
 
-.indicator-dot {
-    margin: auto 0 auto .25rem;
-    border-radius: 50%;
-    width: 1rem;
-    height: 1rem;
-    display: inline-block;
-}
-
-.indicator-dot.loading-dot {
-    background-color: #ccc;
-    animation: highlight 1s infinite;
-}
-
-.indicator-dot.success-dot {
-    background-color: #4CAF50;
-}
-.indicator-dot.error-dot {
-    background-color: #f44336;
-}
-.indicator-dot.info-dot {
-    background-color: #2196F3;
-}
-.indicator-dot.warning-dot {
-    background-color: #f0c800;
-}
-.indicator-dot.unknown-dot {
-    background-color: #9E9E9E;
-}
-
 /* Disable showing strange radio buttons in safari*/
 #id_usable_password {
     display: none;
-}
-
-@media (max-width: 850px) {
-    .device-list {
-        width: 100%;
-    }
-
-    .showcase {
-        display: none;
-    }
-
-    .login {
-        width: 50vw !important;
-        border: none !important;
-        margin: 0 auto auto auto;
-    }
-
-    .headline {
-        font-size: x-large;
-    }
-}
-
-@keyframes fade-out {
-    0% { opacity: 1; }
-    50% {
-        opacity: 1;
-        color: transparent; }
-    90% {
-        color: transparent;
-        opacity: 0;}
-    100% {
-        color: transparent;
-        opacity: 0;
-        display: none;
-    }
-}
-
-@keyframes highlight {
-    0% { background-color: #efefef; }
-    50% { background-color: #ddd; }
-    100% { background-color: #efefef; }
 }

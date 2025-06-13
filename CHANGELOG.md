@@ -1,4 +1,9 @@
 # Changelog
+# [1.2.1]
+Changed:
+- Clarified docker compose instruction in README.md
+- Improved mobile (phone) appearance
+
 # [1.2.0]
 Added:
 - Server Time display in footer
