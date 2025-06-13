@@ -14,7 +14,9 @@
     <script src="{% static 'check_online.js' %}"></script>
     <div class="header">
         <h1 class="headline">
-            {% block headline %}Homelab Operator{% endblock %}
+            {% block headline %}
+                <a href="/" style="text-decoration: none; color: inherit;">Homelab Operator</a>
+            {% endblock %}
         </h1>
         {% if user.is_authenticated %}
             <div class="no" style="margin: auto;">

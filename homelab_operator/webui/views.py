@@ -224,7 +224,7 @@ def confirm(request):
 
 def is_online(request, api_key, service_id, server_id):
     '''This function is used to check if services or servers are online.
-    Returns 200 OK if the service is online, 503 Service Unavailable if not.'''    
+    Returns 200 OK if the service is online, 503 Service Unavailable if not.'''
     # Simple rate limiting using Django cache (per IP, 60 requests/minute)
     ip = request.META.get('REMOTE_ADDR')
     key = f"rate_limit_is_online_{ip}"
@@ -235,7 +235,7 @@ def is_online(request, api_key, service_id, server_id):
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
-    
+
     if service_id != 0:
         service = Service.objects.get(id=service_id)
         is_online = service.is_online()
@@ -251,5 +251,5 @@ def is_online(request, api_key, service_id, server_id):
             return HttpResponse("OK", status=200)
         else:
             return HttpResponse("Service Unavailable", status=503)
-    
+
     return HttpResponseBadRequest("Bad Request", status=400)
