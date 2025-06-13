@@ -3,10 +3,12 @@ from datetime import datetime
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
+from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
+from django.core.cache import cache
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, UserProfile
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
@@ -30,7 +32,7 @@ def login_view(request):
         context['login_error'] = 'Invalid credentials'
 
     if request.user.is_authenticated:
-        return redirect('dashboard', homelab_id=None)
+        return redirect('dashboard_default')
 
     return render(request, 'html/login.html', context)
 
@@ -58,12 +60,27 @@ def edit_profile(request):
         'user': user,
         'form_title': 'Edit User Profile',
     }
+    context['additional_information'] = [{
+        'title': 'Additional Information',
+        'description':
+            format_html(
+                'IP: ' + request.META.get('REMOTE_ADDR', 'Unknown') + '<br>' +
+                'User Agent: ' + request.META.get('HTTP_USER_AGENT', 'Unknown')),
+        },]
     return render(request, 'html_components/form.html', context)
 
 @login_required
 def dashboard(request, homelab_id=None):
     '''Dashboard view for the user, showing servers, networks, and homelabs.'''
     user = request.user
+
+    if not hasattr(user, "profile"):
+        profile = UserProfile.objects.create(user=user)
+        profile.save()
+        user.profile = profile
+        user.save()
+        messages.info(request, "Please update your profile preferences.")
+        return redirect('edit_profile')
 
     if homelab_id is None:
         if user.profile.last_selected_homelab:
@@ -94,6 +111,7 @@ def dashboard(request, homelab_id=None):
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
         'user_show_wiki': user.profile.show_wiki,
         'user_show_networks': user.profile.show_networks,
+        'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
     }
     return render(request, 'html/dashboard.html', context)
 
@@ -125,80 +143,9 @@ def shutdown(request, server_id):
     messages.error(request, "Server not found")
     return redirect('dashboard_default')
 
-@login_required
-def create_shutdown_url(request, server_id):
-    user = request.user
-    server = Server.objects.get(id=server_id, user=user)
-
-    if not server:
-        messages.error(request, "Server not found")
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        form = ShutdownURLConfigurationForm(request.POST)
-        if form.is_valid():
-            shutdown_url = form.save(commit=False)
-            shutdown_url.server = server
-            shutdown_url.save()
-            messages.success(request, f"Shutdown URL created successfully for {server.name}")
-            return redirect('dashboard')
-    else:
-        form = ShutdownURLConfigurationForm(server=server)
-
-    context = {
-        'form': form,
-        'form_title': f'Create Shutdown URL for {server.name}',
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def edit_shutdown_url(request, shutdown_url_id):
-    user = request.user
-    shutdown_url = ShutdownURLConfiguration.objects.get(id=shutdown_url_id)
-
-    if shutdown_url.server.user != user:
-        messages.error(request, "You do not have permission to edit this shutdown URL")
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        form = ShutdownURLConfigurationForm(request.POST, instance=shutdown_url)
-        if form.is_valid():
-            shutdown_url = form.save()
-            messages.success(request, f"Shutdown URL {shutdown_url.name} updated successfully")
-            return redirect('dashboard')
-    else:
-        form = ShutdownURLConfigurationForm(instance=shutdown_url)
-
-    context = {
-        'form': form,
-        'form_title': f'Edit Shutdown URL for {shutdown_url.server.name}',
-        'show_delete_option': True,
-        'delete_url_confirmed': f"/delete/shutdown_url/{shutdown_url.id}/",
-        'delete_url_declined': f"/edit/shutdown_url/{shutdown_url.id}/",
-        'delete_title': 'Delete Shutdown URL',
-        'delete_message':
-            f"You are about to delete Shutdown URL {shutdown_url.name}. Do you want to proceed?",
-    }
-    return render(request, 'html_components/form.html', context)
-
-@login_required
-def delete_shutdown_url(request, shutdown_url_id):
-    user = request.user
-    shutdown_url = ShutdownURLConfiguration.objects.get(id=shutdown_url_id)
-
-    if shutdown_url.server.user != user:
-        messages.error(request, "You do not have permission to delete this shutdown URL")
-        return redirect('dashboard')
-
-    shutdown_url_name = shutdown_url.name
-    shutdown_url.delete()
-    messages.success(request, f"Shutdown URL {shutdown_url_name} deleted successfully")
-    return redirect('dashboard')
-
 def cron(request, api_key):
     '''This function will be called by the cron job
     It should check the schedules and send WOL packets if needed'''
-    # TODO make this callable locally only
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
@@ -274,3 +221,35 @@ def confirm(request):
         }
         return render(request, 'html_components/confirm.html', context)
     return HttpResponseBadRequest()
+
+def is_online(request, api_key, service_id, server_id):
+    '''This function is used to check if services or servers are online.
+    Returns 200 OK if the service is online, 503 Service Unavailable if not.'''    
+    # Simple rate limiting using Django cache (per IP, 60 requests/minute)
+    ip = request.META.get('REMOTE_ADDR')
+    key = f"rate_limit_is_online_{ip}"
+    count = cache.get(key, 0)
+    if count >= 60:
+        return HttpResponse("Too Many Requests", status=429)
+    cache.set(key, count + 1, timeout=60)
+
+    if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
+        return HttpResponseForbidden("Forbidden", status=403)
+    
+    if service_id != 0:
+        service = Service.objects.get(id=service_id)
+        is_online = service.is_online()
+        if is_online is True:
+            return HttpResponse("OK", status=200)
+        elif is_online is False:
+            return HttpResponse("Service Unavailable", status=503)
+        else:
+            return HttpResponse(is_online, status=500)
+    if server_id != 0:
+        server = Server.objects.get(id=server_id)
+        if server.is_online():
+            return HttpResponse("OK", status=200)
+        else:
+            return HttpResponse("Service Unavailable", status=503)
+    
+    return HttpResponseBadRequest("Bad Request", status=400)

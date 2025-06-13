@@ -5,15 +5,20 @@ urlpatterns = [
     path('', views.login_view, name='index'),
     path('dashboard/', views.dashboard, name='dashboard_default'),
     path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
+
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+
     path('confirm', views.confirm, name='confirm'),
+
     path('cron/<str:api_key>/', views.cron, name='cron'),
     path('confirm', views.confirm, name='confirm'),
     path('cron/<str:api_key>/', views.cron, name='cron'),
 
     path('wake/<int:server_id>/', views.wake, name='wake'),
     path('shutdown/<int:server_id>/', views.shutdown, name='shutdown'),
+    path('is_online/<str:api_key>/<int:service_id>/<int:server_id>/', views.is_online,
+         name='is_online'),
 
     path('edit/profile/', views.edit_profile, name='edit_profile'),
 

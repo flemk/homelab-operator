@@ -56,6 +56,7 @@ class Server(models.Model):
 
     def shutdown(self):
         '''calls the shutdown URL of the server.'''
+        # TODO move this implementation to ShutdownURLConfiguration model
         if not self.shutdown_url:
             return 'No shutdown URL provided.'
         if self.shutdown_url.all().count() > 1:
@@ -75,6 +76,8 @@ class Server(models.Model):
             if response.status_code == 200:
                 return False
             return f"Shutdown failed with status code: {response.status_code}"
+        except requests.exceptions.ConnectTimeout:
+            return "Connection timed out."
         except requests.RequestException as e:
             return f"Shutdown failed with status code: {response.status_code}"
 
@@ -84,7 +87,6 @@ class Server(models.Model):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
-                sock.connect((self.ip_address, self.port))
                 sock.connect((self.ip_address, self.port))
             return True
         except (socket.timeout, socket.error):

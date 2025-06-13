@@ -238,10 +238,14 @@ h3 {
 .indicator-dot {
     margin: auto 0 auto .25rem;
     border-radius: 50%;
-    background-color: #666;
     width: 1rem;
     height: 1rem;
     display: inline-block;
+}
+
+.indicator-dot.loading-dot {
+    background-color: #ccc;
+    animation: highlight 1s infinite;
 }
 
 .indicator-dot.success-dot {
@@ -255,6 +259,9 @@ h3 {
 }
 .indicator-dot.warning-dot {
     background-color: #f0c800;
+}
+.indicator-dot.unknown-dot {
+    background-color: #9E9E9E;
 }
 
 /* Disable showing strange radio buttons in safari*/

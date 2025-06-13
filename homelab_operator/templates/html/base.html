@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.6.0/css/all.css">
 </head>
 <body>
-
+    <script src="{% static 'check_online.js' %}"></script>
     <div class="header">
         <h1 class="headline">
             {% block headline %}Homelab Operator{% endblock %}
@@ -37,7 +38,6 @@
                 {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
             </div>
         {% endif %}
-        
     </div>
     <div class="main">
         {% block content %}{% endblock %}
@@ -50,6 +50,8 @@
         <div class="spacer" style="height: 0.15rem;"></div>
         <div class="soft">&copy; 2024 Franz Ludwig Kostelezky (info@kostelezky.com)</div>
         <div class="soft">Version reference: %HOMELAB_OPERATOR_VERSION%</div>
+        <div class="soft">Server Time: {% now "Y-m-d H:i:s T" %}</div>
+        <div class="spacer" style="height: 0.15rem;"></div>
     </div>
 </body>
 </html>
