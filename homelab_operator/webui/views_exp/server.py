@@ -38,8 +38,8 @@ def edit_server(request, server_id):
         if server.shutdown_url.all().first():  # TODO this caused some issues
             context['additional_information'] = [
                 {
-                    'title': 'A shutdown URL is configured for this server',
-                    'description': 'The shutdown URL is configured separately.',
+                    'title': 'A Shutdown Adapter is configured for this server',
+                    'description': 'A shutdown URL is configured as Shutdown Adapter. It can be configured separately.',
                     'link': '/edit/shutdown_url/' + str(server.shutdown_url.all().first().id) + '/',
                     'link_text': 'View',
                 },
@@ -49,7 +49,7 @@ def edit_server(request, server_id):
                 {
                     'title': 'No shutdown URL configured',
                     'description':
-                        'You can create a shutdown URL for this server to allow remote shutdown.',
+                        'You can create a Shutdown Adapter for this server to allow remote shutdown.',
                     'link': f'/create/shutdown_url/{server.id}',
                     'link_text': 'Create Shutdown URL',
                 },
