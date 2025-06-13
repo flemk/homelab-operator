@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
+from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -59,6 +60,13 @@ def edit_profile(request):
         'user': user,
         'form_title': 'Edit User Profile',
     }
+    context['additional_information'] = [{
+        'title': 'Additional Information',
+        'description':
+            format_html(
+                'IP: ' + request.META.get('REMOTE_ADDR', 'Unknown') + '<br>' +
+                'User Agent: ' + request.META.get('HTTP_USER_AGENT', 'Unknown')),
+        },]
     return render(request, 'html_components/form.html', context)
 
 @login_required
