@@ -1,5 +1,7 @@
 > This project superseeds [flemk/server-dashboard](https://github.com/flemk/server-dashboard)
 
+> This project uses a modified MIT non-commercial license. Details in `LICENSE.md` and at the bottom of this document.
+
 # Homelab Operator
 Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and ssh-shutdown. You can also create an overview of your services running on your machines. You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered by a cron job +/-5min).
 
@@ -61,3 +63,11 @@ To use the auto-wake functionality properly, you need to create a system level c
 */10 * * * * docker exec <container> curl http://localhost:8000/cron/<API_KEY>/
 ```
 You need to call the cron endpoint every 10min for full coverage.
+
+## License
+This project is licensed under a modified MIT **non-commercial** License:
+
+- You may use, copy, modify, and distribute this software for personal and academic purposes.
+- Commercial use is prohibited without explicit written permission.
+
+See `LICENSE.md` for full details. Commercial licensing available upon request.
