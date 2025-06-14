@@ -6,6 +6,8 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard_default'),
     path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
 
+    path('search/', views.search, name='search'),
+
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 

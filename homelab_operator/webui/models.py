@@ -21,9 +21,6 @@ class Server(models.Model):
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     port = models.IntegerField(default=80, null=True, blank=True)
     mac_address = models.CharField(max_length=17, null=True, blank=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    port = models.IntegerField(default=80, null=True, blank=True)
-    mac_address = models.CharField(max_length=17, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
     network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True,
                                 blank=True, related_name='servers')
@@ -99,7 +96,6 @@ class Service(models.Model):
     endpoint = models.CharField(max_length=100, null=True, blank=True)
     port = models.IntegerField(default=80)
     icon_url = models.URLField(null=True, blank=True)
-    note = models.TextField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 
     def __str__(self):

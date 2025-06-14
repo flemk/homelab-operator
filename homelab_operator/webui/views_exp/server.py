@@ -51,7 +51,7 @@ def edit_server(request, server_id):
                     'description':
                         'You can create a Shutdown Adapter for this server to allow remote shutdown.',
                     'link': f'/create/shutdown_url/{server.id}',
-                    'link_text': 'Create Shutdown URL',
+                    'link_text': 'Create Shutdown Adapter',
                 },
             ]
     return render(request, 'html_components/form.html', context)

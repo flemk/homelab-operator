@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
+from django.db.models import Q
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, UserProfile
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
@@ -114,6 +115,39 @@ def dashboard(request, homelab_id=None):
         'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
     }
     return render(request, 'html/dashboard.html', context)
+
+@login_required
+def search(request):
+    '''Search view for the user, showing results for servers, networks, and homelabs.'''
+    user = request.user
+
+    if request.method == 'POST':
+        query = request.POST.get('query', '').strip()
+    else:
+        return redirect('dashboard_default')
+    if not query:
+        return redirect('dashboard_default')
+
+    print(f"Search query: {query} by user: {user.username}")
+
+    servers = Server.objects.filter(
+        Q(user=user) & (
+            Q(name__icontains=query) |
+            Q(ip_address__icontains=query) |
+            Q(mac_address__icontains=query) |
+            Q(note__icontains=query)))
+    services = Service.objects.filter(
+        Q(server__user=user) & (
+            Q(name__icontains=query) |
+            Q(endpoint__icontains=query) |
+            Q(note__icontains=query)))
+
+    context = {
+        'servers': servers,
+        'services': services,
+        'query': query,
+    }
+    return render(request, 'html/search_results.html', context)
 
 @login_required
 def wake(request, server_id):

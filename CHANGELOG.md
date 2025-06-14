@@ -1,5 +1,8 @@
 # Changelog
-# [1.2.1]
+# [1.3.0]
+Added:
+- Added search functionality
+
 Changed:
 - Clarified docker compose instruction in README.md
 - Improved mobile (phone) appearance
