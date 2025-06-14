@@ -152,7 +152,6 @@ def cron(request, api_key):
 
     now = datetime.now()
     minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
-    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     schedules = WOLSchedule.objects.filter(
         enabled=True,
         schedule_time__hour=now.hour,
