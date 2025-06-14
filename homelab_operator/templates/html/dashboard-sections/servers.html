@@ -43,15 +43,23 @@
                 <div style="width: min-content;">
                     <span style="display: flex;">
                         <span style="margin: auto 0 auto 0;">
-                            {% with server_id=server.id|stringformat:'s' %}
-                                {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='/wake/'|add:server_id %}
-                            {% endwith %}
+                            {% if server.mac_address %}
+                                {% with server_id=server.id|stringformat:'s' %}
+                                    {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='/wake/'|add:server_id %}
+                                {% endwith %}
+                            {% else %}
+                                {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='' %}
+                            {% endif %}
                         </span>
                         <div style="width: 1rem;"></div>
                         <span style="margin: auto 0 auto 0;">
-                            {% with server_id=server.id|stringformat:'s' %}
-                                {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='/shutdown/'|add:server_id %}
-                            {% endwith %}
+                            {% if server.shutdown_url.all %}
+                                {% with server_id=server.id|stringformat:'s' %}
+                                    {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='/shutdown/'|add:server_id %}
+                                {% endwith %}
+                            {% else %}
+                                {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='' %}
+                            {% endif %}
                         </span>
                         <div style="width: 1rem;"></div>
                         <span style="margin: auto 0 auto 0;">
@@ -61,60 +69,65 @@
                         </span>
                     </span>
                 </div>
-                <div class="spacer"></div>
-                <div style="border-top: 1px solid #ccc;"></div>
-                <div class="spacer"></div>
-                <b>Services on this server</b>
-                <div>
-                    {% if server.services.all %}
-                        <div class="spacer" style="height: .5rem;"></div>
-                        {% for service in server.services.all %}
-                            <a href="/edit/service/{{ service.id }}" style="text-decoration: none; color: inherit;">
-                                <div>
-                                    {% if service.icon_url %}
-                                        <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
-                                    {% else %}
-                                        <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
-                                    {% endif %}
-                                    {{ service.name }}
-                                </div>
-                                <div class="soft">
-                                    {{ service.note }}
-                                </div>
-                            </a>
+                {% if server.services.all %}
+                    <div class="spacer"></div>
+                    <div style="border-top: 1px solid #ccc;"></div>
+                    <div class="spacer"></div>
+                    <b>Services on this server</b>
+                    <div>
+                        {% if server.services.all %}
                             <div class="spacer" style="height: .5rem;"></div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="soft">No services found.</div>
-                    {% endif %}
-                </div>
-                <div class="spacer"></div>
-                <div style="border-top: 1px solid #ccc;"></div>
-                <div class="spacer"></div>
-                <b>Schedules for this server</b>
-                <div>
-                    {% if server.wol_schedules.all %}
-                        <div class="spacer" style="height: .5rem;"></div>
-                        {% for schedule in server.wol_schedules.all %}
-                            <a href="/edit/schedule/{{ schedule.id }}" style="text-decoration: none; color: inherit;">
-                                <div>
-                                    {% if schedule.repeat %}
-                                        <i class="fas fa-sync" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
-                                        {{ schedule.repeat_type }}
-                                    {% else %}
-                                        <i class="fas fa-clock" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
-                                    {% endif %}
-                                    {{ schedule.schedule_time }}
-                                </div>
-                                <div class="soft">
-                                    {{ schedule.note }}
-                                </div>
-                            </a>
-                        {% endfor %}
-                    {% else %}
-                        <div class="soft">No schedules defined.</div>
-                    {% endif %}
-                </div>
+                            {% for service in server.services.all %}
+                                <a href="/edit/service/{{ service.id }}" style="text-decoration: none; color: inherit;">
+                                    <div>
+                                        {% if service.icon_url %}
+                                            <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                                        {% else %}
+                                            <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                        {% endif %}
+                                        {{ service.name }}
+                                    </div>
+                                    <div class="soft">
+                                        {{ service.note }}
+                                    </div>
+                                </a>
+                                <div class="spacer" style="height: .5rem;"></div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="soft">No services found.</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if server.wol_schedules.all %}
+                    <div class="spacer"></div>
+                    <div style="border-top: 1px solid #ccc;"></div>
+                    <div class="spacer"></div>
+                    <b>Schedules for this server</b>
+                    <div>
+                        {% if server.wol_schedules.all %}
+                            <div class="spacer" style="height: .5rem;"></div>
+                            {% for schedule in server.wol_schedules.all %}
+                                <a href="/edit/schedule/{{ schedule.id }}" style="text-decoration: none; color: inherit;">
+                                    <div>
+                                        {% if schedule.repeat %}
+                                            <i class="fas fa-sync" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                            {{ schedule.repeat_type }}
+                                        {% else %}
+                                            <i class="fas fa-clock" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                        {% endif %}
+                                        {{ schedule.schedule_time }}
+                                    </div>
+                                    <div class="soft">
+                                        {{ schedule.note }}
+                                    </div>
+                                </a>
+                                <div class="spacer" style="height: .5rem;"></div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="soft">No schedules defined.</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
         {% endfor %}
     {% else %}

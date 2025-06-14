@@ -47,7 +47,7 @@ def edit_server(request, server_id):
         else:
             context['additional_information'] = [
                 {
-                    'title': 'No shutdown URL configured',
+                    'title': 'No Shutdown Adapter configured',
                     'description':
                         'You can create a Shutdown Adapter for this server to allow remote shutdown.',
                     'link': f'/create/shutdown_url/{server.id}',
