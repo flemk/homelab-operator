@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
     UserProfile, ServerUptimeStatistic
-from .helpers import rate_limit
+from .helpers import rate_limit, process_schedules, update_uptime_statistics
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 

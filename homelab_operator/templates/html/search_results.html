@@ -29,6 +29,11 @@
                         {% include 'html_components/inline_button.html' with label='' fa_icon='fa-pen-to-square' href='/edit/server/'|add:server_id %}
                     {% endwith %}
                 </span>
+                <span style="margin: auto 1rem auto 0;">
+                    {% with server_name=server.name|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='' fa_icon='fa-arrow-up-right-from-square' href='/dashboard/#'|add:server_name %}
+                    {% endwith %}
+                </span>
                 <div style="display: block;">
                     <b>{{ server.name }}</b>
                     <div class="soft">{{ server.note }}</div>
@@ -46,6 +51,11 @@
                 <span style="margin: auto 1rem auto 0;">
                     {% with service_id=service.id|stringformat:'s' %}
                         {% include 'html_components/inline_button.html' with label='' fa_icon='fa-pen-to-square' href='/edit/service/'|add:service_id %}
+                    {% endwith %}
+                </span>
+                <span style="margin: auto 1rem auto 0;">
+                    {% with server_name=service.server.name|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='' fa_icon='fa-arrow-up-right-from-square' href='/dashboard/#'|add:server_name %}
                     {% endwith %}
                 </span>
                 <div style="display: block;">
