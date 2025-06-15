@@ -1,15 +1,14 @@
 import os
 from datetime import datetime
-from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
 from django.db.models import Q
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, UserProfile
+from .helpers import rate_limit
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
@@ -183,63 +182,13 @@ def cron(request, api_key):
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
-    
-    # TODO check online servers and update their statistic. Separate funciton
-    # TODO do the waking here in separate founciton
 
-    now = datetime.now()
-    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
-    schedules = WOLSchedule.objects.filter(
-        enabled=True,
-        schedule_time__hour=now.hour,
-        schedule_time__minute__in=minute_window
-    )
+    try:
+        update_uptime_statistics()
+    except Exception as e:
+        print(e)
 
-    for schedule in schedules.all():
-        if schedule.repeat:
-            if schedule.repeat_type == 'daily':
-                # schedule should be executed every day, no action needed
-                continue
-            if schedule.repeat_type == 'weekly':
-                if schedule.schedule_time.weekday() != now.weekday():
-                    schedules.exclude(id=schedule.id)
-            elif schedule.repeat_type == 'monthly':
-                if schedule.schedule_time.month != now.month \
-                    and schedule.schedule_time.day != now.day:
-                    schedules.exclude(id=schedule.id)
-        else:
-            if schedule.schedule_time.date() != now.date():
-                schedules.exclude(id=schedule.id)
-
-    for schedule in schedules:
-        server = schedule.server
-        if server:
-            if not server.auto_wake:
-                continue
-            if not server.auto_wake:
-                continue
-            if schedule.type == 'WAKE':
-                response = server.wake()
-                if response is False:
-                    print(f"Magic packet sent to {server.name}" + \
-                          f"(Scheduled by {schedule.user.username})")
-                    print(f"Magic packet sent to {server.name}" + \
-                          f"(Scheduled by {schedule.user.username})")
-                else:
-                    print(f"Failed to send magic packet to {server.name}: {response}")
-            elif schedule.type == 'SHUTDOWN':
-                response = server.shutdown()
-                if response is True:
-                    print(f"Shutdown command sent to {server.name} " + \
-                          f"(Scheduled by {schedule.user.username})")
-                    print(f"Shutdown command sent to {server.name} " + \
-                          f"(Scheduled by {schedule.user.username})")
-                else:
-                    print(f"Failed to send shutdown command to {server.name}: {response}")
-        else:
-            print(f"Server not found for schedule ID {schedule.id}")
-
-    return HttpResponse("OK", status=200)
+    return process_schedules()
 
 @login_required
 def confirm(request):
@@ -258,17 +207,10 @@ def confirm(request):
         return render(request, 'html_components/confirm.html', context)
     return HttpResponseBadRequest()
 
+@rate_limit
 def is_online(request, api_key, service_id, server_id):
     '''This function is used to check if services or servers are online.
     Returns 200 OK if the service is online, 503 Service Unavailable if not.'''
-    # Simple rate limiting using Django cache (per IP, 120 requests/minute)
-    ip = request.META.get('REMOTE_ADDR')  # TODO IP Address is always 127.0.0.1 due to reverse proxy...
-    key = f"rate_limit_is_online_{ip}"
-    count = cache.get(key, 0)
-    if count >= 120:
-        return HttpResponse("Too Many Requests", status=429)
-    cache.set(key, count + 1, timeout=60)
-
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
 

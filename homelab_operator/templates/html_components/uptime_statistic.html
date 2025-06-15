@@ -23,7 +23,7 @@
         <div style="display: flex;">
             <span style="width: 4.5rem;"></span>
             {% for hour, p in probability_matrix.0.1 %}
-                {% if hour == 5 or hour == 10 or hour == 15 or hour == 20 %}
+                {% if hour == 0 or hour == 5 or hour == 10 or hour == 15 or hour == 20 %}
                     <span style="font-size: .8rem; width: .8rem; margin: 1px; z-index: 1;">{{ hour }}:00</span>
                 {% else %}
                     <div style="width: .8rem; height: .8rem; margin: 1px; background-color: transparent;"></div>
