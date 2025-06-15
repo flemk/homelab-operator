@@ -2,6 +2,7 @@
 # [1.3.0]
 Added:
 - Added search functionality
+- Added statistic for server uptime
 
 Changed:
 - Clarified docker compose instruction in README.md

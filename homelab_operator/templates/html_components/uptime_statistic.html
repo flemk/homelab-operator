@@ -1,0 +1,44 @@
+<script>
+    function percentToColor(percent) {
+        percent = Math.max(0, Math.min(1, percent));
+        const base = 65;
+        const rSoft = Math.round(base + ((255 - base) * (1 - percent)));
+        const gSoft = Math.round(base + ((240 - base) * percent));
+        const bSoft = 0;
+        return `rgb(${rSoft}, ${gSoft}, ${bSoft})`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.uptime-cell').forEach(function(cell) {
+            const percent = parseFloat(cell.dataset.percent);
+            cell.style.backgroundColor = percentToColor(percent);
+        });
+    });
+</script>
+
+{% if probability_matrix %}
+    <div style="display: block;">
+        <div style="display: flex;">
+            <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #fff;"></div>
+            {% for hour, p in probability_matrix.0.1 %}
+                <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #666;">
+                    <div class="tooltiptext">{{ hour }}:00</div>
+                </div>
+            {% endfor %}
+        </div>
+        {% for day, hours in probability_matrix %}
+            <div style="display: flex;">
+                <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #666;">
+                    <div class="tooltiptext">Day {{ day }}</div>
+                </div>
+                {% for hour, p in hours %}
+                    <div class="tooltip uptime-cell" data-percent="{{ p }}" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px;">
+                        <div class="tooltiptext">{{ p }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="soft">No probability matrix provided.</div>
+{% endif %}

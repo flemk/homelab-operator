@@ -69,6 +69,25 @@
                         </span>
                     </span>
                 </div>
+
+                {% if server.uptime_statistic.all %}
+                    {% with uptime_statistic=server.uptime_statistic.first %}
+                        <div class="spacer"></div>
+                        <div style="border-top: 1px solid #ccc;"></div>
+                        <div class="spacer"></div>
+                        <b>Uptime</b>
+                        <div class="soft">
+                            Red means offline, green means online. The color intensity indicates the probability of being online at that hour.
+                        </div>
+                        <div class="spacer" style="height: .5rem;"></div>
+                        {% if uptime_statistic.initialized %}
+                            {% include 'html_components/uptime_statistic.html' with probability_matrix=uptime_statistic.get_probability_matrix %}
+                        {% else %}
+                            <div class="soft">Uptime statistic is not initialized.</div>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+
                 {% if server.services.all %}
                     <div class="spacer"></div>
                     <div style="border-top: 1px solid #ccc;"></div>

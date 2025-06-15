@@ -183,6 +183,9 @@ def cron(request, api_key):
 
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
+    
+    # TODO check online servers and update their statistic. Separate funciton
+    # TODO do the waking here in separate founciton
 
     now = datetime.now()
     minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
