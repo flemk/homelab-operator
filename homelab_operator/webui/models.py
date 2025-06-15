@@ -80,7 +80,6 @@ class Server(models.Model):
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
-        # TODO this could be as well implemented in the browser as JS/ping ... reduces loading time
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
