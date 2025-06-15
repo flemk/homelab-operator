@@ -216,7 +216,7 @@ class ServerUptimeStatistic(models.Model):
         self.matrix = {str(day): {str(hour): [0.0, 0] for hour in range(24)} for day in range(7)}
         self.initialized = True
         self.save()
-        
+
     def update_uptime(self, day: int, hour: int, is_online: bool):
         '''Increments the uptime for a specific day and hour.'''
         if not self.initialized:
@@ -230,22 +230,9 @@ class ServerUptimeStatistic(models.Model):
             self.save()
         else:
             raise ValueError("Invalid day or hour for uptime matrix.")
-        
+
     def get_probability_matrix(self):
         '''Returns the probability matrix as a 7x24 list.'''
-        return [(day, [(hour, self.matrix[str(day)][str(hour)][0]) for hour in range(24)]) for day in range(7)]
+        DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        return [(DAY_NAMES[day], [(hour, self.matrix[str(day)][str(hour)][0]) for hour in range(24)]) for day in range(7)]
     
-    def visualize_matrix_html(self):
-        '''Generates an HTML representation of the uptime matrix.'''
-        if not self.initialized:
-            self.initialize_matrix()
-        html = '<table class="uptime-matrix">'
-        html += '<tr><th>Day/Hour</th>' + ''.join(f'<th>{hour}</th>' for hour in range(24)) + '</tr>'
-        for day in range(7):
-            html += f'<tr><td>Day {day}</td>'
-            for hour in range(24):
-                p, n = self.matrix[str(day)][str(hour)]
-                html += f'<td>{p:.2f} ({n})</td>'
-            html += '</tr>'
-        html += '</table>'
-        return format_html(html)

@@ -17,9 +17,9 @@
 </script>
 
 {% if probability_matrix %}
-    <div style="display: block;">
+    <div style="display: block; background-color: #ccc; width: min-content; padding: .5rem; border-radius: .25rem;">
         <div style="display: flex;">
-            <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #fff;"></div>
+            <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #ccc;"></div>
             {% for hour, p in probability_matrix.0.1 %}
                 <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #666;">
                     <div class="tooltiptext">{{ hour }}:00</div>
@@ -29,7 +29,7 @@
         {% for day, hours in probability_matrix %}
             <div style="display: flex;">
                 <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #666;">
-                    <div class="tooltiptext">Day {{ day }}</div>
+                    <div class="tooltiptext">{{ day }}</div>
                 </div>
                 {% for hour, p in hours %}
                     <div class="tooltip uptime-cell" data-percent="{{ p }}" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px;">
