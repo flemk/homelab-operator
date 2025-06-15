@@ -25,6 +25,69 @@ def edit_server(request, server_id):
     else:
         form = ServerForm(instance=server, user=user)
 
+    additional_information = []
+    if server.shutdown_url:
+        if server.shutdown_url.all().first():
+            additional_information.append(
+                {
+                    'title': 'A Shutdown Adapter is configured for this server',
+                    'description': 'A shutdown URL is configured as Shutdown Adapter. It can be configured separately.',
+                    'links': [
+                        {
+                            'url': '/edit/shutdown_url/' + str(server.shutdown_url.all().first().id) + '/',
+                            'label': 'View',
+                        }
+                    ]
+                }
+            )
+        else:
+            additional_information.append(
+                {
+                    'title': 'No Shutdown Adapter configured',
+                    'description':
+                        'You can create a Shutdown Adapter for this server to allow remote shutdown.',
+                    'links': [
+                        {
+                            'url': f'/create/shutdown_url/{server.id}',
+                            'label': 'Create Shutdown Adapter',
+                        }
+                    ]
+                }
+            )
+    if server.uptime_statistic.all():
+        additional_information.append(
+            {
+                'title': 'Uptime Statistics',
+                'description': 'This server has uptime statistics enabled.',
+                'links': [
+                    {
+                        'url': f'/reset/uptime_statistic/{server.id}/',
+                        'label': 'Reset',
+                        'fa_icon': 'fa-rotate',
+                    },
+                    {
+                        'url': f'/delete/uptime_statistic/{server.id}/',
+                        'label': 'Delete',
+                        'fa_icon': 'fa-trash-can',
+                    }
+                ]
+            }
+        )
+    else:
+        additional_information.append(
+            {
+                'title': 'No Uptime Statistics',
+                'description': 'Uptime statistics are not enabled for this server.',
+                'links': [
+                    {
+                        'url': f'/create/uptime_statistic/{server.id}/',
+                        'label': 'Enable',
+                        'fa_icon': 'fa-plus',
+                    }
+                ]
+            }
+        )
+
     context = {
         'form': form,
         'form_title': 'Edit Server',
@@ -33,27 +96,8 @@ def edit_server(request, server_id):
         'delete_url_declined': f"/edit/server/{server.id}/",
         'delete_title': 'Delete Server',
         'delete_message': f"You are about to delete Server {server.name}. Do you want to proceed?",
+        'additional_information': additional_information,
     }
-    if server.shutdown_url:
-        if server.shutdown_url.all().first():  # TODO this caused some issues
-            context['additional_information'] = [
-                {
-                    'title': 'A Shutdown Adapter is configured for this server',
-                    'description': 'A shutdown URL is configured as Shutdown Adapter. It can be configured separately.',
-                    'link': '/edit/shutdown_url/' + str(server.shutdown_url.all().first().id) + '/',
-                    'link_text': 'View',
-                },
-            ]
-        else:
-            context['additional_information'] = [
-                {
-                    'title': 'No Shutdown Adapter configured',
-                    'description':
-                        'You can create a Shutdown Adapter for this server to allow remote shutdown.',
-                    'link': f'/create/shutdown_url/{server.id}',
-                    'link_text': 'Create Shutdown Adapter',
-                },
-            ]
     return render(request, 'html_components/form.html', context)
 
 @login_required

@@ -7,7 +7,8 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, UserProfile
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
+    UserProfile, ServerUptimeStatistic
 from .helpers import rate_limit
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
@@ -19,6 +20,8 @@ from .views_exp.network import create_network, edit_network, delete_network
 from .views_exp.schedule import create_schedule, edit_schedule, delete_schedule
 from .views_exp.shutdown_url import create_shutdown_url, edit_shutdown_url, delete_shutdown_url
 from .views_exp.wiki import create_wiki, edit_wiki, delete_wiki
+from .views_exp.uptime_statistic import create_uptime_statistic, delete_uptime_statistic, \
+    reset_uptime_statistic
 
 def login_view(request):
     context = {}

@@ -69,13 +69,15 @@
                         </span>
                     </span>
                 </div>
-
                 {% if server.uptime_statistic.all %}
                     {% with uptime_statistic=server.uptime_statistic.first %}
                         <div class="spacer"></div>
                         <div style="border-top: 1px solid #ccc;"></div>
                         <div class="spacer"></div>
                         <b>Uptime</b>
+                        <div class="soft">
+                            Last updated: {{ uptime_statistic.last_updated|date:"Y-m-d H:i:s" }}
+                        </div>
                         <div class="soft">
                             Red means offline, green means online. The color intensity indicates the probability of being online at that hour.
                         </div>
@@ -87,7 +89,6 @@
                         {% endif %}
                     {% endwith %}
                 {% endif %}
-
                 {% if server.services.all %}
                     <div class="spacer"></div>
                     <div style="border-top: 1px solid #ccc;"></div>

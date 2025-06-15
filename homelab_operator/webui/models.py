@@ -207,6 +207,7 @@ class ServerUptimeStatistic(models.Model):
                                related_name='uptime_statistic')
     matrix = models.JSONField(default={"not":"initialized"})  # stores 7×24 matrix as nested lists/dict
     initialized = models.BooleanField(default=False)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Uptime statistics for {self.server.name}"
