@@ -1,11 +1,13 @@
 <script>
     function percentToColor(percent) {
         percent = Math.max(0, Math.min(1, percent));
-        const base = 65;
-        const rSoft = Math.round(base + ((255 - base) * (1 - percent)));
-        const gSoft = Math.round(base + ((240 - base) * percent));
-        const bSoft = 0;
-        return `rgb(${rSoft}, ${gSoft}, ${bSoft})`;
+        // Gradient from grey (#cccccc) to dark green (#006400)
+        const rStart = 204, gStart = 204, bStart = 204; // grey
+        const rEnd = 0,   gEnd = 100,  bEnd = 0;   // dark green
+        const r = Math.round(rStart + (rEnd - rStart) * percent);
+        const g = Math.round(gStart + (gEnd - gStart) * percent);
+        const b = Math.round(bStart + (bEnd - bStart) * percent);
+        return `rgb(${r}, ${g}, ${b})`;
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -17,22 +19,26 @@
 </script>
 
 {% if probability_matrix %}
-    <div style="display: block; background-color: #ccc; width: min-content; padding: .5rem; border-radius: .25rem;">
+    <div style="display: block; background-color: #fff; width: min-content; padding: .5rem; border-radius: .25rem; border: 1px solid #ccc;">
         <div style="display: flex;">
-            <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #ccc;"></div>
+            <span style="width: 4.5rem;"></span>
             {% for hour, p in probability_matrix.0.1 %}
-                <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #666;">
-                    <div class="tooltiptext">{{ hour }}:00</div>
-                </div>
+                {% if hour == 5 or hour == 10 or hour == 15 or hour == 20 %}
+                    <span style="font-size: .8rem; width: .8rem; margin: 1px; z-index: 1;">{{ hour }}:00</span>
+                {% else %}
+                    <div style="width: .8rem; height: .8rem; margin: 1px; background-color: transparent;"></div>
+                {% endif %}
             {% endfor %}
         </div>
         {% for day, hours in probability_matrix %}
             <div style="display: flex;">
-                <div class="tooltip" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px; background-color: #666;">
-                    <div class="tooltiptext">{{ day }}</div>
-                </div>
+                {% if day == 'Monday' or day == 'Thursday' or day == 'Sunday' %}
+                    <span style="font-size: .8rem; height: .8rem; width: 4rem; text-align: right; margin-right: .5rem; margin-top: -.2rem;">{{ day }}</span>
+                {% else %}
+                    <span style="width: 4.5rem;"></span>
+                {% endif %}
                 {% for hour, p in hours %}
-                    <div class="tooltip uptime-cell" data-percent="{{ p }}" style="width: 1rem; height: 1rem; border-radius: .25rem; margin: 1px;">
+                    <div class="tooltip uptime-cell" data-percent="{{ p }}" style="width: .8rem; height: .8rem; border-radius: .25rem; margin: 1px;">
                         <div class="tooltiptext">{{ p }}</div>
                     </div>
                 {% endfor %}
