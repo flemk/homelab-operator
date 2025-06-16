@@ -2,6 +2,10 @@
 
 > This project uses a modified MIT non-commercial license. Details in `LICENSE.md` and at the bottom of this document.
 
+<p align="center">
+  <img src="./homelab_operator/static/img/homelab-operator.png" alt="Homelab-Operator Icon" width="120"/>
+</p>
+
 # Homelab Operator
 Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and ssh-shutdown. You can also create an overview of your services running on your machines. You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered by a cron job +/-5min).
 
