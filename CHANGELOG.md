@@ -3,6 +3,7 @@
 Added:
 - Added search functionality
 - Added statistic for server uptime
+- Created an icon
 
 Changed:
 - Clarified docker compose instruction in README.md
