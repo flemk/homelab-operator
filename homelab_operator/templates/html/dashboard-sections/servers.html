@@ -82,12 +82,15 @@
                             Last reset: {{ uptime_statistic.last_updated|date:"Y-m-d H:i:s" }}
                         </div>
                         <div class="soft">
-                            <span data="{{ uptime_statistic.get_probability_matrix }}" onclick="navigator.clipboard.writeText(this.getAttribute('data'));">
+                            <span data="{{ uptime_statistic.get_probability_matrix }}" onclick="navigator.clipboard.writeText(this.getAttribute('data')); this.querySelector('.copied-check').style.display='inline'; setTimeout(()=>{this.querySelector('.copied-check').style.display='none';},1200);">
                                 <span class="tooltip">
                                     <i class="fas fa-circle-info"></i>
                                     <span class="tooltiptext">Copy the probability matrix data<br>as string into the clipboard.</span>
                                 </span>
                                 <span style="text-decoration: underline; cursor: pointer; margin-left: .15rem;">Copy matrix data</span>
+                                <span class="copied-check" style="display: none; color: green;">
+                                    <i class="fas fa-check"></i>
+                                </span>
                             </span>
                         </div>
                         {% if uptime_statistic.initialized %}
@@ -149,13 +152,17 @@
                                             <i class="fas fa-clock" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
                                         {% endif %}
                                         {{ schedule.type }}
-                                        {{ schedule.repeat_type }}
-                                        {% if schedule.repeat_type == 'daily' %}
-                                            at {{ schedule.schedule_time|date:"H:i" }}
-                                        {% elif schedule.repeat_type == 'weekly' %}
-                                            {{ schedule.schedule_time|date:"H:i" }} on {{ schedule.schedule_time|date:"l" }}
-                                        {% elif schedule.repeat_type == 'monthly' %}
-                                            {{ schedule.schedule_time|date:"H:i" }} on the {{ schedule.schedule_time.day }}th
+                                        {% if schedule.repeat %}
+                                            {{ schedule.repeat_type }}
+                                            {% if schedule.repeat_type == 'daily' %}
+                                                at {{ schedule.schedule_time|date:"H:i" }}
+                                            {% elif schedule.repeat_type == 'weekly' %}
+                                                {{ schedule.schedule_time|date:"H:i" }} on {{ schedule.schedule_time|date:"l" }}
+                                            {% elif schedule.repeat_type == 'monthly' %}
+                                                {{ schedule.schedule_time|date:"H:i" }} on the {{ schedule.schedule_time.day }}th
+                                            {% else %}
+                                                {{ schedule.schedule_time }}
+                                            {% endif %}
                                         {% else %}
                                             {{ schedule.schedule_time }}
                                         {% endif %}
