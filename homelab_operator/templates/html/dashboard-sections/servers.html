@@ -1,3 +1,6 @@
+{% load static %}
+<script src="{% static 'color_matrix.js' %}"></script>
+
     <div>
         <span style="display: flex;">
             <h2 style="margin-bottom: 0.25rem;">Servers</h2>
@@ -79,11 +82,22 @@
                             Last reset: {{ uptime_statistic.last_updated|date:"Y-m-d H:i:s" }}
                         </div>
                         <div class="soft">
-                            Red means offline, green means online. The color intensity indicates the probability of being online at that hour.
+                            <span data="{{ uptime_statistic.get_probability_matrix }}" onclick="navigator.clipboard.writeText(this.getAttribute('data'));">
+                                <span class="tooltip">
+                                    <i class="fas fa-circle-info"></i>
+                                    <span class="tooltiptext">Copy the probability matrix data<br>as string into the clipboard.</span>
+                                </span>
+                                <span style="text-decoration: underline; cursor: pointer; margin-left: .15rem;">Copy matrix data</span>
+                            </span>
                         </div>
-                        <div class="spacer" style="height: .5rem;"></div>
                         {% if uptime_statistic.initialized %}
-                            {% include 'html_components/uptime_statistic.html' with probability_matrix=uptime_statistic.get_probability_matrix %}
+                            <div class="spacer" style="height: .5rem;"></div>
+                            <div style="overflow-x: scroll;">
+                                {% include 'html_components/uptime_statistic.html' with probability_matrix=uptime_statistic.get_probability_matrix %}
+                                <div class="soft" style="width: 30rem;">
+                                    Gray means offline, green means online: The color intensity indicates the probability of being online at that hour. Hover for exact value.
+                                </div>
+                            </div>
                         {% else %}
                             <div class="soft">Uptime statistic is not initialized.</div>
                         {% endif %}
