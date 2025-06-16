@@ -3,6 +3,7 @@ import os
 import requests
 import socket
 from django.db import models
+from django.utils.html import format_html
 
 class UserProfile(models.Model):
     '''Model representing a user profile.'''
@@ -18,9 +19,6 @@ class UserProfile(models.Model):
 class Server(models.Model):
     '''Model representing a server.'''
     name = models.CharField(max_length=100)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    port = models.IntegerField(default=80, null=True, blank=True)
-    mac_address = models.CharField(max_length=17, null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     port = models.IntegerField(default=80, null=True, blank=True)
     mac_address = models.CharField(max_length=17, null=True, blank=True)
@@ -83,7 +81,6 @@ class Server(models.Model):
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
-        # TODO this could be as well implemented in the browser as JS/ping ... reduces loading time
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(1)
@@ -99,7 +96,6 @@ class Service(models.Model):
     endpoint = models.CharField(max_length=100, null=True, blank=True)
     port = models.IntegerField(default=80)
     icon_url = models.URLField(null=True, blank=True)
-    note = models.TextField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -190,3 +186,54 @@ class Wiki(models.Model):
 
     def __str__(self):
         return f"Wiki for {self.homelab.name}" if self.homelab else "Dangling Wiki"
+
+class ServerUptimeStatistic(models.Model):
+    '''Model representing server uptime statistics.
+    matrix is a 7x24 matrix storing uptime statistics for each hour of the week:
+        {
+            "0": { # Day 0 (Monday)
+                "0": [0.0, 1], # Hour 0 (00:00) - 0.0% uptime, 1 data point
+                "1": [0.0, 1], # Hour 1 (01:00) - 0.0% uptime, 1 data point
+                ...,
+                "23": [0.0, 1] # Hour 23 (23:00) - 0.0% uptime, 1 data point
+                },
+            "1": { # Day 1 (Tuesday)
+                ...
+                },
+            ...
+        }
+    '''
+    server = models.ForeignKey('Server', on_delete=models.CASCADE, unique=True,
+                               related_name='uptime_statistic')
+    matrix = models.JSONField(default={"not":"initialized"})  # stores 7×24 matrix as nested lists/dict
+    initialized = models.BooleanField(default=False)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Uptime statistics for {self.server.name}"
+
+    def initialize_matrix(self):
+        '''Initializes the uptime matrix with zeros.'''
+        self.matrix = {str(day): {str(hour): [0.0, 0] for hour in range(24)} for day in range(7)}
+        self.initialized = True
+        self.save()
+
+    def update_uptime(self, day: int, hour: int, is_online: bool):
+        '''Increments the uptime for a specific day and hour.'''
+        if not self.initialized:
+            self.initialize_matrix()
+
+        if str(day) in self.matrix and 0 <= hour < 24:
+            p_old, n = self.matrix[str(day)][str(hour)]
+            p_new = (p_old * n + int(is_online)) / (n + 1)
+            self.matrix[str(day)][str(hour)][0] = p_new
+            self.matrix[str(day)][str(hour)][1] += 1
+            self.save()
+        else:
+            raise ValueError("Invalid day or hour for uptime matrix.")
+
+    def get_probability_matrix(self):
+        '''Returns the probability matrix as a 7x24 list.'''
+        DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        return [(DAY_NAMES[day], [(hour, self.matrix[str(day)][str(hour)][0]) for hour in range(24)]) for day in range(7)]
+    

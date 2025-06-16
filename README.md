@@ -1,5 +1,11 @@
 > This project superseeds [flemk/server-dashboard](https://github.com/flemk/server-dashboard)
 
+> This project uses a modified MIT non-commercial license. Details in `LICENSE.md` and at the bottom of this document.
+
+<p align="center">
+  <img src="./homelab_operator/static/img/homelab-operator.png" alt="Homelab-Operator Icon" width="120"/>
+</p>
+
 # Homelab Operator
 Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and ssh-shutdown. You can also create an overview of your services running on your machines. You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered by a cron job +/-5min).
 
@@ -25,11 +31,14 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
       - ALLOWED_HOST=${ALLOWED_HOST}
       - CSRF_TRUSTED_ORIGIN=${CSRF_TRUSTED_ORIGIN}
+      - BROADCAST_ADDRESS=${BROADCAST_ADDRESS}
+      - TIME_ZONE=${TIME_ZONE}
+      - API_KEY=${API_KEY}
     ports:
       - "${WEB_PORT}:80"
       - "${WEB_SSL_PORT}:443"
-    volumes:
-      - ./web-crt:/app/crt  # Use your own certificates
+    #volumes:
+    #  - ./crt:/app/crt  # Use your own certificates
   db:
     image: postgres:14
     environment:
@@ -58,3 +67,11 @@ To use the auto-wake functionality properly, you need to create a system level c
 */10 * * * * docker exec <container> curl http://localhost:8000/cron/<API_KEY>/
 ```
 You need to call the cron endpoint every 10min for full coverage.
+
+## License
+This project is licensed under a modified MIT **non-commercial** License:
+
+- You may use, copy, modify, and distribute this software for personal and academic purposes.
+- Commercial use is prohibited without explicit written permission.
+
+See `LICENSE.md` for full details. Commercial licensing available upon request.

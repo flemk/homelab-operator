@@ -1,0 +1,68 @@
+{% extends 'html/base.html' %}
+
+{% if homelab %}
+    {% block title %}
+        {{ homelab.name }} - Homelab Operator
+    {% endblock %}
+{% endif %}
+
+{% block content %}
+    <div>
+        <span style="display: flex;">
+            <h2 style="margin-bottom: 0.25rem;">
+                Search Results
+            </h2>
+        </span>
+        <div class="soft">
+            Found {{ servers|length }} servers and {{ services|length }} services matching your search criteria.
+        </div>
+    </div>
+    {% if servers %}
+        <div class="spacer"></div>
+        <div style="border-top: 1px solid #ccc;"></div>
+        <div class="spacer"></div>
+        <h3>Servers</h3>
+        {% for server in servers %}
+            <div style="display: flex;">
+                <span style="margin: auto 1rem auto 0;">
+                    {% with server_id=server.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='' fa_icon='fa-pen-to-square' href='/edit/server/'|add:server_id %}
+                    {% endwith %}
+                </span>
+                <span style="margin: auto 1rem auto 0;">
+                    {% with server_name=server.name|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='' fa_icon='fa-arrow-up-right-from-square' href='/dashboard/#'|add:server_name %}
+                    {% endwith %}
+                </span>
+                <div style="display: block;">
+                    <b>{{ server.name }}</b>
+                    <div class="soft">{{ server.note }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if services %}
+        <div class="spacer"></div>
+        <div style="border-top: 1px solid #ccc;"></div>
+        <div class="spacer"></div>
+        <h3>Services</h3>
+        {% for service in services %}
+            <div style="display: flex;">
+                <span style="margin: auto 1rem auto 0;">
+                    {% with service_id=service.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='' fa_icon='fa-pen-to-square' href='/edit/service/'|add:service_id %}
+                    {% endwith %}
+                </span>
+                <span style="margin: auto 1rem auto 0;">
+                    {% with server_name=service.server.name|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='' fa_icon='fa-arrow-up-right-from-square' href='/dashboard/#'|add:server_name %}
+                    {% endwith %}
+                </span>
+                <div style="display: block;">
+                    <b>{{ service.name }}</b>
+                    <div class="soft">{{ service.note }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

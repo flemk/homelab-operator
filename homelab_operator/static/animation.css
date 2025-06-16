@@ -1,0 +1,20 @@
+@keyframes fade-out {
+    0% { opacity: 1; }
+    50% {
+        opacity: 1;
+        color: transparent; }
+    90% {
+        color: transparent;
+        opacity: 0;}
+    100% {
+        color: transparent;
+        opacity: 0;
+        display: none;
+    }
+}
+
+@keyframes highlight {
+    0% { background-color: #efefef; }
+    50% { background-color: #ddd; }
+    100% { background-color: #efefef; }
+}

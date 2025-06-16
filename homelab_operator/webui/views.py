@@ -1,14 +1,15 @@
 import os
 from datetime import datetime
-from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, UserProfile
+from django.db.models import Q
+from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
+    UserProfile, ServerUptimeStatistic
+from .helpers import rate_limit, process_schedules, update_uptime_statistics
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
@@ -19,6 +20,8 @@ from .views_exp.network import create_network, edit_network, delete_network
 from .views_exp.schedule import create_schedule, edit_schedule, delete_schedule
 from .views_exp.shutdown_url import create_shutdown_url, edit_shutdown_url, delete_shutdown_url
 from .views_exp.wiki import create_wiki, edit_wiki, delete_wiki
+from .views_exp.uptime_statistic import create_uptime_statistic, delete_uptime_statistic, \
+    reset_uptime_statistic
 
 def login_view(request):
     context = {}
@@ -116,6 +119,39 @@ def dashboard(request, homelab_id=None):
     return render(request, 'html/dashboard.html', context)
 
 @login_required
+def search(request):
+    '''Search view for the user, showing results for servers, networks, and homelabs.'''
+    user = request.user
+
+    if request.method == 'POST':
+        query = request.POST.get('query', '').strip()
+    else:
+        return redirect('dashboard_default')
+    if not query:
+        return redirect('dashboard_default')
+
+    print(f"Search query: {query} by user: {user.username}")
+
+    servers = Server.objects.filter(
+        Q(user=user) & (
+            Q(name__icontains=query) |
+            Q(ip_address__icontains=query) |
+            Q(mac_address__icontains=query) |
+            Q(note__icontains=query)))
+    services = Service.objects.filter(
+        Q(server__user=user) & (
+            Q(name__icontains=query) |
+            Q(endpoint__icontains=query) |
+            Q(note__icontains=query)))
+
+    context = {
+        'servers': servers,
+        'services': services,
+        'query': query,
+    }
+    return render(request, 'html/search_results.html', context)
+
+@login_required
 def wake(request, server_id):
     user = request.user
     server = Server.objects.get(id=server_id, user=user)
@@ -150,60 +186,12 @@ def cron(request, api_key):
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
 
-    now = datetime.now()
-    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
-    minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
-    schedules = WOLSchedule.objects.filter(
-        enabled=True,
-        schedule_time__hour=now.hour,
-        schedule_time__minute__in=minute_window
-    )
+    try:
+        update_uptime_statistics()
+    except Exception as e:
+        print(e)
 
-    for schedule in schedules.all():
-        if schedule.repeat:
-            if schedule.repeat_type == 'daily':
-                # schedule should be executed every day, no action needed
-                continue
-            if schedule.repeat_type == 'weekly':
-                if schedule.schedule_time.weekday() != now.weekday():
-                    schedules.exclude(id=schedule.id)
-            elif schedule.repeat_type == 'monthly':
-                if schedule.schedule_time.month != now.month \
-                    and schedule.schedule_time.day != now.day:
-                    schedules.exclude(id=schedule.id)
-        else:
-            if schedule.schedule_time.date() != now.date():
-                schedules.exclude(id=schedule.id)
-
-    for schedule in schedules:
-        server = schedule.server
-        if server:
-            if not server.auto_wake:
-                continue
-            if not server.auto_wake:
-                continue
-            if schedule.type == 'WAKE':
-                response = server.wake()
-                if response is False:
-                    print(f"Magic packet sent to {server.name}" + \
-                          f"(Scheduled by {schedule.user.username})")
-                    print(f"Magic packet sent to {server.name}" + \
-                          f"(Scheduled by {schedule.user.username})")
-                else:
-                    print(f"Failed to send magic packet to {server.name}: {response}")
-            elif schedule.type == 'SHUTDOWN':
-                response = server.shutdown()
-                if response is True:
-                    print(f"Shutdown command sent to {server.name} " + \
-                          f"(Scheduled by {schedule.user.username})")
-                    print(f"Shutdown command sent to {server.name} " + \
-                          f"(Scheduled by {schedule.user.username})")
-                else:
-                    print(f"Failed to send shutdown command to {server.name}: {response}")
-        else:
-            print(f"Server not found for schedule ID {schedule.id}")
-
-    return HttpResponse("OK", status=200)
+    return process_schedules()
 
 @login_required
 def confirm(request):
@@ -222,20 +210,13 @@ def confirm(request):
         return render(request, 'html_components/confirm.html', context)
     return HttpResponseBadRequest()
 
+@rate_limit
 def is_online(request, api_key, service_id, server_id):
     '''This function is used to check if services or servers are online.
-    Returns 200 OK if the service is online, 503 Service Unavailable if not.'''    
-    # Simple rate limiting using Django cache (per IP, 60 requests/minute)
-    ip = request.META.get('REMOTE_ADDR')
-    key = f"rate_limit_is_online_{ip}"
-    count = cache.get(key, 0)
-    if count >= 60:
-        return HttpResponse("Too Many Requests", status=429)
-    cache.set(key, count + 1, timeout=60)
-
+    Returns 200 OK if the service is online, 503 Service Unavailable if not.'''
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
-    
+
     if service_id != 0:
         service = Service.objects.get(id=service_id)
         is_online = service.is_online()
@@ -251,5 +232,5 @@ def is_online(request, api_key, service_id, server_id):
             return HttpResponse("OK", status=200)
         else:
             return HttpResponse("Service Unavailable", status=503)
-    
+
     return HttpResponseBadRequest("Bad Request", status=400)

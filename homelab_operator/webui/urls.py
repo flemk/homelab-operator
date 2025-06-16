@@ -6,6 +6,8 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard_default'),
     path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
 
+    path('search/', views.search, name='search'),
+
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
@@ -52,5 +54,12 @@ urlpatterns = [
          views.edit_shutdown_url, name='edit_shutdown_url'),
     path('delete/shutdown_url/<int:shutdown_url_id>/',
          views.delete_shutdown_url, name='delete_shutdown_url'),
+
+     path('create/uptime_statistic/<int:server_id>/',
+          views.create_uptime_statistic, name='create_uptime_statistic'),
+     path('delete/uptime_statistic/<int:server_id>/',
+          views.delete_uptime_statistic, name='delete_uptime_statistic'),
+     path('reset/uptime_statistic/<int:server_id>/',
+          views.reset_uptime_statistic, name='reset_uptime_statistic'),
 ]
 

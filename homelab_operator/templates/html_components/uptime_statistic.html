@@ -1,0 +1,30 @@
+{% if probability_matrix %}
+    <div style="display: block; background-color: #fff; width: min-content; padding: .5rem; border-radius: .25rem; border: 1px solid #ccc;">
+        <div style="display: flex;">
+            <span style="width: 4.5rem;"></span>
+            {% for hour, p in probability_matrix.0.1 %}
+                {% if hour == 0 or hour == 5 or hour == 10 or hour == 15 or hour == 20 %}
+                    <span style="font-size: .8rem; width: .8rem; margin: 1px; z-index: 1;">{{ hour }}:00</span>
+                {% else %}
+                    <div style="width: .8rem; height: .8rem; margin: 1px; background-color: transparent;"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% for day, hours in probability_matrix %}
+            <div style="display: flex;">
+                {% if day == 'Monday' or day == 'Thursday' or day == 'Sunday' %}
+                    <span style="font-size: .8rem; height: .8rem; width: 4rem; text-align: right; margin-right: .5rem; margin-top: -.2rem;">{{ day }}</span>
+                {% else %}
+                    <span style="width: 4.5rem;"></span>
+                {% endif %}
+                {% for hour, p in hours %}
+                    <div class="tooltip uptime-cell" data-percent="{{ p }}" style="width: .8rem; height: .8rem; border-radius: .25rem; margin: 1px;">
+                        <div class="tooltiptext">{{ p }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="soft">No probability matrix provided.</div>
+{% endif %}

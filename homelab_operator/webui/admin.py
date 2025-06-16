@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki, UserProfile
+    Wiki, UserProfile, ServerUptimeStatistic
 
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user',)
@@ -33,3 +33,7 @@ admin.site.register(Homelab, HomelabAdmin)
 class WikiAdmin(admin.ModelAdmin):
     list_display = ('homelab',)
 admin.site.register(Wiki, WikiAdmin)
+
+class ServerUptimeStatisticAdmin(admin.ModelAdmin):
+    list_display = ('server',)
+admin.site.register(ServerUptimeStatistic, ServerUptimeStatisticAdmin)

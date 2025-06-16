@@ -31,10 +31,18 @@
                             </div>
                         {% endif %}
                     </div>
-                    {% if field.link and field.link_text %}
-                        <span style="margin: auto 1rem auto auto;">
-                            {% include 'html_components/inline_button.html' with label=field.link_text fa_icon='fa-arrow-up-right-from-square' href=field.link %}
-                        </span>
+                    {% if field.links %}
+                        <div style="display: flex; margin: auto 0 auto auto;">
+                            {% for link in field.links %}
+                                <span style="margin: auto 1rem auto auto;">
+                                    {% if link.fa_icon %}
+                                        {% include 'html_components/inline_button.html' with label=link.label fa_icon=link.fa_icon href=link.url %}
+                                    {% else %}
+                                        {% include 'html_components/inline_button.html' with label=link.label fa_icon='fa-arrow-up-right-from-square' href=link.url %}
+                                    {% endif %}
+                                </span>
+                            {% endfor %}
+                        </div>
                     {% endif %}
                 </div>
             {% endfor %}

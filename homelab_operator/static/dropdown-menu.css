@@ -27,16 +27,20 @@
 }
 
 .dropdown-content div[class="dropdown-item"] a {
-    color: black;
-    text-decoration: none;
+  color: black;
+  text-decoration: none;
 }
 
 .dropdown-content div[class="dropdown-item"]:hover {
-    background-color: #ddd;
+  background-color: #ddd;
 }
 
 .dropdown:hover .dropdown-content {
-    display: block;
+  display: block;
+}
+
+.dropdown-content.dropdown-show {
+  display: block;
 }
 
 .dropdown:hover .dropbtn {

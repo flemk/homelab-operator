@@ -6,20 +6,38 @@
     <meta charset="UTF-8">
     <title>{% block title %}Homelab Operator{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'mobile.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'input.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'message.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'typography.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'indicator-dot.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'tooltip.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'dropdown-menu.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'animation.css' %}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.6.0/css/all.css">
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/homelab-operator.png' %}" >
 </head>
 <body>
     <script src="{% static 'check_online.js' %}"></script>
     <div class="header">
         <h1 class="headline">
-            {% block headline %}Homelab Operator{% endblock %}
+            {% block headline %}
+                <a href="/" style="text-decoration: none; color: inherit;">Homelab Operator</a>
+            {% endblock %}
         </h1>
         {% if user.is_authenticated %}
-            <div class="no" style="margin: auto;">
-                <i class="fas fa-search soft" style="margin-right: 0.15rem;"></i>
-                <input type="text" placeholder="Search..." style="width: 30vw;">
+            <div class="search" style="margin: auto;">
+                <form method="post" action="/search/" style="display: flex;">
+                    {% csrf_token %}
+                    <i class="fa-solid fa-magnifying-glass fa-1x" style="margin: auto .5rem auto 0; color: var(--typography-soft-color);"></i>
+                    <input type="text" name="query" placeholder="Search..." style="width: 30vw;">
+                    <div class="info button inline-button" style="margin-left: 0.5rem; width: 2rem; height: 2rem; display: flex;" onclick="this.closest('form').submit();">
+                        <div style="display: flex; width: 100%;">
+                            <i class="soft fa-solid fa-chevron-right" style="margin: auto .15rem auto .12rem;"></i>
+                            <i class="soft fa-solid fa-chevron-right" style="margin: auto auto auto 0;"></i>
+                        </div>
+                    </div>
+                </form>
             </div>
         {% endif %}
         {% if messages %}
@@ -30,7 +48,7 @@
             {% endfor %}
         {% endif %}
         {% if user.is_authenticated %}
-            <div style="margin: auto 2rem auto 1rem; width: max-content; display: flex;">
+            <div class="menu">
                 <div style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
                 <div class="spacer" style="width: 2rem;"></div>
                 {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
@@ -51,7 +69,6 @@
         <div class="soft">&copy; 2024 Franz Ludwig Kostelezky (info@kostelezky.com)</div>
         <div class="soft">Version reference: %HOMELAB_OPERATOR_VERSION%</div>
         <div class="soft">Server Time: {% now "Y-m-d H:i:s T" %}</div>
-        <div class="spacer" style="height: 0.15rem;"></div>
     </div>
 </body>
 </html>
