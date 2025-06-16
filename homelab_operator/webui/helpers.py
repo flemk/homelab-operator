@@ -17,19 +17,17 @@ def rate_limit(view_func):
     return _wrapped_view
 
 def update_uptime_statistics():
+    now = datetime.now()
+    hour = now.hour
+    day = now.weekday()
+
     for server in Server.objects.all():
         if server.uptime_statistic.first():
             uptime_statistic = server.uptime_statistic.first()
             if not uptime_statistic.initialized:
                 uptime_statistic.initialize_matrix()
 
-            now = datetime.now()
-            hour = now.hour
-            day = now.weekday()
             is_online = server.is_online()
-
-            print(server, is_online, now)
-
             uptime_statistic.update_uptime(day, hour, is_online)
 
 def process_schedules():

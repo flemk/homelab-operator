@@ -10,6 +10,7 @@ Changed:
 - Improved Homelab dropdown menu selectability on mobile
 - Changed licensing terms: Prohibiting commeercial use
 - Only show server buttons if action is available
+- Improved display of schedules
 - Refactoring
 
 # [1.2.0]

@@ -76,7 +76,7 @@
                         <div class="spacer"></div>
                         <b>Uptime</b>
                         <div class="soft">
-                            Last updated: {{ uptime_statistic.last_updated|date:"Y-m-d H:i:s" }}
+                            Last reset: {{ uptime_statistic.last_updated|date:"Y-m-d H:i:s" }}
                         </div>
                         <div class="soft">
                             Red means offline, green means online. The color intensity indicates the probability of being online at that hour.
@@ -131,11 +131,20 @@
                                     <div>
                                         {% if schedule.repeat %}
                                             <i class="fas fa-sync" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
-                                            {{ schedule.repeat_type }}
                                         {% else %}
                                             <i class="fas fa-clock" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
                                         {% endif %}
-                                        {{ schedule.schedule_time }}
+                                        {{ schedule.type }}
+                                        {{ schedule.repeat_type }}
+                                        {% if schedule.repeat_type == 'daily' %}
+                                            at {{ schedule.schedule_time|date:"H:i" }}
+                                        {% elif schedule.repeat_type == 'weekly' %}
+                                            {{ schedule.schedule_time|date:"H:i" }} on {{ schedule.schedule_time|date:"l" }}
+                                        {% elif schedule.repeat_type == 'monthly' %}
+                                            {{ schedule.schedule_time|date:"H:i" }} on the {{ schedule.schedule_time.day }}th
+                                        {% else %}
+                                            {{ schedule.schedule_time }}
+                                        {% endif %}
                                     </div>
                                     <div class="soft">
                                         {{ schedule.note }}
