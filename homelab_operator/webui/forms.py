@@ -1,11 +1,19 @@
 '''Forms for the web UI of the homelab operator project.'''
 
-from django.forms import ModelForm, DateTimeInput
+from django.forms import ModelForm, DateTimeInput, BooleanField
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
     Wiki, UserProfile
+from .widgets import HoCheckbox
 
 class UserProfileForm(ModelForm):
     '''Form for creating and updating UserProfile instances.'''
+    show_wiki = BooleanField(widget=HoCheckbox(
+        label=UserProfile._meta.get_field('show_wiki').help_text), required=False, label='')
+    show_networks = BooleanField(widget=HoCheckbox(
+        label=UserProfile._meta.get_field('show_networks').help_text), required=False, label='')
+    dark_mode = BooleanField(widget=HoCheckbox(
+        label=UserProfile._meta.get_field('dark_mode').help_text), required=False, label='')
+
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
 
@@ -21,6 +29,10 @@ class UserProfileForm(ModelForm):
 
 class ServerForm(ModelForm):
     '''Form for creating and updating Server instances.'''
+    auto_wake =  BooleanField(
+        widget=HoCheckbox(
+            label=Server._meta.get_field('auto_wake').help_text), required=False, label='')
+
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
 
@@ -62,6 +74,13 @@ class NetworkForm(ModelForm):
 
 class WOLScheduleForm(ModelForm):
     '''Form for creating and updating WOLSchedule instances.'''
+    enabled = BooleanField(
+        widget=HoCheckbox(
+            label=WOLSchedule._meta.get_field('enabled').help_text), required=False, label='')
+    repeat = BooleanField(
+        widget=HoCheckbox(
+            label=WOLSchedule._meta.get_field('repeat').help_text), required=False, label='')
+
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
 
@@ -110,6 +129,19 @@ class HomelabForm(ModelForm):
 
 class WikiForm(ModelForm):
     '''Form for creating and updating Wiki instances.'''
+    public = BooleanField(
+        widget=HoCheckbox(
+            label=Wiki._meta.get_field('public').help_text), required=False, label='')
+    show_network_graph = BooleanField(
+        widget=HoCheckbox(
+            label=Wiki._meta.get_field('show_network_graph').help_text), required=False, label='')
+    show_servers = BooleanField(
+        widget=HoCheckbox(
+            label=Wiki._meta.get_field('show_servers').help_text), required=False, label='')
+    show_services = BooleanField(
+        widget=HoCheckbox(
+            label=Wiki._meta.get_field('show_services').help_text), required=False, label='')
+
     def __init__(self, *args, **kwargs):
         homelab = kwargs.pop('homelab', None)
 

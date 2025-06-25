@@ -4,9 +4,9 @@
     --border-color: #ccc;
     --font-color: #000;
     --button-color: #fff;
+    --button-color-hover: #444;
     --submit-button-color: #000;
     --submit-font-color: #fff;
-    --button-color-hover: #444;
     --message-info-background-color: #efefef;
     --message-error-background-color: #ffe5e5;
 }
@@ -18,6 +18,8 @@ html.dark {
     --border-color: #383838;
     --font-color: #e0e0e0;
     --button-color: #383838;
+    --submit-button-color: #d9d9d9;
+    --submit-font-color: #000;
     --message-info-background-color: #999898;
     --message-error-background-color: #5e1414;
 }

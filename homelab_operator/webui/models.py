@@ -7,12 +7,15 @@ from django.utils.html import format_html
 
 class UserProfile(models.Model):
     '''Model representing a user profile.'''
-    user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='profile',
+                                help_text='The user this profile belongs to')
     last_selected_homelab = models.ForeignKey('Homelab', on_delete=models.SET_NULL,
-                                              null=True, blank=True)
-    show_wiki = models.BooleanField(default=True)
-    show_networks = models.BooleanField(default=True)
-    dark_mode = models.BooleanField(default=False)
+                                              null=True, blank=True,
+                                              help_text='The last selected homelab for this user')
+    show_wiki = models.BooleanField(default=True, help_text='Show or hide the wiki in the UI')
+    show_networks = models.BooleanField(default=True, help_text='Show or hide networks in the UI')
+    dark_mode = models.BooleanField(default=False,
+                                    help_text='Enable or disable Dark Mode (experimental)')
 
     def __str__(self):
         return f"Profile of {self.user.username}"
@@ -20,17 +23,18 @@ class UserProfile(models.Model):
 class Server(models.Model):
     '''Model representing a server.'''
     name = models.CharField(max_length=100)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    port = models.IntegerField(default=80, null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True,
+                                              help_text='IP address of the server')
+    port = models.IntegerField(default=80, null=True, blank=True,
+                               help_text='Will be used to check if the server is online')
     mac_address = models.CharField(max_length=17, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
     network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True,
                                 blank=True, related_name='servers')
-    status_url = models.URLField(null=True, blank=True)  # TODO implement status URL check
-    auto_wake = models.BooleanField(default=False)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
                                 related_name='servers')
+    auto_wake = models.BooleanField(default=False, help_text='Automatically wake the server on access')
     # TODO Shutdown URL configuration (related_name): implement as shutdown_adapther, which can be
     # a ShutdownURLConfiguration, ShutdownSSLConfiguration, similar ...
 
@@ -135,8 +139,6 @@ class WOLSchedule(models.Model):
                                        ('WAKE', 'WAKE'),
                                        ('SHUTDOWN', 'SHUTDOWN'),
                                        ])
-    enabled = models.BooleanField(default=True)
-    repeat = models.BooleanField(default=False)
     repeat_type = models.CharField(max_length=10,
                                    choices=[
                                        ('daily', 'Daily'),
@@ -145,6 +147,8 @@ class WOLSchedule(models.Model):
                                        ], null=True, blank=True)
     note = models.TextField(null=True, blank=True)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    enabled = models.BooleanField(default=True, help_text='Enable or disable the WOL schedule')
+    repeat = models.BooleanField(default=False, help_text='Repeat the WOL schedule')
 
     def __str__(self):
         return f"WOL for {self.server.name} at {self.schedule_time}"
@@ -178,10 +182,11 @@ class Wiki(models.Model):
     '''Model representing a wiki page for a homelab.'''
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    public = models.BooleanField(default=False)
-    show_network_graph = models.BooleanField(default=True)
-    show_servers = models.BooleanField(default=True)
-    show_services = models.BooleanField(default=True)
+    public = models.BooleanField(default=False, help_text='Make the wiki accessible public')
+    show_network_graph = models.BooleanField(default=True,
+                                             help_text='Show a network graph in the wiki')
+    show_servers = models.BooleanField(default=True, help_text='Show servers in the wiki')
+    show_services = models.BooleanField(default=True, help_text='Show services in the wiki')
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE,
                                 related_name='wiki')  # Homelab expected to only have one wiki
 
