@@ -24,9 +24,15 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/animation.css' %}">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.6.0/css/all.css">
     <link rel="shortcut icon" type="image/png" href="{% static 'img/homelab-operator.png' %}" >
+
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0078d4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="{% static 'img/homelab-operator.png' %}">
 </head>
 <body>
-    <script src="{% static 'check_online.js' %}"></script>
+    <script src="{% static 'js/check_online.js' %}"></script>
     <div class="header">
         <h1 class="headline">
             {% block headline %}
