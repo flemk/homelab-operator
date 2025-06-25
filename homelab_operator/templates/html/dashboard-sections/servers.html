@@ -85,7 +85,7 @@
                             <span data="{{ uptime_statistic.get_probability_matrix }}" onclick="navigator.clipboard.writeText(this.getAttribute('data')); this.querySelector('.copied-check').style.display='inline'; setTimeout(()=>{this.querySelector('.copied-check').style.display='none';},1200);">
                                 <span class="tooltip">
                                     <i class="fas fa-circle-info"></i>
-                                    <span class="tooltiptext">Copy the probability matrix data<br>as string into the clipboard.</span>
+                                    <span class="tooltiptext">Copy the uptime matrix data<br>as string into the clipboard.</span>
                                 </span>
                                 <span style="text-decoration: underline; cursor: pointer; margin-left: .15rem;">Copy matrix data</span>
                                 <span class="copied-check" style="display: none; color: green;">
@@ -98,7 +98,7 @@
                             <div style="overflow-x: scroll;">
                                 {% include 'html_components/uptime_statistic.html' with probability_matrix=uptime_statistic.get_probability_matrix %}
                                 <div class="soft" style="width: 30rem;">
-                                    Gray means offline, green means online: The color intensity indicates the probability of being online at that hour. Hover for exact value.
+                                    Gray means offline, green means online: The color intensity indicates the percentage of the server being observed online at that hour. Hover for exact value.
                                 </div>
                             </div>
                         {% else %}
@@ -118,7 +118,7 @@
                                 <a href="/edit/service/{{ service.id }}" style="text-decoration: none; color: inherit;">
                                     <div>
                                         {% if service.icon_url %}
-                                            <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                                            <img src="{{ service.icon_url }}" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
                                         {% else %}
                                             <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
                                         {% endif %}
@@ -147,10 +147,16 @@
                                 <a href="/edit/schedule/{{ schedule.id }}" style="text-decoration: none; color: inherit;">
                                     <div>
                                         {% if schedule.repeat %}
-                                            <i class="fas fa-sync" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                            <i class="fas fa-sync"></i>
                                         {% else %}
-                                            <i class="fas fa-clock" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i>
+                                            <i class="fas fa-clock"></i>
                                         {% endif %}
+                                        {% if schedule.enabled %}
+                                            <i class="fas fa-check" style="color: green;"></i>
+                                        {% else %}
+                                            <i class="fas fa-xmark" style="color: red;"></i>
+                                        {% endif %}
+                                        <span class="spacer" style="margin-right: .25rem;"></span>
                                         {{ schedule.type }}
                                         {% if schedule.repeat %}
                                             {{ schedule.repeat_type }}
