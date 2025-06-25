@@ -26,13 +26,19 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'img/homelab-operator.png' %}" >
 
     <link rel="manifest" href="{% static 'manifest.json' %}">
-    <meta name="theme-color" content="#0078d4">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="{% static 'img/homelab-operator.png' %}">
 </head>
 <body>
     <script src="{% static 'js/check_online.js' %}"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register("{% static 'js/service-worker.js' %}");
+        }
+    </script>
+
     <div class="header">
         <h1 class="headline">
             {% block headline %}
