@@ -1,14 +1,35 @@
 :root {
-    --button-color: #000;
+    --header-background-color: #efefef50;
+    --background-color: #fff;
+    --border-color: #ccc;
+    --font-color: #000;
+    --button-color: #fff;
+    --submit-button-color: #000;
+    --submit-font-color: #fff;
     --button-color-hover: #444;
+    --message-info-background-color: #efefef;
+    --message-error-background-color: #ffe5e5;
+}
+
+/* Dark mode: add 'dark' class to <html> */
+html.dark {
+    --header-background-color: #1a1a1a50;
+    --background-color: #1b1b1b;
+    --border-color: #383838;
+    --font-color: #e0e0e0;
+    --button-color: #383838;
+    --message-info-background-color: #999898;
+    --message-error-background-color: #5e1414;
 }
 
 html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--font-color);
     margin: 0;
     padding: 0;
     width: 100vw;
     overflow-x: hidden;
+    background-color: var(--background-color);
 }
 
 html {
@@ -21,9 +42,9 @@ html {
 }
 
 .header {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
-    background-color: #efefef50;
+    background-color: var(--header-background-color);
     position: fixed;
     height: 5.5rem;
     z-index: 1;
@@ -39,8 +60,8 @@ html {
 }
 
 .footer {
-    border-top: 1px solid #ccc;
-    background-color: #efefef50;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--header-background-color);
     width: -moz-available;
     padding-top: .7rem;
     padding-bottom: .7rem;
@@ -80,7 +101,7 @@ html {
 
 .tile {
     padding: 1rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: .5rem;
 }
 

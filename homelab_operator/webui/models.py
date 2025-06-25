@@ -12,6 +12,7 @@ class UserProfile(models.Model):
                                               null=True, blank=True)
     show_wiki = models.BooleanField(default=True)
     show_networks = models.BooleanField(default=True)
+    dark_mode = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Profile of {self.user.username}"
