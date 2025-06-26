@@ -1,6 +1,6 @@
 '''Forms for the web UI of the homelab operator project.'''
 
-from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea
+from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea, ModelMultipleChoiceField, CheckboxSelectMultiple
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
     Wiki, UserProfile
 from .widgets import HoCheckbox
@@ -152,6 +152,15 @@ class WikiForm(ModelForm):
     show_services = BooleanField(
         widget=HoCheckbox(
             label=Wiki._meta.get_field('show_services').help_text), required=False, label='')
+    pinned_services = ModelMultipleChoiceField(
+        queryset=Service.objects.all(),
+        required=False,
+        label='Pinned Services',
+        help_text='Select services to pin to the wiki for quick access',
+        widget=CheckboxSelectMultiple(attrs={
+            'class': 'soft',
+        }),
+    )
 
     def __init__(self, *args, **kwargs):
         homelab = kwargs.pop('homelab', None)

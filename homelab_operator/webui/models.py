@@ -193,6 +193,9 @@ class Wiki(models.Model):
     show_services = models.BooleanField(default=True, help_text='Show services in the wiki')
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE,
                                 related_name='wiki')  # Homelab expected to only have one wiki
+    pinned_services = models.ManyToManyField(Service, blank=True,
+                                             related_name='pinned_wikis',
+                                             help_text='Services pinned to the wiki for quick access')
 
     def __str__(self):
         return f"Wiki for {self.homelab.name}" if self.homelab else "Dangling Wiki"
