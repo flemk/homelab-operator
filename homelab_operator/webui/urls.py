@@ -44,6 +44,7 @@ urlpatterns = [
     path('edit/schedule/<int:schedule_id>/', views.edit_schedule, name='edit_schedule'),
     path('delete/schedule/<int:schedule_id>/', views.delete_schedule, name='delete_schedule'),
 
+    path('pwiki/<int:wiki_id>/', views.public_wiki, name='public_wiki'),
     path('create/wiki/<int:homelab_id>/', views.create_wiki, name='create_wiki'),
     path('edit/wiki/<int:wiki_id>/', views.edit_wiki, name='edit_wiki'),
     path('delete/wiki/<int:wiki_id>/', views.delete_wiki, name='delete_wiki'),

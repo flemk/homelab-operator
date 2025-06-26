@@ -1,0 +1,41 @@
+{% extends 'html/base.html' %}
+
+{% if wiki and wiki.public %}
+    {% block headline %}
+        {{ wiki.homelab.name }}
+    {% endblock %}
+    {% block content %}
+        <div>
+            <span style="display: flex;">
+                <h2 style="margin-bottom: 0.25rem;">
+                    Welcome to {{ wiki.homelab.name }}!
+                </h2>
+            </span>
+        </div>
+        <div class="soft">{{ wiki.description|safe }}</div>
+        <div class="spacer" style="height: 0.5rem;"></div>
+        {% if wiki.show_services %}
+            {% for server in wiki.homelab.servers.all %}
+                {% for service in server.services.all %}
+                    <div class="tile" style="margin-bottom: 1rem; display: flex;">
+                        {% if service.icon_url %}
+                            <img src="{{ service.icon_url }}" style="width: 4rem; height: 4rem; margin: auto 0 auto 0;">
+                            <div class="spacer" style="width: 1rem;"></div>
+                        {% endif %}
+                        <div>
+                            <h3>{{ service.name }}</h3>
+                            <span class="soft">
+                                {{ service.note|safe }}
+                            </span>
+                        </div>
+                        <div style="margin: auto 1rem auto auto;">
+                            {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.endpoint %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+{% else %}
+    There is no wiki here :)
+{% endif %}

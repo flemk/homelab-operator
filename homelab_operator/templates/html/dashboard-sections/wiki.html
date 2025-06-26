@@ -21,7 +21,7 @@
         </span>
     </div>
     {% if wiki %}
-        <div class="soft">{{ wiki.description|safe }}</div> 
+        <div class="soft">{{ wiki.description|safe }}</div>
         <div class="spacer" style="height: 0.5rem;"></div>
         <div class="tile-display">
         {% if wiki.show_services %}
@@ -114,6 +114,24 @@
                         {{ server.name }}
                     </div>
                 {% endfor %}
+            </div>
+        {% endif %}
+        {% if wiki.public %}
+            <div class="tile">
+                <div style="display: flex;">
+                    <div>
+                        <h3 style="display: flex;">
+                            Public Wiki
+                        </h3>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="spacer"></div>
+                This wiki is set to be available public.
+                {% with wiki_id=wiki.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href='/pwiki/'|add:wiki_id %}
+                {% endwith %}
             </div>
         {% endif %}
         </div>

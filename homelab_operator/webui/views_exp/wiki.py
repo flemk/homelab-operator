@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -9,6 +9,16 @@ from ..models import Server, Service, Network, ShutdownURLConfiguration, WOLSche
 from ..forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, WikiForm
 
+def public_wiki(request, wiki_id):
+    wiki = get_object_or_404(Wiki, id=wiki_id)
+    if wiki.public:
+        context = {
+            'wiki': wiki,
+        }
+        return render(request, 'html/public_wiki.html', context)
+    else:
+        return redirect('dashboard_default')
+    
 @login_required
 def create_wiki(request, homelab_id):
     user = request.user
