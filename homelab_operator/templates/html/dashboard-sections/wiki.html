@@ -1,4 +1,3 @@
-
     <div>
         <span style="display: flex;">
             <h2 style="margin-bottom: 0.25rem;">
@@ -21,7 +20,7 @@
         </span>
     </div>
     {% if wiki %}
-        <div class="soft">{{ wiki.description|safe }}</div> 
+        <div class="soft">{{ wiki.description|safe }}</div>
         <div class="spacer" style="height: 0.5rem;"></div>
         <div class="tile-display">
         {% if wiki.show_services %}
@@ -49,7 +48,7 @@
                                {% if service.endpoint != none %}target="_blank"{% endif %}
                                style="text-decoration: none; color: inherit; display: flex;">
                                 {% if service.icon_url %}
-                                    <img src="{{ service.icon_url }}" alt="{{ service.name }} icon" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;">
+                                    <img src="{{ service.icon_url }}" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;">
                                 {% else %}
                                     <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;"></i>
                                 {% endif %}
@@ -114,6 +113,24 @@
                         {{ server.name }}
                     </div>
                 {% endfor %}
+            </div>
+        {% endif %}
+        {% if wiki.public %}
+            <div class="tile">
+                <div style="display: flex;">
+                    <div>
+                        <h3 style="display: flex;">
+                            Public Wiki
+                        </h3>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="spacer"></div>
+                This wiki is set to be available public.
+                {% with wiki_id=wiki.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href='/pwiki/'|add:wiki_id %}
+                {% endwith %}
             </div>
         {% endif %}
         </div>

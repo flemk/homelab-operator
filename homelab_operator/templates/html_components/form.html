@@ -51,10 +51,10 @@
             <form method="post" style="display: grid;">
                 {% csrf_token %}
                 {% for field in form %}
-                    <label class="soft" for="{{ field.id_for_label }}">
+                    <label class="soft tooltip" for="{{ field.id_for_label }}" style="width: max-content;">
                         {{ field.label }}
                         {% if field.help_text %}
-                            {{ field.help_text }}
+                            <div class="tooltiptext" style="margin-left: .25rem;">{{ field.help_text }}</div>
                         {% endif %}
                     </label>
                     {% for error in field.errors %}

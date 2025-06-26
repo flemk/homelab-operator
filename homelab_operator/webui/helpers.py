@@ -56,6 +56,7 @@ def process_schedules():
                 schedules.exclude(id=schedule.id)
 
     for schedule in schedules:
+        log_entry = f'[{now}] - SCHEDULE: No action performed for schedule {schedule.id}'
         server = schedule.server
         if server:
             if not server.auto_wake:
@@ -65,22 +66,24 @@ def process_schedules():
             if schedule.type == 'WAKE':
                 response = server.wake()
                 if response is False:
-                    print(f"Magic packet sent to {server.name}" + \
-                          f"(Scheduled by {schedule.user.username})")
-                    print(f"Magic packet sent to {server.name}" + \
-                          f"(Scheduled by {schedule.user.username})")
+                    log_entry = f'[{now}] - WAKE: Magic packet sent to {server.name} ' + \
+                                f'(Scheduled by {schedule.user.username})'
                 else:
-                    print(f"Failed to send magic packet to {server.name}: {response}")
+                    log_entry = f'[{now}] - WAKE: Failed to send magic packet to ' + \
+                                f'{server.name}: {response}'
             elif schedule.type == 'SHUTDOWN':
                 response = server.shutdown()
                 if response is True:
-                    print(f"Shutdown command sent to {server.name} " + \
-                          f"(Scheduled by {schedule.user.username})")
-                    print(f"Shutdown command sent to {server.name} " + \
-                          f"(Scheduled by {schedule.user.username})")
+                    log_entry = f'[{now}] - SHUTDOWN: Shutdown command sent to {server.name} ' + \
+                                f'(Scheduled by {schedule.user.username})'
                 else:
-                    print(f"Failed to send shutdown command to {server.name}: {response}")
+                    log_entry = f'[{now}] - SHUTDOWN: Failed to send shutdown command to ' + \
+                                f'{server.name}: {response}'
         else:
-            print(f"Server not found for schedule ID {schedule.id}")
+            log_entry = f'[{now}] - SCHEDULE: No server found for schedule {schedule.id}'
+
+        if schedule.enable_log:
+            schedule.logs = (schedule.logs or '') + log_entry + '\n'
+            schedule.save()
 
     return HttpResponse("OK", status=200)

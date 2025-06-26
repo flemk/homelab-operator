@@ -1,0 +1,10 @@
+<label class="tile custom-checkbox-label" for="{{ widget.attrs.id }}">
+    <input  type="checkbox"
+            name="{{ widget.name }}"
+            id="{{ widget.attrs.id }}"
+            {% if widget.value %} checked{% endif %}
+            style="display: none;"
+            {% include "django/forms/widgets/attrs.html" %}>
+    <span class="custom-checkbox"></span>
+    <span class="soft" style="margin: 0 auto auto 0;">{{ widget.label }}</span>
+</label>

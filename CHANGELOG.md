@@ -1,4 +1,18 @@
 # Changelog
+# [1.4.0]
+Added:
+- Public Wiki
+- Logs for auto-wake schedule activity
+- Dark mode (crude)
+- PWA support for Chrome, iOS and Android
+- Indocator if schedule is enabled
+- Added help texts in forms
+- Added custom checkbox widget
+
+Changed:
+- Refactoring
+- Bugfixes
+
 # [1.3.0]
 Added:
 - Added search functionality

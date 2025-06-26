@@ -18,8 +18,8 @@
                     <span style="width: 4.5rem;"></span>
                 {% endif %}
                 {% for hour, p in hours %}
-                    <div class="tooltip uptime-cell" data-percent="{{ p }}" style="width: .8rem; height: .8rem; border-radius: .25rem; margin: 1px;">
-                        <div class="tooltiptext">{{ p }}</div>
+                    <div class="tooltip uptime-cell" data-percent="{{ p|floatformat:2 }}" style="width: .8rem; height: .8rem; border-radius: .25rem; margin: 1px;">
+                        <div class="tooltiptext">{{ p|floatformat:2 }}</div>
                     </div>
                 {% endfor %}
             </div>
