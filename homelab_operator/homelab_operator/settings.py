@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'webui.apps.WebuiConfig',
 ]
 
@@ -148,3 +149,5 @@ LOGIN_URL = '/login/'
 SESSION_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

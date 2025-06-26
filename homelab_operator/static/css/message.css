@@ -1,3 +1,6 @@
+/* extends base.css
+ needs :root from base.css */
+
 .message {
     padding: 0.5rem;
     background-color: grey;
@@ -30,7 +33,7 @@
 }
 
 .info {
-    background-color: #efefef !important;
+    background-color: var(--message-info-background-color) !important;
     color: black !important;
     border: 1px solid #ccc;
 }
@@ -40,7 +43,7 @@
 }
 
 .error {
-    background-color: #ffe5e5 !important;
+    background-color: var(--message-error-background-color) !important;
     color: black !important;
     border: 1px solid red;
 }
