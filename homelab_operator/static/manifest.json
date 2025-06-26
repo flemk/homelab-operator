@@ -7,12 +7,27 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "/static/img/homelab-operator.png",
+      "src": "/static/img/homelab-operator-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/homelab-operator-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/homelab-operator-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/homelab-operator-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/img/homelab-operator.png",
+      "src": "/static/img/homelab-operator-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
