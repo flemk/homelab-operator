@@ -14,6 +14,7 @@ def public_wiki(request, wiki_id):
     if wiki.public:
         context = {
             'wiki': wiki,
+            'api_key': os.getenv('API_KEY', 'DEFAULT_API_KEY'),
         }
         return render(request, 'html/public_wiki.html', context)
     else:

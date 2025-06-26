@@ -2,7 +2,7 @@
 
 {% if wiki and wiki.public %}
     {% block headline %}
-        {{ wiki.homelab.name }}
+        <a href="/" style="text-decoration: none; color: inherit;">{{ wiki.homelab.name }}</a>
     {% endblock %}
     {% block content %}
         <div>
@@ -13,27 +13,57 @@
             </span>
         </div>
         <div class="soft">{{ wiki.description|safe }}</div>
-        <div class="spacer" style="height: 0.5rem;"></div>
+        <div class="spacer" style="height: 1rem;"></div>
+        <h3>Services</h3>
         {% if wiki.show_services %}
             {% for server in wiki.homelab.servers.all %}
                 {% for service in server.services.all %}
                     <div class="tile" style="margin-bottom: 1rem; display: flex;">
-                        {% if service.icon_url %}
-                            <img src="{{ service.icon_url }}" style="width: 4rem; height: 4rem; margin: auto 0 auto 0;">
-                            <div class="spacer" style="width: 1rem;"></div>
-                        {% endif %}
+                        <div class="tile" style="width: 3.25rem; height: 3.25rem; min-width: 3.25rem;">
+                            {% if service.icon_url %}
+                                <img src="{{ service.icon_url }}" style="width: 100%; height: 100%; margin: auto 0 auto 0;">
+                            {% else %}
+                                <i class="fas fa-plug" style="font-size: 2rem; position: relative; top: 50%; left: 50%; transform: translate(-50%,-50%);"></i>
+                            {% endif %}
+                        </div>
+                        <div class="spacer" style="width: 1rem;"></div>
                         <div>
                             <h3>{{ service.name }}</h3>
                             <span class="soft">
                                 {{ service.note|safe }}
                             </span>
-                        </div>
-                        <div style="margin: auto 1rem auto auto;">
-                            {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.endpoint %}
+                            <span style="display: block; width: min-content; margin: auto auto 0 0;">
+                                {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.endpoint %}
+                            </span>
                         </div>
                     </div>
                 {% endfor %}
             {% endfor %}
+        {% endif %}
+        <h3>Servers</h3>
+        {% if wiki.show_servers %}
+            <div class="tile">
+                {% for server in wiki.homelab.servers.all %}
+                    <div style="display: flex;">
+                        {% if api_key %}
+                            <div class="indicator-dot loading-dot" id="server_{{ server.id }}" style="margin-left: 0;">
+                                &nbsp;
+                            </div>
+                            <script>
+                                check_online("/is_online/{{ api_key }}/0/{{ server.id }}/", "server_{{ server.id }}");
+                            </script>
+                        {% else %}
+                            {% if server.is_online %}
+                                <div class="indicator-dot success-dot" style="margin-left: 0;">&nbsp;</div>
+                            {% else %}
+                                <div class="indicator-dot error-dot" style="margin-left: 0;">&nbsp;</div>
+                            {% endif %}
+                        {% endif %}
+                        <div class="spacer" style="width: 0.5rem;"></div>
+                        {{ server.name }}
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
     {% endblock %}
 {% else %}
