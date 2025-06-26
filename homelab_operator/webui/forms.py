@@ -1,9 +1,10 @@
 '''Forms for the web UI of the homelab operator project.'''
 
-from django.forms import ModelForm, DateTimeInput, BooleanField
+from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
     Wiki, UserProfile
 from .widgets import HoCheckbox
+from django.utils.safestring import mark_safe
 
 class UserProfileForm(ModelForm):
     '''Form for creating and updating UserProfile instances.'''
@@ -80,6 +81,9 @@ class WOLScheduleForm(ModelForm):
     repeat = BooleanField(
         widget=HoCheckbox(
             label=WOLSchedule._meta.get_field('repeat').help_text), required=False, label='')
+    enable_log = BooleanField(
+        widget=HoCheckbox(
+            label=WOLSchedule._meta.get_field('enable_log').help_text), required=False, label='')
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -90,6 +94,13 @@ class WOLScheduleForm(ModelForm):
             self.fields['user'].initial = user
             self.fields['user'].disabled = True
 
+        self.fields['logs'] = CharField(
+            initial=self.instance.logs,
+            widget=Textarea(attrs={'readonly': True, 'style': 'white-space: pre-wrap;'}),
+            required=False,
+            label='Logs',
+            disabled=True
+        )
     class Meta:
         model = WOLSchedule
         fields = '__all__'

@@ -149,6 +149,10 @@ class WOLSchedule(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     enabled = models.BooleanField(default=True, help_text='Enable or disable the WOL schedule')
     repeat = models.BooleanField(default=False, help_text='Repeat the WOL schedule')
+    logs = models.JSONField(null=True, blank=True, default='',
+                            help_text='Logs of the WOL schedule execution')
+    enable_log = models.TextField(default='',
+                                  help_text='Enable or disable logging for the WOL schedule')
 
     def __str__(self):
         return f"WOL for {self.server.name} at {self.schedule_time}"
