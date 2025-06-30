@@ -2,7 +2,9 @@
 
 {% block content %}
     <div class="login">
-        <h2>Login</h2>
+        <span style="display: flex;">
+            <h2>Login</h2>
+        </span>
         {% if login_error %}
             <div class="message error soft">{{ login_error }}</div>
         {% endif %}

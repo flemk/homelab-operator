@@ -52,7 +52,7 @@ def process_schedules():
                     schedules = schedules.exclude(id=schedule.id)
             elif schedule.repeat_type == 'monthly':
                 if schedule.schedule_time.day != now.day:
-                    schedules= schedules.exclude(id=schedule.id)
+                    schedules = schedules.exclude(id=schedule.id)
             else:
                 schedules = schedules.exclude(id=schedule.id)
                 continue
