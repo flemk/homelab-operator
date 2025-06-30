@@ -15,7 +15,7 @@ class UserProfile(models.Model):
     show_wiki = models.BooleanField(default=True, help_text='Show or hide the wiki in the UI')
     show_networks = models.BooleanField(default=True, help_text='Show or hide networks in the UI')
     dark_mode = models.BooleanField(default=False,
-                                    help_text='Enable or disable Dark Mode (experimental)')
+                                    help_text='Enable Dark Mode (experimental)')
 
     def __str__(self):
         return f"Profile of {self.user.username}"

@@ -1,7 +1,10 @@
 # Changelog
 # [1.4.1]
-Fixed
+Fixed:
 - Schedule activation fix
+
+Changed:
+- Improved Dark Mode
 
 # [1.4.0]
 Added:

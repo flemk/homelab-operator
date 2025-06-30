@@ -13,7 +13,7 @@
 
 /* Dark mode: add 'dark' class to <html> */
 html.dark {
-    --header-background-color: #1a1a1a50;
+    --header-background-color: #2e2e2e50;
     --background-color: #1b1b1b;
     --border-color: #383838;
     --font-color: #e0e0e0;
