@@ -1,5 +1,8 @@
 # Changelog
 # [1.4.1]
+Added:
+- Added dev image building and pblishing (latest-dev)
+
 Fixed:
 - Schedule activation fix
 
