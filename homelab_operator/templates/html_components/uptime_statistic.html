@@ -1,5 +1,5 @@
 {% if probability_matrix %}
-    <div style="display: block; background-color: #fff; width: min-content; padding: .5rem; border-radius: .25rem; border: 1px solid #ccc;">
+    <div style="display: block; background-color: var(--background-color); width: min-content; padding: .5rem; border-radius: .25rem; border: 1px solid var(--border-color);">
         <div style="display: flex;">
             <span style="width: 4.5rem;"></span>
             {% for hour, p in probability_matrix.0.1 %}

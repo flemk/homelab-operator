@@ -40,29 +40,30 @@ def process_schedules():
     )
 
     for schedule in schedules.all():
+        if schedule.server.auto_wake is False:
+            schedules = schedules.exclude(id=schedule.id)
+            continue
         if schedule.repeat:
             if schedule.repeat_type == 'daily':
                 # schedule should be executed every day, no action needed
                 continue
             if schedule.repeat_type == 'weekly':
                 if schedule.schedule_time.weekday() != now.weekday():
-                    schedules.exclude(id=schedule.id)
+                    schedules = schedules.exclude(id=schedule.id)
             elif schedule.repeat_type == 'monthly':
-                if schedule.schedule_time.month != now.month \
-                    and schedule.schedule_time.day != now.day:
-                    schedules.exclude(id=schedule.id)
+                if schedule.schedule_time.day != now.day:
+                    schedules = schedules.exclude(id=schedule.id)
+            else:
+                schedules = schedules.exclude(id=schedule.id)
+                continue
         else:
             if schedule.schedule_time.date() != now.date():
-                schedules.exclude(id=schedule.id)
+                schedules = schedules.exclude(id=schedule.id)
 
     for schedule in schedules:
         log_entry = f'[{now}] - SCHEDULE: No action performed for schedule {schedule.id}'
         server = schedule.server
         if server:
-            if not server.auto_wake:
-                continue
-            if not server.auto_wake:
-                continue
             if schedule.type == 'WAKE':
                 response = server.wake()
                 if response is False:
@@ -73,7 +74,7 @@ def process_schedules():
                                 f'{server.name}: {response}'
             elif schedule.type == 'SHUTDOWN':
                 response = server.shutdown()
-                if response is True:
+                if response is False:
                     log_entry = f'[{now}] - SHUTDOWN: Shutdown command sent to {server.name} ' + \
                                 f'(Scheduled by {schedule.user.username})'
                 else:

@@ -71,9 +71,13 @@
             <div class="menu">
                 <div style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
                 <div class="spacer" style="width: 2rem;"></div>
-                {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
+                <div style="width: min-content;">
+                    {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
+                </div>
                 <div class="spacer" style="width: 2rem;"></div>
                 {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
+                <div class="spacer" style="width: 2rem;"></div>
+                {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
             </div>
         {% endif %}
     </div>
