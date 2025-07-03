@@ -5,6 +5,7 @@ Added:
 
 Fixed:
 - Schedule activation fix
+- Shutdown Adapter log (#14)
 
 Changed:
 - Improved Dark Mode
