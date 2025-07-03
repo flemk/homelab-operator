@@ -2,6 +2,7 @@
 # [1.4.1]
 Added:
 - Added dev image building and pblishing (latest-dev)
+- Refresh button
 
 Fixed:
 - Schedule activation fix
