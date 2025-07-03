@@ -3,10 +3,12 @@
 Added:
 - Added dev image building and pblishing (latest-dev)
 - Refresh button
+- Improved help text notability
 
 Fixed:
 - Schedule activation fix
 - Shutdown Adapter log (#14)
+- Fixed links in wiki (#13)
 
 Changed:
 - Improved Dark Mode

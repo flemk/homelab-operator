@@ -32,7 +32,13 @@
                             {{ service.note|safe }}
                         </span>
                         <span style="display: block; width: min-content; margin: auto auto 0 0;">
-                            {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.endpoint %}
+                            {% if 'http' in service.url and service.url %}
+                                {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.url target='_blank' %}
+                            {% elif service.url %}
+                                {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href='http://'|add:service.url target='_blank' %}
+                            {% else %}
+                                {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' %}
+                            {% endif %}
                         </span>
                     </div>
                 </div>
@@ -58,7 +64,13 @@
                                     {{ service.note|safe }}
                                 </span>
                                 <span style="display: block; width: min-content; margin: auto auto 0 0;">
-                                    {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.endpoint %}
+                                    {% if 'http' in service.url and service.url %}
+                                        {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href=service.url target='_blank' %}
+                                    {% elif service.url %}
+                                        {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href='http://'|add:service.url target='_blank' %}
+                                    {% else %}
+                                        {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' %}
+                                    {% endif %}
                                 </span>
                             </div>
                         </div>

@@ -98,8 +98,11 @@ class Service(models.Model):
     '''Model representing a service running on a server.'''
     name = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
-    endpoint = models.CharField(max_length=100, null=True, blank=True)
+    endpoint = models.CharField(max_length=100, null=True, blank=True,
+                                help_text='Domain or IP address of the service. Used for online checking.')
     port = models.IntegerField(default=80)
+    url = models.URLField(null=True, blank=True,
+                          help_text='URL to access the service, if applicable. Used to redirect to the service.')
     icon_url = models.URLField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 

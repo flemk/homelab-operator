@@ -84,7 +84,7 @@
                         <div class="soft">
                             <span data="{{ uptime_statistic.get_probability_matrix }}" onclick="navigator.clipboard.writeText(this.getAttribute('data')); this.querySelector('.copied-check').style.display='inline'; setTimeout(()=>{this.querySelector('.copied-check').style.display='none';},1200);">
                                 <span class="tooltip">
-                                    <i class="fas fa-circle-info"></i>
+                                    <i class="fas fa-circle-info" style="opacity: .5;"></i>
                                     <span class="tooltiptext">Copy the uptime matrix data<br>as string into the clipboard.</span>
                                 </span>
                                 <span style="text-decoration: underline; cursor: pointer; margin-left: .15rem;">Copy matrix data</span>
