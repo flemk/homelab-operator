@@ -1,7 +1,17 @@
 # Changelog
 # [1.4.1]
-Fixed
+Added:
+- Added dev image building and pblishing (latest-dev)
+- Refresh button
+- Improved help text notability
+
+Fixed:
 - Schedule activation fix
+- Shutdown Adapter log (#14)
+- Fixed links in wiki (#13)
+
+Changed:
+- Improved Dark Mode
 
 # [1.4.0]
 Added:

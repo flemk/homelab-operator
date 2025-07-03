@@ -15,7 +15,7 @@ class UserProfile(models.Model):
     show_wiki = models.BooleanField(default=True, help_text='Show or hide the wiki in the UI')
     show_networks = models.BooleanField(default=True, help_text='Show or hide networks in the UI')
     dark_mode = models.BooleanField(default=False,
-                                    help_text='Enable or disable Dark Mode (experimental)')
+                                    help_text='Enable Dark Mode (experimental)')
 
     def __str__(self):
         return f"Profile of {self.user.username}"
@@ -98,8 +98,11 @@ class Service(models.Model):
     '''Model representing a service running on a server.'''
     name = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='services')
-    endpoint = models.CharField(max_length=100, null=True, blank=True)
+    endpoint = models.CharField(max_length=100, null=True, blank=True,
+                                help_text='Domain or IP address of the service. Used for online checking.')
     port = models.IntegerField(default=80)
+    url = models.URLField(null=True, blank=True,
+                          help_text='URL to access the service, if applicable. Used to redirect to the service.')
     icon_url = models.URLField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 

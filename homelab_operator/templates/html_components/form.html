@@ -54,6 +54,7 @@
                     <label class="soft tooltip" for="{{ field.id_for_label }}" style="width: max-content;">
                         {{ field.label }}
                         {% if field.help_text %}
+                            <i class="fas fa-circle-info" style="opacity: .5;"></i>
                             <div class="tooltiptext" style="margin-left: .25rem;">{{ field.help_text }}</div>
                         {% endif %}
                     </label>

@@ -74,7 +74,7 @@ def process_schedules():
                                 f'{server.name}: {response}'
             elif schedule.type == 'SHUTDOWN':
                 response = server.shutdown()
-                if response is True:
+                if response is False:
                     log_entry = f'[{now}] - SHUTDOWN: Shutdown command sent to {server.name} ' + \
                                 f'(Scheduled by {schedule.user.username})'
                 else:
