@@ -92,9 +92,13 @@ def dashboard(request, homelab_id=None):
             homelab_id = user.homelabs.first().id
         else:
             messages.info(request, "No homelabs found for this user")
+            # Get cron status even when no homelab exists
+            from .models import CronStatus
+            cron_status = CronStatus.get_or_create_status()
             context = {
                 'homelab': None,
                 'homelabs': None,
+                'cron_status': cron_status,
             }
             return render(request, 'html/dashboard.html', context)
     else:
@@ -106,6 +110,10 @@ def dashboard(request, homelab_id=None):
     servers = homelab.servers.all()
     networks = homelab.networks.all()
     
+    # Get cron status for dashboard display
+    from .models import CronStatus
+    cron_status = CronStatus.get_or_create_status()
+    
     context = {
         'servers': servers,
         'networks': networks,
@@ -115,6 +123,7 @@ def dashboard(request, homelab_id=None):
         'user_show_wiki': user.profile.show_wiki,
         'user_show_networks': user.profile.show_networks,
         'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
+        'cron_status': cron_status,
     }
     return render(request, 'html/dashboard.html', context)
 
@@ -186,12 +195,21 @@ def cron(request, api_key):
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
 
+    # Import CronStatus here to avoid import issues during migrations
+    from .models import CronStatus
+    cron_status = CronStatus.get_or_create_status()
+    
     try:
         update_uptime_statistics()
+        process_response = process_schedules()
+        # Update cron status on successful execution
+        cron_status.update_execution()
+        return process_response
     except Exception as e:
         print(e)
-
-    return process_schedules()
+        # Update cron status with error
+        cron_status.update_execution(error=e)
+        return process_schedules()
 
 @login_required
 def confirm(request):

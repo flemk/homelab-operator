@@ -7,7 +7,7 @@
 </p>
 
 # Homelab Operator
-Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and ssh-shutdown. You can also create an overview of your services running on your machines. You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered by a cron job +/-5min).
+Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and ssh-shutdown. You can also create an overview of your services running on your machines. You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered automatically by the built-in cron service).
 
 This tool is still in development.
 
@@ -61,12 +61,7 @@ docker network connect macvlan_net <container>
 ```
 You also may need to adjust the `BROADCAST_ADDRESS=255.255.255.255` environment variable.
 
-To use the auto-wake functionality properly, you need to create a system level cron job in `crontab -e`:
-```bash
-# Call /cron inside the homelab-operator container
-*/10 * * * * docker exec <container> curl http://localhost:8000/cron/<API_KEY>/
-```
-You need to call the cron endpoint every 10min for full coverage.
+**Auto-Wake Functionality**: The cron service is now built into the container and runs automatically every 10 minutes to handle scheduled wake/shutdown operations. No manual cron setup is required. You can monitor the cron service health status in the dashboard.
 
 ## License
 This project is licensed under a modified MIT **non-commercial** License:

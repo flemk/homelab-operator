@@ -64,6 +64,54 @@
         </div>
     {% else %}
 
+        {# Cron Status Indicator #}
+        {% if cron_status %}
+            <div class="tile" style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0; display: flex; align-items: center;">
+                            {% if cron_status.is_cron_healthy %}
+                                <i class="fas fa-clock" style="color: #4CAF50; margin-right: 0.5rem;"></i>
+                                Cron Service
+                            {% else %}
+                                <i class="fas fa-clock" style="color: #f44336; margin-right: 0.5rem;"></i>
+                                Cron Service
+                            {% endif %}
+                        </h3>
+                    </div>
+                    <div style="margin-left: auto;">
+                        {% if cron_status.is_cron_healthy %}
+                            <span style="color: #4CAF50; font-weight: bold;">Healthy</span>
+                        {% else %}
+                            <span style="color: #f44336; font-weight: bold;">Unhealthy</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="spacer" style="height: 0.5rem;"></div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="spacer" style="height: 0.5rem;"></div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                    <div>
+                        <span class="soft">Last execution:</span>
+                        {% if cron_status.last_execution %}
+                            {{ cron_status.last_execution|date:"Y-m-d H:i:s" }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </div>
+                    <div>
+                        <span class="soft">Total runs:</span> {{ cron_status.execution_count }}
+                    </div>
+                </div>
+                {% if cron_status.last_error %}
+                    <div class="spacer" style="height: 0.5rem;"></div>
+                    <div style="color: #f44336; font-size: 0.9rem;">
+                        <span class="soft">Last error:</span> {{ cron_status.last_error|truncatechars:100 }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
         {# Wiki #}
         {% if user_show_wiki %}
             {% include 'html/dashboard-sections/wiki.html' with servers=servers wiki=wiki %}

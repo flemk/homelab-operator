@@ -252,4 +252,54 @@ class ServerUptimeStatistic(models.Model):
         '''Returns the probability matrix as a 7x24 list.'''
         DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         return [(DAY_NAMES[day], [(hour, self.matrix[str(day)][str(hour)][0]) for hour in range(24)]) for day in range(7)]
+
+class CronStatus(models.Model):
+    '''Model to track cron execution status and health.'''
+    last_execution = models.DateTimeField(auto_now=True, 
+                                          help_text='Timestamp of the last cron execution')
+    execution_count = models.IntegerField(default=0,
+                                          help_text='Total number of cron executions')
+    is_healthy = models.BooleanField(default=True,
+                                     help_text='Whether cron is considered healthy')
+    last_error = models.TextField(null=True, blank=True,
+                                  help_text='Last error message if any')
+    
+    class Meta:
+        verbose_name = "Cron Status"
+        verbose_name_plural = "Cron Statuses"
+    
+    def __str__(self):
+        return f"Cron Status - Last run: {self.last_execution}"
+    
+    @classmethod
+    def get_or_create_status(cls):
+        '''Get the singleton cron status record or create one if it doesn't exist.'''
+        status, created = cls.objects.get_or_create(
+            id=1,
+            defaults={'execution_count': 0, 'is_healthy': True}
+        )
+        return status
+    
+    def update_execution(self, error=None):
+        '''Update the execution status.'''
+        from datetime import datetime
+        self.last_execution = datetime.now()
+        self.execution_count += 1
+        if error:
+            self.is_healthy = False
+            self.last_error = str(error)
+        else:
+            self.is_healthy = True
+            self.last_error = None
+        self.save()
+    
+    def is_cron_healthy(self):
+        '''Check if cron is healthy based on last execution time.'''
+        from datetime import datetime, timedelta
+        if not self.last_execution:
+            return False
+        
+        # Consider unhealthy if no execution in last 15 minutes
+        time_threshold = datetime.now() - timedelta(minutes=15)
+        return self.last_execution > time_threshold and self.is_healthy
     
