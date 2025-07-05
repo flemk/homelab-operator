@@ -71,6 +71,27 @@
             <div class="menu">
                 <div style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
                 <div class="spacer" style="width: 2rem;"></div>
+                {% if app_state %}
+                    {% if app_state.state == 'OK' %}
+                        <div style="width: min-content;">
+                            {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-check' fa_icon_style='color: green;' href='/app_state' %}
+                        </div>
+                    {% elif app_state.state == 'Degraded' %}
+                        <div style="width: min-content;">
+                            {% include 'html_components/inline_button.html' with label=app_state.state fa_icon='fa-heart-circle-exclamation' fa_icon_style='color: red;' href='/app_state' %}
+                        </div>
+                    {% else %}
+                        <div style="width: min-content;">
+                            {% include 'html_components/inline_button.html' with label=app_state.state fa_icon='fa-heart-circle-xmark' href='/app_state' %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div style="width: min-content;">
+                        {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-xmark' href='/app_state' %}
+                    </div>
+                {% endif %}
+                        
+                <div class="spacer" style="width: 2rem;"></div>
                 <div style="width: min-content;">
                     {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
                 </div>

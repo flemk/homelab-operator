@@ -5,16 +5,15 @@ urlpatterns = [
     path('', views.login_view, name='index'),
     path('dashboard/', views.dashboard, name='dashboard_default'),
     path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
+    path('app_state/', views.app_state, name='app_state'),
 
     path('search/', views.search, name='search'),
 
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
-    path('confirm', views.confirm, name='confirm'),
-
     path('cron/<str:api_key>/', views.cron, name='cron'),
-    path('confirm', views.confirm, name='confirm'),
+    path('confirm/', views.confirm, name='confirm'),
     path('cron/<str:api_key>/', views.cron, name='cron'),
 
     path('wake/<int:server_id>/', views.wake, name='wake'),
@@ -49,7 +48,7 @@ urlpatterns = [
     path('edit/wiki/<int:wiki_id>/', views.edit_wiki, name='edit_wiki'),
     path('delete/wiki/<int:wiki_id>/', views.delete_wiki, name='delete_wiki'),
 
-    path('create/shutdown_url/<int:server_id>',
+    path('create/shutdown_url/<int:server_id>/',
          views.create_shutdown_url, name='create_shutdown_url'),
     path('edit/shutdown_url/<int:shutdown_url_id>/',
          views.edit_shutdown_url, name='edit_shutdown_url'),

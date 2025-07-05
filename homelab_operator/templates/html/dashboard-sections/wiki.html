@@ -48,14 +48,8 @@
                                 {% endif %}"
                                 {% if service.url %}target="_blank"{% endif %}
                                style="text-decoration: none; color: inherit; display: flex;">
-                                {% if service.icon_url %}
-                                    <img src="{{ service.icon_url }}" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;">
-                                {% else %}
-                                    <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin: auto 0 auto 0;"></i>
-                                {% endif %}
-
                                 {% if api_key %}
-                                    <div class="indicator-dot loading-dot" id="service_{{ service.id }}">
+                                    <div class="indicator-dot loading-dot" id="service_{{ service.id }}" style="margin-left: 0;">
                                         &nbsp;
                                     </div>
                                     <script>
@@ -63,17 +57,21 @@
                                     </script>
                                 {% else %}
                                     {% if service.is_online == True %}
-                                        <div class="indicator-dot success-dot">&nbsp;</div>
+                                        <div class="indicator-dot success-dot" style="margin-left: 0;">&nbsp;</div>
                                     {% elif not service.is_online %}
-                                        <div class="indicator-dot error-dot">&nbsp;</div>
+                                        <div class="indicator-dot error-dot" style="margin-left: 0;">&nbsp;</div>
                                     {% else %}
-                                        <div class="indicator-dot warning-dot tooltip">
+                                        <div class="indicator-dot warning-dot tooltip" style="margin-left: 0;">
                                             &nbsp;
                                             <span class="tooltiptext">{{ service.is_online }}</span>
                                         </div>
                                     {% endif %}
                                 {% endif %}
-
+                                {% if service.icon_url %}
+                                    <img src="{{ service.icon_url }}" style="width: 1rem; height: 1rem; margin: auto 0 auto .5rem;">
+                                {% else %}
+                                    <i class="fas fa-plug" style="width: 1rem; height: 1rem; margin: auto 0 auto .5rem;"></i>
+                                {% endif %}
                                 <div class="spacer" style="width: 0.5rem;"></div>
                                 {{ service.name }}
                             </a>

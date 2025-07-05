@@ -7,8 +7,9 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
-    UserProfile, ServerUptimeStatistic
+    UserProfile, ServerUptimeStatistic, AppState
 from .helpers import rate_limit, process_schedules, update_uptime_statistics
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
@@ -179,19 +180,34 @@ def shutdown(request, server_id):
     messages.error(request, "Server not found")
     return redirect('dashboard_default')
 
+@login_required
+def app_state(request):
+    '''View to display the application state, including last cron execution time
+    and any exceptions.'''
+    return render(request, 'html/app_state.html')
+
 def cron(request, api_key):
     '''This function will be called by the cron job
     It should check the schedules and send WOL packets if needed'''
-
     if api_key != os.environ.get('API_KEY', 'DEFAULT_API_KEY'):
         return HttpResponseForbidden("Forbidden", status=403)
+
+    AppState.ensure_exists()
+    app_state = AppState.objects.first()
+    app_state.last_cron = datetime.now()
+    app_state.save()
 
     try:
         update_uptime_statistics()
     except Exception as e:
-        print(e)
+        app_state.add_exception(str(e))
 
-    return process_schedules()
+    try:
+        return process_schedules()
+    except Exception as e:
+        app_state.add_exception(str(e))
+
+    return HttpResponse('Server Error', status=500)
 
 @login_required
 def confirm(request):
