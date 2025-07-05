@@ -1,5 +1,12 @@
 # Changelog
-# [1.4.1]
+## [1.5.0]
+Added:
+- App state information
+
+Changed:
+- Moved cron execution into the docker image
+
+## [1.4.1]
 Added:
 - Added dev image building and pblishing (latest-dev)
 - Refresh button
@@ -13,7 +20,7 @@ Fixed:
 Changed:
 - Improved Dark Mode
 
-# [1.4.0]
+## [1.4.0]
 Added:
 - Public Wiki
 - Logs for auto-wake schedule activity
@@ -27,7 +34,7 @@ Changed:
 - Refactoring
 - Bugfixes
 
-# [1.3.0]
+## [1.3.0]
 Added:
 - Added search functionality
 - Added statistic for server uptime
@@ -42,7 +49,7 @@ Changed:
 - Improved display of schedules
 - Refactoring
 
-# [1.2.0]
+## [1.2.0]
 Added:
 - Server Time display in footer
 
@@ -52,7 +59,7 @@ Fixed:
 Changed:
 - Provided alternative in_online check: Added an endpoint that can be triggered by JS in the browser -> Reduced loading times
 
-# [1.1.0]
+## [1.1.0]
 Changed:
 - Fix executing non-repeating schedules every day
 - Fix not showing profile and logout information when a message is present
@@ -63,7 +70,7 @@ Added:
 - Added Wiki / overview section on top of dashboard
 - Added Homelab selection
 
-# [1.0.0] - Starting to get useful
+## [1.0.0] - Starting to get useful
 Added:
 - Shutdown via POST request
 - Timed (cron) functionality: Waking and shutting Server down based on a Schedule
@@ -72,5 +79,5 @@ Changed:
 - Refactorings
 - Various bug fixes
 
-# [0.1.0] - Initial release
+## [0.1.0] - Initial release
 Some planned functionality, like cron waking and scheduling, is still missing but the overall project structure is now implemented.
