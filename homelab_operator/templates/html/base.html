@@ -69,8 +69,8 @@
         {% endif %}
         {% if user.is_authenticated %}
             <div class="menu">
-                <div style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
-                <div class="spacer" style="width: 2rem;"></div>
+                <div class="mobile-vanish" style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
+                <div class="spacer" style="width: .5rem;"></div>
                 {% if app_state %}
                     {% if app_state.state == 'OK' %}
                         <div style="width: min-content;">
@@ -90,14 +90,18 @@
                         {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-xmark' fa_icon_style='color: orange;' href='/app_state' %}
                     </div>
                 {% endif %}
-                <div class="spacer" style="width: 2rem;"></div>
+                <div class="spacer" style="width: .5rem;"></div>
                 <div style="width: min-content;">
                     {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
                 </div>
-                <div class="spacer" style="width: 2rem;"></div>
-                {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
-                <div class="spacer" style="width: 2rem;"></div>
-                {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
+                <div class="spacer" style="width: .5rem;"></div>
+                <div style="width: min-content;">
+                    {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
+                </div>
+                <div class="spacer" style="width: .5rem;"></div>
+                <div style="width: min-content;">
+                    {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
+                </div>
             </div>
         {% endif %}
     </div>

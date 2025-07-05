@@ -13,7 +13,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
     path('cron/<str:api_key>/', views.cron, name='cron'),
-    path('confirm', views.confirm, name='confirm'),
+    path('confirm', views.confirm, name='confirm'),  # No trailing slash: POST endpoint
     path('cron/<str:api_key>/', views.cron, name='cron'),
 
     path('wake/<int:server_id>/', views.wake, name='wake'),

@@ -1,7 +1,7 @@
 from functools import wraps
+from django.utils import timezone
 from django.core.cache import cache
 from django.http import HttpResponse
-from datetime import datetime
 from .models import Server, WOLSchedule
 
 def rate_limit(view_func):
@@ -17,7 +17,7 @@ def rate_limit(view_func):
     return _wrapped_view
 
 def update_uptime_statistics():
-    now = datetime.now()
+    now = timezone.now()
     hour = now.hour
     day = now.weekday()
 
@@ -31,7 +31,7 @@ def update_uptime_statistics():
             uptime_statistic.update_uptime(day, hour, is_online)
 
 def process_schedules():
-    now = datetime.now()
+    now = timezone.now()
     minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     schedules = WOLSchedule.objects.filter(
         enabled=True,

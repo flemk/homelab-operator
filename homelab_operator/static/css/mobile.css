@@ -33,4 +33,8 @@
         display: block;
         margin: auto;
     }
+
+    .mobile-vanish {
+        display: none;
+    }
 }
