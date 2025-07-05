@@ -268,6 +268,8 @@ class AppState(models.Model):
     def time_since_last_cron_str(self):
         '''Returns the time since the last cron execution as a string.'''
         time_since = self.time_since_last_cron()
+        if not time_since:
+            return None
 
         total_seconds = int(time_since.total_seconds())
         hours, remainder = divmod(total_seconds, 3600)
@@ -287,7 +289,7 @@ class AppState(models.Model):
     def clear(self):
         '''Clears the state of the application.'''
         self.last_cron = None
-        self.exception = None
+        self.exception = ''
         self.save()
 
     def add_exception(self, exception):
@@ -314,14 +316,3 @@ class AppState(models.Model):
     class Meta:
         verbose_name = "App State"
         verbose_name_plural = "App State"
-
-# To access AppState in every HTML template, add a context processor:
-# 1. Create a file (if not exists) at homelab_operator/webui/context_processors.py:
-#
-#   from .models import AppState
-#   def app_state(request):
-#       return {'app_state': AppState.load()}
-#
-# 2. Add 'homelab_operator.webui.context_processors.app_state' to TEMPLATES['OPTIONS']['context_processors'] in settings.py.
-#
-# Now, in any template, use {{ app_state }} or its fields (e.g., {{ app_state.last_cron }})

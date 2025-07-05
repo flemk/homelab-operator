@@ -75,6 +75,10 @@ html {
     display: flex;
 }
 
+a {
+    margin: 0;
+}
+
 .login {
     width: 30vw;
     display: block;

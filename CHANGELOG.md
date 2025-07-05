@@ -3,6 +3,9 @@
 Added:
 - App state information
 
+Changed:
+- Moved cron execution into the docker image
+
 ## [1.4.1]
 Added:
 - Added dev image building and pblishing (latest-dev)

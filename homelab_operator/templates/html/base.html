@@ -82,15 +82,14 @@
                         </div>
                     {% else %}
                         <div style="width: min-content;">
-                            {% include 'html_components/inline_button.html' with label=app_state.state fa_icon='fa-heart-circle-xmark' href='/app_state' %}
+                            {% include 'html_components/inline_button.html' with label=app_state.state fa_icon='fa-heart-circle-xmark' fa_icon_style='color: orange;' href='/app_state' %}
                         </div>
                     {% endif %}
                 {% else %}
                     <div style="width: min-content;">
-                        {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-xmark' href='/app_state' %}
+                        {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-xmark' fa_icon_style='color: orange;' href='/app_state' %}
                     </div>
                 {% endif %}
-                        
                 <div class="spacer" style="width: 2rem;"></div>
                 <div style="width: min-content;">
                     {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}

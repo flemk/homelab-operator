@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
@@ -184,7 +185,18 @@ def shutdown(request, server_id):
 def app_state(request):
     '''View to display the application state, including last cron execution time
     and any exceptions.'''
-    return render(request, 'html/app_state.html')
+    AppState.ensure_exists()
+
+    if request.method == 'GET' and request.GET.get('clear', '') == 'True':
+        app_state = AppState.objects.first()
+        app_state.clear()
+        messages.success(request, "Application state cleared")
+
+    context = {
+        'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
+        }
+
+    return render(request, 'html/app_state.html', context)
 
 def cron(request, api_key):
     '''This function will be called by the cron job
@@ -194,7 +206,7 @@ def cron(request, api_key):
 
     AppState.ensure_exists()
     app_state = AppState.objects.first()
-    app_state.last_cron = datetime.now()
+    app_state.last_cron = timezone.now()
     app_state.save()
 
     try:
