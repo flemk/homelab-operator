@@ -233,9 +233,9 @@ def auto_discover(request):
                 checkbox_key = request.POST.get(f'{key}').strip()
                 server_name = request.POST.get(f'{key}_name', '').strip()
                 server_ip = request.POST.get(f'{key}_ip', '').strip()
-                server_mac = request.POST.get(f'{key}_mac', '').strip()
+                server_mac = request.POST.get(f'{key}_mac', '').strip() or None
 
-                if server_name and server_ip and server_mac and checkbox_key:
+                if server_name and server_ip and checkbox_key:
                     servers.append({
                         'name': server_name,
                         'ip_address': server_ip,
@@ -294,7 +294,8 @@ def auto_discover(request):
         messages.success(request, "Auto discovered result saved successfully.")
         return redirect('dashboard_default')
 
-    servers = discover_network('192.168.178.0/24')  # TODO make this configurable
+    auto_discover_network = os.environ.get('AUTO_DISCOVER_NETWORK', '192.168.1.0/24')
+    servers = discover_network(auto_discover_network)
     homelabs = request.user.homelabs.all()
 
     context = {

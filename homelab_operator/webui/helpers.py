@@ -171,6 +171,7 @@ def check_http(ip):
             break
         except Exception:
             continue
+
     return services
 
 def check_dns(ip):
@@ -206,6 +207,7 @@ def check_dns(ip):
         pass
     finally:
         sock.close()
+
     return []
 
 def discover_services(ip_str: str):
@@ -216,7 +218,7 @@ def discover_services(ip_str: str):
 
     return services
 
-def discover_network(subnet='192.168.178.0/24'):
+def discover_network(subnet='192.168.1.0/24'):
     servers = []
     net = ipaddress.ip_network(subnet)
     for ip in net.hosts():
@@ -252,4 +254,5 @@ def discover_network(subnet='192.168.178.0/24'):
                     'mac_address': mac,
                     'services': services
                 })
+
     return servers
