@@ -2,7 +2,7 @@
         <span style="display: flex;">
             <h2 style="margin-bottom: 0.25rem;">Networks</h2>
             <div style="width: 1rem;"></div>
-            <span style="margin: auto 0 auto auto;">
+            <span style="margin: auto 0 0 auto;">
                 {% include 'html_components/inline_button.html' with label='Network' fa_icon='fa-plus' href='/create/network/' %}
             </span>
         </span>
@@ -17,10 +17,13 @@
                                 {{ network.name }}
                             </h3>
                             <div class="soft">
-                                {{ network.note }}
+                                &bull;&nbsp;{{ network.note|default:"No note defined." }}
+                            </div>
+                            <div class="soft">
+                                &bull;&nbsp;{{ network.subnet|default:"No subnet defined." }}
                             </div>
                         </div>
-                        <span style="margin: auto 0 auto auto; width: min-content;">
+                        <span style="margin: auto 0 auto auto;">
                             {% with network_id=network.id|stringformat:'s' %}
                                 {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/network/'|add:network_id %}
                             {% endwith %}

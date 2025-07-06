@@ -1,0 +1,73 @@
+{% extends 'html/base.html' %}
+
+{% if app_state %}
+    {% block headline %}
+        <a href="/" style="text-decoration: none; color: inherit;">System State</a>
+    {% endblock %}
+    {% block content %}
+        <div>
+            <span style="display: flex;">
+                <h2 style="margin-bottom: 0.25rem;">
+                    {% if app_state.state == 'OK' %}
+                        <i class="fa-solid fa-heart-circle-check" style="color: green;"></i>
+                    {% elif app_state.state == 'Degraded' %}
+                        <i class="fa-solid fa-heart-circle-exclamation" style="color: red;"></i>
+                    {% else %}
+                        <i class="fa-solid fa-heart-circle-xmark" style="color: orange;"></i>
+                    {% endif %}
+                    System State: {{ app_state.state }}
+                </h2>
+                <div style="margin: auto 1rem 0 auto;">
+                    {% include 'html_components/inline_button.html' with label='Clear' fa_icon='fa-broom' href='/app_state?clear=True' %}
+                </div>
+                <div style="margin: auto 0 0 0;">
+                    {% include 'html_components/inline_button.html' with label='Trigger Cron' fa_icon='fa-stopwatch' %}
+                </div>
+            </span>
+        </div>
+        <div class="spacer" style="height: 1rem;"></div>
+        <div class="tile">
+            <b>
+                <i class="fa-solid fa-stopwatch"></i>
+                Last Cron Execution
+            </b>
+            <div>{{ app_state.time_since_last_cron_str|default:'Never executed' }} ago</div>
+            <div class="soft">{{ app_state.last_cron|date:"Y-m-d H:i:s" }}</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="tile">
+            <b>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Exceptions
+            </b>
+            <div>
+                <textarea style="width: 100%; min-height: 10rem; resize: none; background-color: var(--background-color); color: var(--typography-color); padding: 0.5rem; font-family: monospace;" readonly>{{ app_state.exception|default:"No exceptions recorded." }}</textarea>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="tile">
+            <div style="display: flex; margin-bottom: .25rem;">
+                <i class="fa-solid fa-heart-circle-check" style="color: green; margin: 0 0 auto 0;"></i>
+                <div class="soft" style="margin: auto auto auto .5rem;">
+                    <div>System is healthy.</div>
+                </div>
+            </div>
+            <div style="display: flex; margin-bottom: .25rem;">
+                <i class="fa-solid fa-heart-circle-exclamation" style="color: red; margin: 0 0 auto 0;"></i>
+                <div class="soft" style="margin: auto auto auto .5rem;">
+                    <div>System is degraded.</div>
+                    <div>Possible reasons: Cron job failed.</div>
+                </div>
+            </div>
+            <div style="display: flex; margin-bottom: .25rem;">
+                <i class="fa-solid fa-heart-circle-xmark" style="color: orange; margin: 0 0 auto 0;"></i>
+                <div class="soft" style="margin: auto auto auto .5rem;">
+                    <div>System is inactive or in an error state.</div>
+                    <div>Possible reasons: App State not initialized or cleared, exceptions recorded recently (past 24h).</div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% else %}
+    
+{% endif %}

@@ -1,7 +1,14 @@
+import subprocess
+import requests
+import ipaddress
+import socket
 from functools import wraps
+from bs4 import BeautifulSoup
+
+from django.utils import timezone
 from django.core.cache import cache
 from django.http import HttpResponse
-from datetime import datetime
+
 from .models import Server, WOLSchedule
 
 def rate_limit(view_func):
@@ -17,7 +24,7 @@ def rate_limit(view_func):
     return _wrapped_view
 
 def update_uptime_statistics():
-    now = datetime.now()
+    now = timezone.now()
     hour = now.hour
     day = now.weekday()
 
@@ -31,7 +38,7 @@ def update_uptime_statistics():
             uptime_statistic.update_uptime(day, hour, is_online)
 
 def process_schedules():
-    now = datetime.now()
+    now = timezone.now()
     minute_window = [(now.minute + offset) % 60 for offset in range(-5, 6)]
     schedules = WOLSchedule.objects.filter(
         enabled=True,
@@ -88,3 +95,164 @@ def process_schedules():
             schedule.save()
 
     return HttpResponse("OK", status=200)
+
+# Below functions are used for network discovery and service checks
+# TODO refactor this into a separate module?
+
+def ping_host(ip):
+    # Use system ping for simplicity (Linux)
+    # TODO implement fallback or a pure Python ping
+    try:
+        output = subprocess.check_output(['ping', '-c', '1', '-W', '1', ip])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+def evaluate_service_name(response_text):
+    soup = BeautifulSoup(response_text, 'html.parser')
+    title_tag = soup.title
+    name = title_tag.string if title_tag and title_tag.string else 'Unknown'
+
+    lowered = name.lower()
+    if 'homelab operator' in lowered:
+        name = 'Homelab Operator'
+    elif 'opnsense' in lowered:
+        name = 'OPNsense Firewall'
+    elif 'nginx' in lowered:
+        name = 'Generic Nginx Web Server'
+    elif 'nextcloud' in lowered:
+        name = 'Nextcloud'
+    elif 'paperless' in lowered:
+        name = 'Paperless-ngx Document Management'
+    elif 'jellyfin' in lowered:
+        name = 'Jellyfin Media Server'
+    elif 'home assistant' in lowered:
+        name = 'Home Assistant'
+    elif 'portainer' in lowered:
+        name = 'Portainer'
+    elif 'traefik' in lowered:
+        name = 'Traefik Reverse Proxy'
+    elif 'unraid' in lowered:
+        name = 'Unraid Server'
+    elif 'proxmox' in lowered:
+        name = 'Proxmox Virtual Environment'
+    elif 'pi-hole' in lowered:
+        name = 'Pi-hole DNS Ad Blocker'
+    elif 'grafana' in lowered:
+        name = 'Grafana Dashboard'
+    elif 'mysql' in lowered or 'mariadb' in lowered:
+        name = 'MySQL/MariaDB Database Server'
+    else:
+        name = name.strip() or 'Unknown'
+
+    return name
+
+def check_http(ip):
+    services = []
+    port_schemes = [
+        (443, 'https'),
+        (80, 'http'),
+        (8006, 'https'),  # Proxmox Web Interface
+        ]
+    for port, scheme in port_schemes:
+        try:
+            url = f'{scheme}://{ip}'
+            response = requests.get(url, timeout=2, verify=False)  # TODO Insecure HTTPS request?
+            if response.text:
+                name = evaluate_service_name(response.text)
+            else:
+                name = 'Unknown'
+            services.append({
+                    'name': name,
+                    'endpoint': ip,
+                    'port': port,
+                    'url': url,
+                })
+            break
+        except Exception:
+            continue
+
+    return services
+
+def check_dns(ip):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(2)
+        # Standard DNS query for root (.)
+        query = bytes([
+            0xAA,  # Start byte or header
+            0xBB,  # Second header byte
+            0x01,  # Command or version
+            0x00, 0x00,  # Reserved or flags
+            0x01,  # Some flag or length
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+        ])
+        sock.sendto(query, (ip, 53))
+        data, _ = sock.recvfrom(512)
+        if data:
+            return [{
+                'name': 'DNS Service',
+                'endpoint': ip,
+                'port': 53,
+                'url': f'dns://{ip}'
+            }]
+    except Exception:
+        pass
+    finally:
+        sock.close()
+
+    return []
+
+def discover_services(ip_str: str):
+    services = []
+    services.extend(check_http(ip_str))
+    services.extend(check_dns(ip_str))
+    # TODO Add more service checks (SSH, FTP, etc.)
+
+    return services
+
+def discover_network(subnet='192.168.1.0/24'):
+    servers = []
+    net = ipaddress.ip_network(subnet)
+    for ip in net.hosts():
+        ip_str = str(ip)
+        if ping_host(ip_str):
+            # Get hostname via reverse DNS lookup
+            try:
+                hostname = socket.gethostbyaddr(ip_str)[0]
+            except Exception:
+                hostname = None
+
+            # Get MAC address using ARP (Linux only)
+            try:
+                arp_output = subprocess.check_output(['arp', '-n', ip_str]).decode()
+                mac = None
+                for line in arp_output.splitlines():
+                    if ip_str in line:
+                        parts = line.split()
+                        for part in parts:
+                            if ':' in part and len(part) == 17:
+                                mac = part
+                                break
+                        if mac:
+                            break
+            except Exception:
+                mac = None
+
+            services = discover_services(ip_str)
+            if services:
+                servers.append({
+                    'ip_address': ip_str,
+                    'hostname': hostname,
+                    'mac_address': mac,
+                    'services': services
+                })
+
+    return servers

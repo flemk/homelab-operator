@@ -4,6 +4,7 @@ import requests
 import socket
 from django.db import models
 from django.utils.html import format_html
+from django.utils import timezone
 
 class UserProfile(models.Model):
     '''Model representing a user profile.'''
@@ -78,11 +79,15 @@ class Server(models.Model):
                 )
             if response.status_code == 200:
                 return False
-            return f"Shutdown failed with status code: {response.status_code}"
-        except requests.exceptions.ConnectTimeout:
-            return "Connection timed out."
+            return f'Shutdown failed with status code: {response.status_code}'
+        except requests.exceptions.ConnectTimeout as e:
+            return f'Connection timed out: {str(e)}'
+        except requests.exceptions.ConnectionError as e:
+            return f'Connection error occurred: {str(e)}'
         except requests.RequestException as e:
-            return f"Shutdown failed with status code: {response.status_code}"
+            return f'Shutdown failed with status code: {str(e)}'
+        except Exception as e:
+            return f'Unknown error occurred: {str(e)}'
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
@@ -125,8 +130,10 @@ class Service(models.Model):
 class Network(models.Model):
     '''Model representing a network.'''
     name = models.CharField(max_length=20)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    subnet = models.CharField(max_length=20, null=True, blank=True,
+                              help_text='Subnet of the network, e.g. 192.168.1.0/24')
     note = models.TextField(null=True, blank=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
                                 related_name='networks')
 
@@ -152,10 +159,10 @@ class WOLSchedule(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     enabled = models.BooleanField(default=True, help_text='Enable or disable the WOL schedule')
     repeat = models.BooleanField(default=False, help_text='Repeat the WOL schedule')
-    logs = models.JSONField(null=True, blank=True, default='',
+    logs = models.TextField(null=True, blank=True, default='',
                             help_text='Logs of the WOL schedule execution')
-    enable_log = models.TextField(default='',
-                                  help_text='Enable or disable logging for the WOL schedule')
+    enable_log = models.BooleanField(default=True,
+                                     help_text='Enable or disable logging for the WOL schedule')
 
     def __str__(self):
         return f"WOL for {self.server.name} at {self.schedule_time}"
@@ -252,4 +259,75 @@ class ServerUptimeStatistic(models.Model):
         '''Returns the probability matrix as a 7x24 list.'''
         DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         return [(DAY_NAMES[day], [(hour, self.matrix[str(day)][str(hour)][0]) for hour in range(24)]) for day in range(7)]
+
+class AppState(models.Model):
+    '''Singleton model representing the state of the application.'''
+    last_cron = models.DateTimeField(blank=True, null=True)
+    last_exceptipon = models.DateTimeField(blank=True, null=True)
+    exception = models.TextField(default='',)
+
+    def time_since_last_cron(self):
+        '''Returns the time since the last cron execution as a timedelta.'''
+        if self.last_cron:
+            return timezone.now() - self.last_cron
+        return None
     
+    def time_since_last_cron_str(self):
+        '''Returns the time since the last cron execution as a string.'''
+        time_since = self.time_since_last_cron()
+        if not time_since:
+            return None
+
+        total_seconds = int(time_since.total_seconds())
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{hours}h {minutes}m {seconds}s"
+
+    def state(self):
+        '''Returns the state of the application as string.'''
+        if self.last_exceptipon:
+            if self.last_exceptipon > timezone.now() - timezone.timedelta(minutes=60 * 24):
+                return 'Error'
+
+        time_since = self.time_since_last_cron()
+        if time_since:
+            if time_since.total_seconds() <= 60 * 10:
+                return 'OK'
+            else:
+                return 'Degraded'
+
+        return 'Inactive'
+
+    def clear(self):
+        '''Clears the state of the application.'''
+        self.last_cron = None
+        self.exception = ''
+        self.last_exceptipon = None
+        self.save()
+
+    def add_exception(self, exception):
+        '''Adds an exception to the application state.'''
+        if not self.exception:
+            self.exception = ''
+        self.exception += f"{timezone.now()}: {exception}\n"
+        self.last_exceptipon = timezone.now()
+        self.save()
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # Always use primary key 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @classmethod
+    def ensure_exists(cls):
+        '''Ensures that the singleton AppState instance exists.'''
+        cls.objects.get_or_create(pk=1)
+        return cls.load()
+
+    class Meta:
+        verbose_name = "App State"
+        verbose_name_plural = "App State"

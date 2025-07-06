@@ -7,7 +7,7 @@
         <input type="hidden" name="message" value="{{ message }}">
 
         <a class="info button inline-button {{ class }}" onclick="event.preventDefault(); this.closest('form').submit();">
-            <i class="fa-solid {{ fa_icon }} fa-1x"></i>
+            <i class="fa-solid {{ fa_icon }} fa-1x" {% if fa_icon_style %}style="{{ fa_icon_style }}"{% endif %}></i>
             {% if label %}
                 &nbsp;
                 <span>{{ label }}</span>
@@ -16,7 +16,7 @@
     </form>
 {% else %}
     <a href="{{ href | default:'#' }}" class="info button inline-button {% if not href %}no{% endif %}" {% if target %}target="{{ target }}"{% endif %}{% if download %}download="{{ download }}"{% endif %}>
-        <i class="fa-solid {{ fa_icon }} fa-1x"></i>
+        <i class="fa-solid {{ fa_icon }} fa-1x" {% if fa_icon_style %}style="{{ fa_icon_style }}"{% endif %}></i>
         {% if label %}
             &nbsp;
             <span>{{ label }}</span>

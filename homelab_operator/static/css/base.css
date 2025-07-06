@@ -75,6 +75,10 @@ html {
     display: flex;
 }
 
+a {
+    margin: 0;
+}
+
 .login {
     width: 30vw;
     display: block;
@@ -83,6 +87,10 @@ html {
 
 .spacer {
     height: 1rem;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .no {
@@ -105,6 +113,10 @@ html {
     padding: 1rem;
     border: 1px solid var(--border-color);
     border-radius: .5rem;
+}
+
+.mobile-wrap {
+    display: flex;
 }
 
 /* Disable showing strange radio buttons in safari*/
