@@ -211,8 +211,17 @@ def auto_discover(request):
         return redirect('dashboard_default')
 
     #servers = discover_network('192.168.178.0/24')  # TODO make this configurable
-    servers = discover_network('192.168.178.68')
-    context = {'servers': servers,}
+    if os.getenv('DEBUG', 'False') == 'True':
+        # TODO remove this debug code in production
+        print('DEBUG enabled, using fixed IP for discovery')
+        servers = discover_network('192.168.178.68')
+    homelabs = request.user.homelabs.all()
+
+    context = {
+        'servers': servers,
+        'homelabs': homelabs,
+        'user': request.user,
+        }
 
     return render(request, 'html/auto_discover.html', context)
 

@@ -88,11 +88,31 @@
                             <div>
                                 <input type="text" value="{{ service.name }}" style="width: min-content;" id="service_name_{{ service.endpoint }}" placeholder="Service Name">
                             </div>
-                            <div class="soft">on {{ service.endpoint }} ({{ server.hostname }})</div>
+                            <div class="soft">on {{ server.hostname }} ({{ service.endpoint }})</div>
                         </div>
                     </div>
                 {% endfor %}
             {% endfor %}
+        </div>
+        <div class="spacer"></div>
+        <div class="login">
+            <label for="homelab_select">
+                <span class="soft">Select Homelab</span>
+            </label>
+            <select id="homelab_select">
+                {% for homelab in homelabs %}
+                    <option value="{{ homelab.id }}" {% if user.profile.last_selected_homelab.id == homelab.id %}selected{% endif %}>{{ homelab.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="button primary" onclick="saveDiscoveryResults()">Save Discovery Results</button>
+            <div class="soft" style="text-align: center;">This will save the selected servers and services to your homelab.</div>
+        </div>
+    {% else %}
+        <div>
+            <b style="color: #666;">No servers were found.</b>
+            <div class="soft">
+                No servers were found in the specified network range. Please check your network settings and try again.
+            </div>
         </div>
     {% endif %}
 {% endblock %}
