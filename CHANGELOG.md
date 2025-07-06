@@ -3,6 +3,7 @@
 Added:
 - App state information
 - Improved Error handling
+- Improved mobile style
 
 Changed:
 - Moved cron execution into the docker image

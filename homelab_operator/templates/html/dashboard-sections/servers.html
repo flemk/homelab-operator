@@ -2,10 +2,14 @@
 <script src="{% static 'js/color_matrix.js' %}"></script>
 
     <div>
-        <span style="display: flex;">
+        <span class="mobile-wrap">
             <h2 style="margin-bottom: 0.25rem;">Servers</h2>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 auto;">
+                {% include 'html_components/inline_button.html' with label='Auto-Discover' fa_icon='fa-wand-sparkles' href='/auto_discover/' %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 0 0;">
                 {% include 'html_components/inline_button.html' with label='Server' fa_icon='fa-plus' href='/create/server/' %}
             </span>
             <div style="width: 1rem;"></div>
@@ -43,7 +47,7 @@
                     <div style="margin: 1rem auto .25rem auto;">IP Address: {{ server.ip_address }}</div>
                     <div style="margin-bottom: 1rem;">MAC Address: {{ server.mac_address }}</div>
                 </div>
-                <div style="width: min-content;">
+                <div>
                     <span style="display: flex;">
                         <div style="margin: auto 0 auto 0;">
                             {% if server.mac_address %}

@@ -20,7 +20,7 @@
                                 {{ network.note }}
                             </div>
                         </div>
-                        <span style="margin: auto 0 auto auto; width: min-content;">
+                        <span style="margin: auto 0 auto auto;">
                             {% with network_id=network.id|stringformat:'s' %}
                                 {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/network/'|add:network_id %}
                             {% endwith %}

@@ -28,10 +28,12 @@ if DEBUG: print('-'*100, '\nDEBUG is set to True, this is not recommended for pr
 ALLOWED_HOSTS = [
     os.getenv('ALLOWED_HOST', 'localhost'),
     'localhost',
+    '192.168.178.75',  # TODO remove !!!
     ]
 
 CSRF_TRUSTED_ORIGINS = [
     os.getenv('CSRF_TRUSTED_ORIGIN', 'https://localhost'),
+    'http://192.168.178.75',  # TODO remove !!!
     ]
 
 # Application definition

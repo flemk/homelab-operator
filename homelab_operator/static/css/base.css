@@ -111,6 +111,10 @@ a {
     border-radius: .5rem;
 }
 
+.mobile-wrap {
+    display: flex;
+}
+
 /* Disable showing strange radio buttons in safari*/
 #id_usable_password {
     display: none;
