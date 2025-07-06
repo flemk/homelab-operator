@@ -88,3 +88,93 @@ def process_schedules():
             schedule.save()
 
     return HttpResponse("OK", status=200)
+
+import subprocess
+import socket
+import requests
+import ipaddress
+from bs4 import BeautifulSoup
+
+def ping_host(ip):
+    # Use system ping for simplicity (Linux)
+    # TODO implement fallback or a pure Python ping
+    try:
+        output = subprocess.check_output(['ping', '-c', '1', '-W', '1', ip])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+def evaluate_service_name(response_text):
+    soup = BeautifulSoup(response_text, 'html.parser')
+    title_tag = soup.title
+    name = title_tag.string if title_tag and title_tag.string else 'Unknown'
+
+    lowered = name.lower()
+    if 'homelab operator' in lowered:
+        name = 'Homelab Operator'
+    elif 'opnsense' in lowered:
+        name = 'OPNsense Firewall'
+    elif 'nginx' in lowered:
+        name = 'Generic Nginx Web Server'
+    elif 'nextcloud' in lowered:
+        name = 'Nextcloud'
+    elif 'paperless' in lowered:
+        name = 'Paperless-ngx Document Management'
+    elif 'jellyfin' in lowered:
+        name = 'Jellyfin Media Server'
+    elif 'home assistant' in lowered:
+        name = 'Home Assistant'
+    elif 'portainer' in lowered:
+        name = 'Portainer'
+    elif 'traefik' in lowered:
+        name = 'Traefik Reverse Proxy'
+    elif 'unraid' in lowered:
+        name = 'Unraid Server'
+    elif 'proxmox' in lowered:
+        name = 'Proxmox Virtual Environment'
+    elif 'pi-hole' in lowered:
+        name = 'Pi-hole DNS Ad Blocker'
+    elif 'grafana' in lowered:
+        name = 'Grafana Dashboard'
+    elif 'mysql' in lowered or 'mariadb' in lowered:
+        name = 'MySQL/MariaDB Database Server'
+    else:
+        name = name.strip() or 'Unknown'
+
+    return name
+
+def check_http(ip):
+    services = []
+    for port, scheme in [(443, 'https'), (80, 'http')]:
+        try:
+            url = f'{scheme}://{ip}'
+            response = requests.get(url, timeout=2, verify=False)  # TODO Insecure HTTPS request?
+            server = response.headers.get('Server', 'Unknown')
+            if response.ok and response.text:
+                name = evaluate_service_name(response.text)
+            else:
+                name = 'Unknown'
+            services.append({
+                    'name': name,
+                    'endpoint': ip,
+                    'port': port,
+                    'url': url,
+                })
+            break
+        except Exception:
+            continue
+    return services
+
+def discover_network(subnet='192.168.178.0/24'):
+    servers = []
+    net = ipaddress.ip_network(subnet)
+    for ip in net.hosts():
+        ip_str = str(ip)
+        if ping_host(ip_str):
+            services = check_http(ip_str)
+            if services:
+                servers.append({
+                    'ip_address': ip_str,
+                    'services': services
+                })
+    return servers

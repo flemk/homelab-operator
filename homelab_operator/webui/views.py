@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
     UserProfile, ServerUptimeStatistic, AppState
-from .helpers import rate_limit, process_schedules, update_uptime_statistics
+from .helpers import rate_limit, process_schedules, update_uptime_statistics, discover_network
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
@@ -203,6 +203,17 @@ def app_state(request):
         }
 
     return render(request, 'html/app_state.html', context)
+
+@login_required
+def auto_discover(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Only admins can run discovery.")
+        return redirect('dashboard_default')
+
+    servers = discover_network('192.168.178.0/24')  # TODO make this configurable
+    context = {'servers': servers,}
+
+    return render(request, 'html/auto_discover.html', context)
 
 def cron(request, api_key):
     '''This function will be called by the cron job

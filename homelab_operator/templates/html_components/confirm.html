@@ -5,7 +5,7 @@
     <span style="display: flex;">
         <h2 style="margin-bottom: 0.25rem;">{{ title | default:'Confirmation Dialog'}}</h2>
     </span>
-    <p>{{ message | default:'Are you sure you want to proceed?'}}</p>
+    <p>{{ message | safe | default:'Are you sure you want to proceed?' }}</p>
 
     <a href="{{ redirect_url_confirmed | default:'#' }}" class="error button" style="text-align: center; height: unset; max-width: 10rem; padding: 0.5rem;">
         <span>{{ button_yes | default:'Yes' }}</span>

@@ -1,0 +1,87 @@
+{% extends 'html/base.html' %}
+
+{% if homelab %}
+    {% block title %}
+        {{ homelab.name }} - Auto Discover Results
+    {% endblock %}
+{% endif %}
+
+{% block content %}
+    <div>
+        <span style="display: flex;">
+            <h2 style="margin-bottom: .25rem;">Auto Discover Results</h2>
+        </span>
+        <span class="soft">
+            This page shows the results of the auto discovery process. It lists all servers found in the specified network range.
+            You can use this to quickly identify devices and services running on your network.
+        </span>
+    </div>
+    <div class="spacer"></div>
+    {% if servers %}
+        <div class="tile">
+            <div style="display: flex;">
+                <div>
+                    <h3 style="display: flex; margin-bottom: 0;">
+                        Discovered Servers
+                    </h3>
+                    <span class="soft">
+                        Select and edit servers you want to add to your homelab.
+                    </span>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div style="border-top: 1px solid #ccc;"></div>
+            <div class="spacer"></div>
+            {% for server in servers %}
+                <div style="display: flex;">
+                    <div>
+                        {% include 'widgets/checkbox.html' with id='server_'|add:server.ip_address checked=True %}
+                    </div>
+                    <div style="margin: 0 auto auto .5rem;">
+                        <label for="server_name_{{ server.ip_address }}">
+                            <span class="soft">Server Name</span>
+                        </label>
+                        <div>
+                            <input type="text" value="{{ server.ip_address }}" style="width: min-content;" id="server_name_{{ server.ip_address }}" placeholder="Server Name">
+                        </div>
+                        <div class="soft">{{ server.services|length }} {{ server.services|length|pluralize:"service,services" }} found on this IP.</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="spacer"></div>
+        <div class="tile">
+            <div style="display: flex;">
+                <div>
+                    <h3 style="display: flex;">
+                        Discovered Services
+                    </h3>
+                    <span class="soft">
+                        Select and edit services.
+                    </span>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div style="border-top: 1px solid #ccc;"></div>
+            <div class="spacer"></div>
+            {% for server in servers %}
+                {% for service in server.services %}
+                    <div style="display: flex;">
+                        <div>
+                            {% include 'widgets/checkbox.html' with id='service_'|add:service.endpoint checked=True %}
+                        </div>
+                        <div style="margin: 0 auto auto .5rem;">
+                            <label for="service_name_{{ service.endpoint }}">
+                                <span class="soft">Service Name</span>
+                            </label>
+                            <div>
+                                <input type="text" value="{{ service.name }}" style="width: min-content;" id="service_name_{{ service.endpoint }}" placeholder="Service Name">
+                            </div>
+                            <div class="soft">on {{ service.url }}:{{ service.port }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

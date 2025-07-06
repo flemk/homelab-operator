@@ -1,10 +1,27 @@
-<label class="tile custom-checkbox-label" for="{{ widget.attrs.id }}">
-    <input  type="checkbox"
-            name="{{ widget.name }}"
-            id="{{ widget.attrs.id }}"
-            {% if widget.value %} checked{% endif %}
-            style="display: none;"
-            {% include "django/forms/widgets/attrs.html" %}>
-    <span class="custom-checkbox"></span>
-    <span class="soft" style="margin: 0 auto auto 0;">{{ widget.label }}</span>
-</label>
+{% if widget %}
+    <label class="tile custom-checkbox-label" for="{{ widget.attrs.id }}">
+        <input  type="checkbox"
+                name="{{ widget.name }}"
+                id="{{ widget.attrs.id }}"
+                {% if widget.value %} checked{% endif %}
+                style="display: none;"
+                {% include "django/forms/widgets/attrs.html" %}>
+        <span class="custom-checkbox"></span>
+        <span class="spacer" style="width: 8px;"></span>
+        <span class="soft" style="margin: 0 auto auto 0;">{{ widget.label }}</span>
+    </label>
+{% elif id %}
+    <label class="tile custom-checkbox-label" for="{{ id }}">
+        <input  type="checkbox"
+                name="{{ id }}"
+                id="{{ id }}"
+                {% if checked %} checked{% endif %}
+                style="display: none;">
+        <span class="custom-checkbox"></span>
+        <span class="soft" style="margin: 0 auto auto 0;">{{ widget.label }}</span>
+    </label>
+{% else %}
+    <span style="color: red; font-weight: bold;">
+        TemplateError: widgets/checkbox.html
+    </span>
+{% endif %}

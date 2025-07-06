@@ -6,7 +6,7 @@
             <h2 style="margin-bottom: 0.25rem;">Servers</h2>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 auto;">
-                {% include 'html_components/inline_button.html' with label='Auto-Discover' fa_icon='fa-wand-sparkles' href='/auto_discover/' %}
+                {% include 'html_components/inline_button.html' with label='Auto-Discover' fa_icon='fa-wand-sparkles' confirm=True redirect_url_confirmed='/auto_discover/' title='Performing Auto-Discover' message='Do you want to auto-discover servers and services in your homelab?<br>After confirming the process might take a while. The page might seem unresponsive since service discovery is not yet implemented as a background task.<br><br>Do not refresh this page.' redirect_url_declined='/dashboard/' %}
             </span>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 0;">
