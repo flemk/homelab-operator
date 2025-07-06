@@ -210,7 +210,8 @@ def auto_discover(request):
         messages.error(request, "Only admins can run discovery.")
         return redirect('dashboard_default')
 
-    servers = discover_network('192.168.178.0/24')  # TODO make this configurable
+    #servers = discover_network('192.168.178.0/24')  # TODO make this configurable
+    servers = discover_network('192.168.178.68')
     context = {'servers': servers,}
 
     return render(request, 'html/auto_discover.html', context)

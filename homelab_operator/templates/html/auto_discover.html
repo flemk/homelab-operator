@@ -35,16 +35,25 @@
             {% for server in servers %}
                 <div style="display: flex;">
                     <div>
-                        {% include 'widgets/checkbox.html' with id='server_'|add:server.ip_address checked=True %}
+                        {% with id='server_'|add:server.ip_address %}
+                            {% include 'widgets/checkbox.html' with id=id checked=True %}
+                        {% endwith %}
                     </div>
                     <div style="margin: 0 auto auto .5rem;">
-                        <label for="server_name_{{ server.ip_address }}">
+                        <label for="server_name_{{ server.hostname }}">
                             <span class="soft">Server Name</span>
                         </label>
                         <div>
-                            <input type="text" value="{{ server.ip_address }}" style="width: min-content;" id="server_name_{{ server.ip_address }}" placeholder="Server Name">
+                            <input type="text" value="{{ server.hostname }}" style="width: min-content;" id="server_name_{{ server.hostname }}" placeholder="Server Name">
                         </div>
-                        <div class="soft">{{ server.services|length }} {{ server.services|length|pluralize:"service,services" }} found on this IP.</div>
+                        <div>
+                            <span class="soft">{{ server.ip_address }}</span>
+                            <span class="soft">at</span>
+                            <span class="soft">{{ server.mac_address }}</span>
+                        </div>
+                        <div class="soft">
+                            {{ server.services|length }} {{ server.services|length|pluralize:"service,services" }} found on this IP.
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -68,7 +77,9 @@
                 {% for service in server.services %}
                     <div style="display: flex;">
                         <div>
-                            {% include 'widgets/checkbox.html' with id='service_'|add:service.endpoint checked=True %}
+                            {% with id='service_'|add:service.endpoint|add:'_'|add:service.name %}
+                                {% include 'widgets/checkbox.html' with id=id checked=True %}
+                            {% endwith %}
                         </div>
                         <div style="margin: 0 auto auto .5rem;">
                             <label for="service_name_{{ service.endpoint }}">
@@ -77,7 +88,7 @@
                             <div>
                                 <input type="text" value="{{ service.name }}" style="width: min-content;" id="service_name_{{ service.endpoint }}" placeholder="Service Name">
                             </div>
-                            <div class="soft">on {{ service.url }}:{{ service.port }}</div>
+                            <div class="soft">on {{ service.endpoint }} ({{ server.hostname }})</div>
                         </div>
                     </div>
                 {% endfor %}

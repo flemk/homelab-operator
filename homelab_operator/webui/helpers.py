@@ -1,7 +1,14 @@
+import subprocess
+import requests
+import ipaddress
+import socket
 from functools import wraps
+from bs4 import BeautifulSoup
+
 from django.utils import timezone
 from django.core.cache import cache
 from django.http import HttpResponse
+
 from .models import Server, WOLSchedule
 
 def rate_limit(view_func):
@@ -89,11 +96,8 @@ def process_schedules():
 
     return HttpResponse("OK", status=200)
 
-import subprocess
-import socket
-import requests
-import ipaddress
-from bs4 import BeautifulSoup
+# Below functions are used for network discovery and service checks
+# TODO refactor this into a separate module?
 
 def ping_host(ip):
     # Use system ping for simplicity (Linux)
@@ -145,7 +149,12 @@ def evaluate_service_name(response_text):
 
 def check_http(ip):
     services = []
-    for port, scheme in [(443, 'https'), (80, 'http')]:
+    port_schemes = [
+        (443, 'https'),
+        (80, 'http'),
+        (8006, 'https'),  # Proxmox Web Interface
+        ]
+    for port, scheme in port_schemes:
         try:
             url = f'{scheme}://{ip}'
             response = requests.get(url, timeout=2, verify=False)  # TODO Insecure HTTPS request?
@@ -164,16 +173,83 @@ def check_http(ip):
             continue
     return services
 
+def check_dns(ip):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(2)
+        # Standard DNS query for root (.)
+        query = bytes([
+            0xAA,  # Start byte or header
+            0xBB,  # Second header byte
+            0x01,  # Command or version
+            0x00, 0x00,  # Reserved or flags
+            0x01,  # Some flag or length
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+            0x00, 0x00,  # Reserved
+        ])
+        sock.sendto(query, (ip, 53))
+        data, _ = sock.recvfrom(512)
+        if data:
+            return [{
+                'name': 'DNS Service',
+                'endpoint': ip,
+                'port': 53,
+                'url': f'dns://{ip}'
+            }]
+    except Exception:
+        pass
+    finally:
+        sock.close()
+    return []
+
+def discover_services(ip_str:str):
+    services = []
+    services.extend(check_http(ip_str))
+    services.extend(check_dns(ip_str))
+    # TODO Add more service checks (SSH, FTP, etc.)
+
+    return services
+
 def discover_network(subnet='192.168.178.0/24'):
     servers = []
     net = ipaddress.ip_network(subnet)
     for ip in net.hosts():
         ip_str = str(ip)
         if ping_host(ip_str):
-            services = check_http(ip_str)
+            # Get hostname via reverse DNS lookup
+            try:
+                hostname = socket.gethostbyaddr(ip_str)[0]
+            except Exception:
+                hostname = None
+
+            # Get MAC address using ARP (Linux only)
+            try:
+                arp_output = subprocess.check_output(['arp', '-n', ip_str]).decode()
+                mac = None
+                for line in arp_output.splitlines():
+                    if ip_str in line:
+                        parts = line.split()
+                        for part in parts:
+                            if ':' in part and len(part) == 17:
+                                mac = part
+                                break
+                        if mac:
+                            break
+            except Exception:
+                mac = None
+
+            services = discover_services(ip_str)
             if services:
                 servers.append({
                     'ip_address': ip_str,
+                    'hostname': hostname,
+                    'mac_address': mac,
                     'services': services
                 })
     return servers
