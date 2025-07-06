@@ -26,7 +26,7 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'img/homelab-operator.png' %}" >
 
     <link rel="manifest" href="{% static 'manifest.json' %}">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#efefef50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="{% static 'img/homelab-operator.png' %}">
@@ -73,33 +73,33 @@
                 <div class="spacer" style="width: .5rem;"></div>
                 {% if app_state %}
                     {% if app_state.state == 'OK' %}
-                        <div style="width: min-content;">
+                        <div>
                             {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-check' fa_icon_style='color: green;' href='/app_state' %}
                         </div>
                     {% elif app_state.state == 'Degraded' %}
-                        <div style="width: min-content;">
+                        <div>
                             {% include 'html_components/inline_button.html' with label=app_state.state fa_icon='fa-heart-circle-exclamation' fa_icon_style='color: red;' href='/app_state' %}
                         </div>
                     {% else %}
-                        <div style="width: min-content;">
+                        <div>
                             {% include 'html_components/inline_button.html' with label=app_state.state fa_icon='fa-heart-circle-xmark' fa_icon_style='color: orange;' href='/app_state' %}
                         </div>
                     {% endif %}
                 {% else %}
-                    <div style="width: min-content;">
+                    <div>
                         {% include 'html_components/inline_button.html' with fa_icon='fa-heart-circle-xmark' fa_icon_style='color: orange;' href='/app_state' %}
                     </div>
                 {% endif %}
                 <div class="spacer" style="width: .5rem;"></div>
-                <div style="width: min-content;">
+                <div>
                     {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
                 </div>
                 <div class="spacer" style="width: .5rem;"></div>
-                <div style="width: min-content;">
+                <div>
                     {% include 'html_components/inline_button.html' with label='Profile' fa_icon='fa-user' href='/edit/profile' %}
                 </div>
                 <div class="spacer" style="width: .5rem;"></div>
-                <div style="width: min-content;">
+                <div>
                     {% include 'html_components/inline_button.html' with label='Logout' fa_icon='fa-right-from-bracket' href='/logout' %}
                 </div>
             </div>

@@ -4,7 +4,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#efefef50",
   "icons": [
     {
       "src": "/static/img/homelab-operator-72x72.png",
