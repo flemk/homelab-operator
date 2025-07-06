@@ -292,7 +292,7 @@ def auto_discover(request, network_id=None):
             server = Server.objects.filter(
                 user=request.user,
                 ip_address=service_data['endpoint'],
-                name=service_data['server_name'],
+                name=service_data['server_name'],  # TODO name can be changed, not reliable
                 homelab=homelab,
             ).first()
             if server:
