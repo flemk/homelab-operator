@@ -21,7 +21,7 @@
     background-color: #2196F3;
 }
 .indicator-dot.warning-dot {
-    background-color: #f0c800;
+    background-color: orange;
 }
 .indicator-dot.unknown-dot {
     background-color: #9E9E9E;

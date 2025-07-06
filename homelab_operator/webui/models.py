@@ -261,6 +261,7 @@ class ServerUptimeStatistic(models.Model):
 class AppState(models.Model):
     '''Singleton model representing the state of the application.'''
     last_cron = models.DateTimeField(blank=True, null=True)
+    last_exceptipon = models.DateTimeField(blank=True, null=True)
     exception = models.TextField(default='',)
 
     def time_since_last_cron(self):
@@ -282,18 +283,24 @@ class AppState(models.Model):
 
     def state(self):
         '''Returns the state of the application as string.'''
+        if self.last_exceptipon:
+            if self.last_exceptipon > timezone.now() - timezone.timedelta(minutes=60 * 24):
+                return 'Error'
+
         time_since = self.time_since_last_cron()
         if time_since:
             if time_since.total_seconds() <= 60 * 10:
-                return "OK"
+                return 'OK'
             else:
-                return "Degraded"
-        return "Inactive"
+                return 'Degraded'
+
+        return 'Inactive'
 
     def clear(self):
         '''Clears the state of the application.'''
         self.last_cron = None
         self.exception = ''
+        self.last_exceptipon = None
         self.save()
 
     def add_exception(self, exception):
@@ -301,6 +308,7 @@ class AppState(models.Model):
         if not self.exception:
             self.exception = ''
         self.exception += f"{timezone.now()}: {exception}\n"
+        self.last_exceptipon = timezone.now()
         self.save()
 
     def save(self, *args, **kwargs):
