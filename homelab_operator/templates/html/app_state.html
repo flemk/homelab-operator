@@ -21,7 +21,7 @@
                     {% include 'html_components/inline_button.html' with label='Clear' fa_icon='fa-broom' href='/app_state?clear=True' %}
                 </div>
                 <div style="margin: auto 0 0 0;">
-                    {% include 'html_components/inline_button.html' with label='Trigger Cron' fa_icon='fa-stopwatch' href='/cron/'|add:api_key %}
+                    {% include 'html_components/inline_button.html' with label='Trigger Cron' fa_icon='fa-stopwatch' %}
                 </div>
             </span>
         </div>
@@ -42,6 +42,29 @@
             </b>
             <div>
                 <textarea style="width: 100%; min-height: 10rem; resize: none; background-color: var(--background-color); color: var(--typography-color); padding: 0.5rem; font-family: monospace;" readonly>{{ app_state.exception|default:"No exceptions recorded." }}</textarea>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="tile">
+            <div style="display: flex; margin-bottom: .25rem;">
+                <i class="fa-solid fa-heart-circle-check" style="color: green; margin: 0 0 auto 0;"></i>
+                <div class="soft" style="margin: auto auto auto .5rem;">
+                    <div>System is healthy.</div>
+                </div>
+            </div>
+            <div style="display: flex; margin-bottom: .25rem;">
+                <i class="fa-solid fa-heart-circle-exclamation" style="color: red; margin: 0 0 auto 0;"></i>
+                <div class="soft" style="margin: auto auto auto .5rem;">
+                    <div>System is degraded.</div>
+                    <div>Possible reasons: Cron job failed.</div>
+                </div>
+            </div>
+            <div style="display: flex; margin-bottom: .25rem;">
+                <i class="fa-solid fa-heart-circle-xmark" style="color: orange; margin: 0 0 auto 0;"></i>
+                <div class="soft" style="margin: auto auto auto .5rem;">
+                    <div>System is inactive or in an error state.</div>
+                    <div>Possible reasons: App State not initialized or cleared, exceptions recorded recently (past 24h).</div>
+                </div>
             </div>
         </div>
     {% endblock %}

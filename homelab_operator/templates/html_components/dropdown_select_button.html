@@ -1,0 +1,44 @@
+<div class="info button inline-button {{ class }}" onclick="event.preventDefault(); this.parentElement.querySelector('.dropdown-content').classList.toggle('dropdown-show'); this.querySelector('.fa-chevron-down').classList.toggle('hidden'); this.querySelector('.fa-chevron-up').classList.toggle('hidden');">
+    <i class="fa-solid {{ fa_icon }} fa-1x" {% if fa_icon_style %}style="{{ fa_icon_style }}"{% endif %}></i>
+    {% if label %}
+        &nbsp;
+        <span>{{ label }}</span>
+    {% endif %}
+    <i class="soft fa-solid fa-chevron-down"></i>
+    <i class="soft fa-solid fa-chevron-up hidden"></i>
+</div>
+<div style="position: absolute;">
+    <div class="dropdown-content">
+        {% if select %}
+            <div class="soft" style="font-weight: normal; margin-left: .5rem;">
+                {{ select_label|default:"Select an option" }}
+            </div>
+            <div class="spacer" style="height: .5rem;"></div>
+            {% for option in select %}
+                <form method="post" action="/confirm">
+                    {% csrf_token %}
+                    <input type="hidden" name="redirect_url_confirmed" value="{{ option.redirect_url_confirmed }}">
+                    <input type="hidden" name="redirect_url_declined" value="{{ option.redirect_url_declined }}">
+                    <input type="hidden" name="title" value="{{ option.title }}">
+                    <input type="hidden" name="message" value="{{ option.message }}">
+
+                    <div class="dropdown-item" style="display: block; padding: .1rem .1rem .1rem .5rem; cursor: pointer;" onclick="event.preventDefault(); this.closest('form').submit();">
+                        <div>
+                            {{ option.name }}
+                        </div>
+                        {% if option.subname %}
+                            <span class="soft">{{ option.subname }}</span>
+                        {% else %}
+                            <span class="soft">No subname defined</span>
+                        {% endif %}
+                    </div>
+                </form>
+            {% endfor %}
+        {% else %}
+            <div class="soft dropdown-item" style="display: block; padding: .1rem .1rem .1rem .5rem;">
+                No options available.
+            </div>
+            <div class="spacer" style="height: .5rem;"></div>
+        {% endif %}
+    </div>
+</div>

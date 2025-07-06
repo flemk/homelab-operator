@@ -2,6 +2,9 @@
 ## [1.5.0]
 Added:
 - App state information
+- Improved Error handling
+- Improved mobile style
+- Auto-discover Servers and Services
 
 Changed:
 - Moved cron execution into the docker image

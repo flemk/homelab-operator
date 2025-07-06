@@ -79,11 +79,15 @@ class Server(models.Model):
                 )
             if response.status_code == 200:
                 return False
-            return f"Shutdown failed with status code: {response.status_code}"
-        except requests.exceptions.ConnectTimeout:
-            return "Connection timed out."
+            return f'Shutdown failed with status code: {response.status_code}'
+        except requests.exceptions.ConnectTimeout as e:
+            return f'Connection timed out: {str(e)}'
+        except requests.exceptions.ConnectionError as e:
+            return f'Connection error occurred: {str(e)}'
         except requests.RequestException as e:
-            return f"Shutdown failed with status code: {response.status_code}"
+            return f'Shutdown failed with status code: {str(e)}'
+        except Exception as e:
+            return f'Unknown error occurred: {str(e)}'
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
@@ -126,8 +130,10 @@ class Service(models.Model):
 class Network(models.Model):
     '''Model representing a network.'''
     name = models.CharField(max_length=20)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    subnet = models.CharField(max_length=20, null=True, blank=True,
+                              help_text='Subnet of the network, e.g. 192.168.1.0/24')
     note = models.TextField(null=True, blank=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
                                 related_name='networks')
 
@@ -257,6 +263,7 @@ class ServerUptimeStatistic(models.Model):
 class AppState(models.Model):
     '''Singleton model representing the state of the application.'''
     last_cron = models.DateTimeField(blank=True, null=True)
+    last_exceptipon = models.DateTimeField(blank=True, null=True)
     exception = models.TextField(default='',)
 
     def time_since_last_cron(self):
@@ -278,18 +285,24 @@ class AppState(models.Model):
 
     def state(self):
         '''Returns the state of the application as string.'''
+        if self.last_exceptipon:
+            if self.last_exceptipon > timezone.now() - timezone.timedelta(minutes=60 * 24):
+                return 'Error'
+
         time_since = self.time_since_last_cron()
         if time_since:
             if time_since.total_seconds() <= 60 * 10:
-                return "OK"
+                return 'OK'
             else:
-                return "Degraded"
-        return "Inactive"
+                return 'Degraded'
+
+        return 'Inactive'
 
     def clear(self):
         '''Clears the state of the application.'''
         self.last_cron = None
         self.exception = ''
+        self.last_exceptipon = None
         self.save()
 
     def add_exception(self, exception):
@@ -297,6 +310,7 @@ class AppState(models.Model):
         if not self.exception:
             self.exception = ''
         self.exception += f"{timezone.now()}: {exception}\n"
+        self.last_exceptipon = timezone.now()
         self.save()
 
     def save(self, *args, **kwargs):
@@ -312,6 +326,7 @@ class AppState(models.Model):
     def ensure_exists(cls):
         '''Ensures that the singleton AppState instance exists.'''
         cls.objects.get_or_create(pk=1)
+        return cls.load()
 
     class Meta:
         verbose_name = "App State"

@@ -89,6 +89,10 @@ a {
     height: 1rem;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .no {
     cursor: not-allowed;
     filter: opacity(50%);
@@ -109,6 +113,10 @@ a {
     padding: 1rem;
     border: 1px solid var(--border-color);
     border-radius: .5rem;
+}
+
+.mobile-wrap {
+    display: flex;
 }
 
 /* Disable showing strange radio buttons in safari*/

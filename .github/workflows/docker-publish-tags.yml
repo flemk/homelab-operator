@@ -31,5 +31,5 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-          build-args: HOMELAB_OPERATOR_VERSION=${{ github.sha }}
+          build-args: HOMELAB_OPERATOR_VERSION=${{ github.ref_name }}
           platforms: linux/arm/v7,linux/arm64,linux/amd64

@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.html import format_html
 from django.contrib import messages
@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
     UserProfile, ServerUptimeStatistic, AppState
-from .helpers import rate_limit, process_schedules, update_uptime_statistics
+from .helpers import rate_limit, process_schedules, update_uptime_statistics, discover_network
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
 
@@ -107,10 +107,23 @@ def dashboard(request, homelab_id=None):
     homelabs = user.homelabs.all()
     servers = homelab.servers.all()
     networks = homelab.networks.all()
-    
+
+    networks_select = [{'name': network.name,
+                        'id': network.id,
+                        'subname': network.subnet or 'No subnet defined',
+                        'title': 'Performing Auto-Discover',
+                        'message': 'Do you want to auto-discover servers and services in ' + \
+                            f'your homelab on <u>{network.subnet}</u>?<br><br>After confirming, ' + \
+                            'the process might take a while. The page might seem ' + \
+                            'unresponsive since service discovery is not yet implemented ' + \
+                            'as a background task.<br><br>Do not refresh this page.',
+                        'redirect_url_confirmed': f'/auto_discover/{network.id}/',
+                        'redirect_url_declined': '/dashboard/',} for network in networks]
+
     context = {
         'servers': servers,
         'networks': networks,
+        'networks_select': networks_select,
         'homelabs': homelabs,
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
@@ -162,7 +175,10 @@ def wake(request, server_id):
         if response is False:
             messages.success(request, f"Magic packet sent to {server.name}")
         else:
-            messages.error(request, f"Failed to send magic packet to {server.name}: {response}")
+            app_state = AppState.ensure_exists()
+            log_entry = f'Failed to send magic packet to {server.name}: {response}'
+            app_state.add_exception(log_entry)
+            messages.error(request, log_entry)
         return redirect('dashboard_default')
     messages.error(request, "Server not found")
     return redirect('dashboard_default')
@@ -174,11 +190,14 @@ def shutdown(request, server_id):
     if server:
         response = server.shutdown()
         if response is False:
-            messages.success(request, f"Shutdown command sent to {server.name}")
+            messages.success(request, f'Shutdown command sent to {server.name}')
         else:
-            messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
+            app_state = AppState.ensure_exists()
+            log_entry = f'Failed to send shutdown command to {server.name}: {response}'
+            app_state.add_exception(log_entry)
+            messages.error(request, log_entry)
         return redirect('dashboard_default')
-    messages.error(request, "Server not found")
+    messages.error(request, 'Server not found')
     return redirect('dashboard_default')
 
 @login_required
@@ -197,6 +216,121 @@ def app_state(request):
         }
 
     return render(request, 'html/app_state.html', context)
+
+@login_required
+def auto_discover(request, network_id=None):
+    '''View to auto discover servers and services in the user's homelab network.'''
+    user = request.user
+    if not user.is_superuser:
+        messages.error(request, "Only admins can run discovery.")
+        return redirect('dashboard_default')
+
+    if request.method == 'POST':
+        homelab_id = None
+        if 'homelab_id' in request.POST:
+            homelab_id = request.POST.get('homelab_id')
+            try:
+                homelab = Homelab.objects.get(id=homelab_id, user=request.user)
+                request.user.profile.last_selected_homelab = homelab
+                request.user.profile.save()
+            except Homelab.DoesNotExist:
+                messages.error(request, "Homelab not found.")
+                return redirect('dashboard_default')
+        if not homelab_id:
+            messages.error(request, "No homelab selected.")
+            return redirect('dashboard_default')
+        homelab = Homelab.objects.get(id=homelab_id, user=request.user)
+
+        servers = []
+        services = []
+        for key in request.POST:
+            if key.startswith('server_') and len(key.split('_')) == 2:
+                checkbox_key = request.POST.get(f'{key}').strip()
+                server_name = request.POST.get(f'{key}_name', '').strip()
+                server_ip = request.POST.get(f'{key}_ip', '').strip()
+                server_mac = request.POST.get(f'{key}_mac', '').strip() or None
+
+                if server_name and server_ip and checkbox_key:
+                    servers.append({
+                        'name': server_name,
+                        'ip_address': server_ip,
+                        'mac_address': server_mac,
+                    })
+            if key.startswith('service_') and len(key.split('_')) == 3:
+                checkbox_key = request.POST.get(f'{key}').strip()
+                service_name = request.POST.get(f'{key}_name', '').strip()
+                service_endpoint = request.POST.get(f'{key}_endpoint', '').strip()
+                service_port = request.POST.get(f'{key}_port', '').strip()
+                service_url = request.POST.get(f'{key}_url', '').strip()
+                service_server_name = request.POST.get(f'{key}_server_name', '').strip()
+
+                if service_name and service_endpoint and checkbox_key:
+                    services.append({
+                        'name': service_name,
+                        'endpoint': service_endpoint,
+                        'port': service_port,
+                        'url': service_url,
+                        'server_name': service_server_name,
+                    })
+
+        if not servers:
+            messages.error(request, "No valid servers found in the form.")
+            return redirect('dashboard_default')
+
+        # Save discovered servers
+        for server_data in servers:
+            Server.objects.update_or_create(
+                user=request.user,
+                name=server_data['name'],
+                ip_address=server_data['ip_address'],
+                mac_address=server_data['mac_address'],
+                homelab=homelab,
+            )
+
+        # Save discovered services
+        for service_data in services:
+            server = Server.objects.filter(
+                user=request.user,
+                ip_address=service_data['endpoint'],
+                name=service_data['server_name'],
+                homelab=homelab,
+            ).first()
+            if server:
+                Service.objects.update_or_create(
+                    server=server,
+                    name=service_data['name'],
+                    endpoint=service_data['endpoint'],
+                    port=service_data['port'],
+                    url=service_data['url'],
+                )
+            else:
+                messages.warning(request, f"Service {service_data['name']} could not be linked to a server.")
+
+        messages.success(request, "Auto discovered result saved successfully.")
+        return redirect('dashboard_default')
+    
+    network = get_object_or_404(Network, id=network_id, user=request.user)
+    auto_discover_network = network.subnet
+    if not auto_discover_network:
+        messages.error(request, "No subnet configured for auto discovery.")
+        return redirect('dashboard_default')
+
+    try:
+        servers = discover_network(auto_discover_network)
+    except Exception as e:
+        messages.error(request, f"Error during auto discovery: {str(e)}")
+        app_state = AppState.ensure_exists()
+        app_state.add_exception(f"Auto discovery error: {str(e)}")
+        return redirect('dashboard_default')
+    homelabs = request.user.homelabs.all()
+
+    context = {
+        'servers': servers,
+        'homelabs': homelabs,
+        'user': request.user,
+        }
+
+    return render(request, 'html/auto_discover.html', context)
 
 def cron(request, api_key):
     '''This function will be called by the cron job
