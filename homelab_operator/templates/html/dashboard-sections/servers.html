@@ -5,22 +5,7 @@
             <h2 style="margin-bottom: 0.25rem;">Servers</h2>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 auto;">
-                <!--{% if homelab.subnet %}
-                    {% with homelab_subnet=homelab.subnet|stringformat:'s'%}
-                        {% with message='Do you want to auto-discover servers and services in your homelab on '|add:homelab_subnet|add:'?<br><br>After confirming, the process might take a while. The page might seem unresponsive since service discovery is not yet implemented as a background task.<br><br>Do not refresh this page.' %}
-                            {% include 'html_components/inline_button.html' with label='Auto-Discover' fa_icon='fa-wand-magic-sparkles' confirm=True redirect_url_confirmed='/auto_discover/' title='Performing Auto-Discover' message=message redirect_url_declined='/dashboard/' %}
-                        {% endwith %}
-                    {% endwith %}
-                {% else %}
-                    <div class="tooltip" style="display: block;">
-                        {% include 'html_components/inline_button.html' with label='Auto-Discover' fa_icon='fa-wand-magic-sparkles' %}
-                        <div class="soft">
-                            <span class="tooltiptext">No subnet defined for this homelab.<br>Please set it in the homelab settings.</span>
-                        </div>
-                    </div>
-                {% endif %}-->
                 {% include 'html_components/dropdown_select_button.html' with label='Auto-Discover' fa_icon='fa-wand-magic-sparkles' confirm=True redirect_url_confirmed='/auto_discover/' title='Performing Auto-Discover' message=message redirect_url_declined='/dashboard/' select=networks_select select_label='Select a Network' %}
-
             </span>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 0;">
