@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.html import format_html
 from django.contrib import messages
@@ -107,10 +107,23 @@ def dashboard(request, homelab_id=None):
     homelabs = user.homelabs.all()
     servers = homelab.servers.all()
     networks = homelab.networks.all()
-    
+
+    networks_select = [{'name': network.name,
+                        'id': network.id,
+                        'subname': network.subnet or 'No subnet defined',
+                        'title': 'Performing Auto-Discover',
+                        'message': 'Do you want to auto-discover servers and services in ' + \
+                            f'your homelab on <u>{network.subnet}</u>?<br><br>After confirming, ' + \
+                            'the process might take a while. The page might seem ' + \
+                            'unresponsive since service discovery is not yet implemented ' + \
+                            'as a background task.<br><br>Do not refresh this page.',
+                        'redirect_url_confirmed': f'/auto_discover/{network.id}/',
+                        'redirect_url_declined': '/dashboard/',} for network in networks]
+
     context = {
         'servers': servers,
         'networks': networks,
+        'networks_select': networks_select,
         'homelabs': homelabs,
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
@@ -205,7 +218,7 @@ def app_state(request):
     return render(request, 'html/app_state.html', context)
 
 @login_required
-def auto_discover(request):
+def auto_discover(request, network_id=None):
     '''View to auto discover servers and services in the user's homelab network.'''
     user = request.user
     if not user.is_superuser:
@@ -296,7 +309,8 @@ def auto_discover(request):
         messages.success(request, "Auto discovered result saved successfully.")
         return redirect('dashboard_default')
     
-    auto_discover_network = user.profile.last_selected_homelab.subnet
+    network = get_object_or_404(Network, id=network_id, user=request.user)
+    auto_discover_network = network.subnet
     if not auto_discover_network:
         messages.error(request, "No subnet configured for auto discovery.")
         return redirect('dashboard_default')

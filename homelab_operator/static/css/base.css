@@ -89,6 +89,10 @@ a {
     height: 1rem;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .no {
     cursor: not-allowed;
     filter: opacity(50%);
