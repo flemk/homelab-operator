@@ -186,6 +186,8 @@ class Homelab(models.Model):
     description = models.TextField(null=True, blank=True)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True,
                              related_name='homelabs')
+    subnet = models.CharField(max_length=20, null=True, blank=True,
+                              help_text='Subnet of the homelab, e.g. 192.168.1.0/24')
 
     def __str__(self):
         return str(self.name)

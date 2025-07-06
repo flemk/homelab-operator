@@ -206,7 +206,9 @@ def app_state(request):
 
 @login_required
 def auto_discover(request):
-    if not request.user.is_superuser:
+    '''View to auto discover servers and services in the user's homelab network.'''
+    user = request.user
+    if not user.is_superuser:
         messages.error(request, "Only admins can run discovery.")
         return redirect('dashboard_default')
 
@@ -293,9 +295,19 @@ def auto_discover(request):
 
         messages.success(request, "Auto discovered result saved successfully.")
         return redirect('dashboard_default')
+    
+    auto_discover_network = user.profile.last_selected_homelab.subnet
+    if not auto_discover_network:
+        messages.error(request, "No subnet configured for auto discovery.")
+        return redirect('dashboard_default')
 
-    auto_discover_network = os.environ.get('AUTO_DISCOVER_NETWORK', '192.168.1.0/24')
-    servers = discover_network(auto_discover_network)
+    try:
+        servers = discover_network(auto_discover_network)
+    except Exception as e:
+        messages.error(request, f"Error during auto discovery: {str(e)}")
+        app_state = AppState.ensure_exists()
+        app_state.add_exception(f"Auto discovery error: {str(e)}")
+        return redirect('dashboard_default')
     homelabs = request.user.homelabs.all()
 
     context = {
