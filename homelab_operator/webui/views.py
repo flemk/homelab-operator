@@ -162,7 +162,10 @@ def wake(request, server_id):
         if response is False:
             messages.success(request, f"Magic packet sent to {server.name}")
         else:
-            messages.error(request, f"Failed to send magic packet to {server.name}: {response}")
+            app_state = AppState.ensure_exists()
+            log_entry = f'Failed to send magic packet to {server.name}: {response}'
+            app_state.add_exception(log_entry)
+            messages.error(request, log_entry)
         return redirect('dashboard_default')
     messages.error(request, "Server not found")
     return redirect('dashboard_default')
@@ -174,11 +177,14 @@ def shutdown(request, server_id):
     if server:
         response = server.shutdown()
         if response is False:
-            messages.success(request, f"Shutdown command sent to {server.name}")
+            messages.success(request, f'Shutdown command sent to {server.name}')
         else:
-            messages.error(request, f"Failed to send shutdown command to {server.name}: {response}")
+            app_state = AppState.ensure_exists()
+            log_entry = f'Failed to send shutdown command to {server.name}: {response}'
+            app_state.add_exception(log_entry)
+            messages.error(request, log_entry)
         return redirect('dashboard_default')
-    messages.error(request, "Server not found")
+    messages.error(request, 'Server not found')
     return redirect('dashboard_default')
 
 @login_required

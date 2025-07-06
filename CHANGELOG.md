@@ -2,6 +2,7 @@
 ## [1.5.0]
 Added:
 - App state information
+- Improved Error handling
 
 Changed:
 - Moved cron execution into the docker image

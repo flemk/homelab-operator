@@ -79,11 +79,15 @@ class Server(models.Model):
                 )
             if response.status_code == 200:
                 return False
-            return f"Shutdown failed with status code: {response.status_code}"
-        except requests.exceptions.ConnectTimeout:
-            return "Connection timed out."
+            return f'Shutdown failed with status code: {response.status_code}'
+        except requests.exceptions.ConnectTimeout as e:
+            return f'Connection timed out: {str(e)}'
+        except requests.exceptions.ConnectionError as e:
+            return f'Connection error occurred: {str(e)}'
         except requests.RequestException as e:
-            return f"Shutdown failed with status code: {response.status_code}"
+            return f'Shutdown failed with status code: {str(e)}'
+        except Exception as e:
+            return f'Unknown error occurred: {str(e)}'
 
     def is_online(self):
         '''Checks if the server is online by attempting to connect to SSH.'''
@@ -312,6 +316,7 @@ class AppState(models.Model):
     def ensure_exists(cls):
         '''Ensures that the singleton AppState instance exists.'''
         cls.objects.get_or_create(pk=1)
+        return cls.load()
 
     class Meta:
         verbose_name = "App State"

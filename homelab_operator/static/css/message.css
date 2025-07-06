@@ -12,6 +12,11 @@
     animation-fill-mode: forwards;
 }
 
+/*.message:hover {
+    animation-name: none;
+    background-color: lightgrey;
+}*/
+
 .retain {
     animation: none;
 }
