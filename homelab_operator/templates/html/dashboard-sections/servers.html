@@ -129,7 +129,11 @@
                                         {{ service.name }}
                                     </div>
                                     <div class="soft">
-                                        {{ service.note }}
+                                        {% if service.note %}
+                                            {{ service.note }}
+                                        {% else %}
+                                            No note defined.
+                                        {% endif %}
                                     </div>
                                 </a>
                                 <div class="spacer" style="height: .5rem;"></div>
@@ -178,7 +182,11 @@
                                         {% endif %}
                                     </div>
                                     <div class="soft">
-                                        {{ schedule.note }}
+                                        {% if schedule.note %}
+                                            {{ schedule.note }}
+                                        {% else %}
+                                            No note defined.
+                                        {% endif %}
                                     </div>
                                 </a>
                                 <div class="spacer" style="height: .5rem;"></div>

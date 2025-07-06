@@ -208,7 +208,7 @@ def check_dns(ip):
         sock.close()
     return []
 
-def discover_services(ip_str:str):
+def discover_services(ip_str: str):
     services = []
     services.extend(check_http(ip_str))
     services.extend(check_dns(ip_str))

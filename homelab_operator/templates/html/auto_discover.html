@@ -18,6 +18,11 @@
     </div>
     <div class="spacer"></div>
     {% if servers %}
+        <form id="discovery_form" method="post" action="/auto_discover/">
+            {% csrf_token %}
+
+
+
         <div class="tile">
             <div style="display: flex;">
                 <div>
@@ -33,29 +38,31 @@
             <div style="border-top: 1px solid #ccc;"></div>
             <div class="spacer"></div>
             {% for server in servers %}
-                <div style="display: flex;">
-                    <div>
-                        {% with id='server_'|add:server.ip_address %}
+                {% with id='server_'|add:server.ip_address %}
+                    <div style="display: flex;">
+                        <div>
                             {% include 'widgets/checkbox.html' with id=id checked=True %}
-                        {% endwith %}
+                        </div>
+                        <div style="margin: 0 auto auto .5rem;">
+                            <label for="{{ id }}_name">
+                                <span class="soft">Server Name</span>
+                            </label>
+                            <div>
+                                <input type="text" name="{{ id }}_name" value="{{ server.hostname }}" style="width: min-content;" id="{{ id }}_name" placeholder="Server Name">
+                                <input type="hidden" name="{{ id }}_ip" value="{{ server.ip_address }}">
+                                <input type="hidden" name="{{ id }}_mac" value="{{ server.mac_address }}">
+                            </div>
+                            <div>
+                                <span class="soft">{{ server.ip_address }}</span>
+                                <span class="soft">at</span>
+                                <span class="soft">{{ server.mac_address }}</span>
+                            </div>
+                            <div class="soft">
+                                {{ server.services|length }} {{ server.services|length|pluralize:"service,services" }} found on this IP.
+                            </div>
+                        </div>
                     </div>
-                    <div style="margin: 0 auto auto .5rem;">
-                        <label for="server_name_{{ server.hostname }}">
-                            <span class="soft">Server Name</span>
-                        </label>
-                        <div>
-                            <input type="text" value="{{ server.hostname }}" style="width: min-content;" id="server_name_{{ server.hostname }}" placeholder="Server Name">
-                        </div>
-                        <div>
-                            <span class="soft">{{ server.ip_address }}</span>
-                            <span class="soft">at</span>
-                            <span class="soft">{{ server.mac_address }}</span>
-                        </div>
-                        <div class="soft">
-                            {{ server.services|length }} {{ server.services|length|pluralize:"service,services" }} found on this IP.
-                        </div>
-                    </div>
-                </div>
+                {% endwith %}
             {% endfor %}
         </div>
         <div class="spacer"></div>
@@ -75,22 +82,26 @@
             <div class="spacer"></div>
             {% for server in servers %}
                 {% for service in server.services %}
-                    <div style="display: flex;">
-                        <div>
-                            {% with id='service_'|add:service.endpoint|add:'_'|add:service.name %}
-                                {% include 'widgets/checkbox.html' with id=id checked=True %}
-                            {% endwith %}
-                        </div>
-                        <div style="margin: 0 auto auto .5rem;">
-                            <label for="service_name_{{ service.endpoint }}">
-                                <span class="soft">Service Name</span>
-                            </label>
+                    {% with id='service_'|add:service.endpoint|add:'_'|add:service.name %}
+                        <div style="display: flex;">
                             <div>
-                                <input type="text" value="{{ service.name }}" style="width: min-content;" id="service_name_{{ service.endpoint }}" placeholder="Service Name">
+                                {% include 'widgets/checkbox.html' with id=id checked=True %}
                             </div>
-                            <div class="soft">on {{ server.hostname }} ({{ service.endpoint }})</div>
+                            <div style="margin: 0 auto auto .5rem;">
+                                <label for="{{ id }}_name">
+                                    <span class="soft">Service Name</span>
+                                </label>
+                                <div>
+                                    <input type="text" name="{{ id }}_name" value="{{ service.name }}" style="width: min-content;" id="{{ id }}_name" placeholder="Service Name">
+                                    <input type="hidden" name="{{ id }}_endpoint" value="{{ service.endpoint }}">
+                                    <input type="hidden" name="{{ id }}_port" value="{{ service.port }}">
+                                    <input type="hidden" name="{{ id }}_url" value="{{ service.url }}">
+                                    <input type="hidden" name="{{ id }}_server_name" value="{{ server.hostname }}">
+                                </div>
+                                <div class="soft">on {{ server.hostname }} ({{ service.endpoint }})</div>
+                            </div>
                         </div>
-                    </div>
+                    {% endwith %}
                 {% endfor %}
             {% endfor %}
         </div>
@@ -99,14 +110,17 @@
             <label for="homelab_select">
                 <span class="soft">Select Homelab</span>
             </label>
-            <select id="homelab_select">
+            <select id="homelab_select" name="homelab_id">
                 {% for homelab in homelabs %}
                     <option value="{{ homelab.id }}" {% if user.profile.last_selected_homelab.id == homelab.id %}selected{% endif %}>{{ homelab.name }}</option>
                 {% endfor %}
             </select>
-            <button class="button primary" onclick="saveDiscoveryResults()">Save Discovery Results</button>
+            <input type="submit" value="Save Discovery Results"></input>
             <div class="soft" style="text-align: center;">This will save the selected servers and services to your homelab.</div>
         </div>
+
+
+        </form>
     {% else %}
         <div>
             <b style="color: #666;">No servers were found.</b>

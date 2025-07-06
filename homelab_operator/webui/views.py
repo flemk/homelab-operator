@@ -210,11 +210,91 @@ def auto_discover(request):
         messages.error(request, "Only admins can run discovery.")
         return redirect('dashboard_default')
 
-    #servers = discover_network('192.168.178.0/24')  # TODO make this configurable
-    if os.getenv('DEBUG', 'False') == 'True':
-        # TODO remove this debug code in production
-        print('DEBUG enabled, using fixed IP for discovery')
-        servers = discover_network('192.168.178.68')
+    if request.method == 'POST':
+        homelab_id = None
+        if 'homelab_id' in request.POST:
+            homelab_id = request.POST.get('homelab_id')
+            try:
+                homelab = Homelab.objects.get(id=homelab_id, user=request.user)
+                request.user.profile.last_selected_homelab = homelab
+                request.user.profile.save()
+            except Homelab.DoesNotExist:
+                messages.error(request, "Homelab not found.")
+                return redirect('dashboard_default')
+        if not homelab_id:
+            messages.error(request, "No homelab selected.")
+            return redirect('dashboard_default')
+        homelab = Homelab.objects.get(id=homelab_id, user=request.user)
+
+        servers = []
+        services = []
+        for key in request.POST:
+            if key.startswith('server_') and len(key.split('_')) == 2:
+                checkbox_key = request.POST.get(f'{key}').strip()
+                server_name = request.POST.get(f'{key}_name', '').strip()
+                server_ip = request.POST.get(f'{key}_ip', '').strip()
+                server_mac = request.POST.get(f'{key}_mac', '').strip()
+
+                if server_name and server_ip and server_mac and checkbox_key:
+                    servers.append({
+                        'name': server_name,
+                        'ip_address': server_ip,
+                        'mac_address': server_mac,
+                    })
+            if key.startswith('service_') and len(key.split('_')) == 3:
+                checkbox_key = request.POST.get(f'{key}').strip()
+                service_name = request.POST.get(f'{key}_name', '').strip()
+                service_endpoint = request.POST.get(f'{key}_endpoint', '').strip()
+                service_port = request.POST.get(f'{key}_port', '').strip()
+                service_url = request.POST.get(f'{key}_url', '').strip()
+                service_server_name = request.POST.get(f'{key}_server_name', '').strip()
+
+                if service_name and service_endpoint and checkbox_key:
+                    services.append({
+                        'name': service_name,
+                        'endpoint': service_endpoint,
+                        'port': service_port,
+                        'url': service_url,
+                        'server_name': service_server_name,
+                    })
+
+        if not servers:
+            messages.error(request, "No valid servers found in the form.")
+            return redirect('dashboard_default')
+
+        # Save discovered servers
+        for server_data in servers:
+            Server.objects.update_or_create(
+                user=request.user,
+                name=server_data['name'],
+                ip_address=server_data['ip_address'],
+                mac_address=server_data['mac_address'],
+                homelab=homelab,
+            )
+
+        # Save discovered services
+        for service_data in services:
+            server = Server.objects.filter(
+                user=request.user,
+                ip_address=service_data['endpoint'],
+                name=service_data['server_name'],
+                homelab=homelab,
+            ).first()
+            if server:
+                Service.objects.update_or_create(
+                    server=server,
+                    name=service_data['name'],
+                    endpoint=service_data['endpoint'],
+                    port=service_data['port'],
+                    url=service_data['url'],
+                )
+            else:
+                messages.warning(request, f"Service {service_data['name']} could not be linked to a server.")
+
+        messages.success(request, "Auto discovered result saved successfully.")
+        return redirect('dashboard_default')
+
+    servers = discover_network('192.168.178.0/24')  # TODO make this configurable
     homelabs = request.user.homelabs.all()
 
     context = {
