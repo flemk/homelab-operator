@@ -149,8 +149,7 @@ def check_http(ip):
         try:
             url = f'{scheme}://{ip}'
             response = requests.get(url, timeout=2, verify=False)  # TODO Insecure HTTPS request?
-            server = response.headers.get('Server', 'Unknown')
-            if response.ok and response.text:
+            if response.text:
                 name = evaluate_service_name(response.text)
             else:
                 name = 'Unknown'
