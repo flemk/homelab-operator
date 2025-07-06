@@ -8,6 +8,7 @@ urlpatterns = [
     path('app_state/', views.app_state, name='app_state'),
     path('auto_discover/<int:network_id>/', views.auto_discover, name='auto_discover'),
     path('auto_discover/', views.auto_discover, name='auto_discover'),
+
     path('search/', views.search, name='search'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -48,7 +49,7 @@ urlpatterns = [
     path('edit/wiki/<int:wiki_id>/', views.edit_wiki, name='edit_wiki'),
     path('delete/wiki/<int:wiki_id>/', views.delete_wiki, name='delete_wiki'),
 
-    path('create/shutdown_url/<int:server_id>',
+    path('create/shutdown_url/<int:server_id>/',
          views.create_shutdown_url, name='create_shutdown_url'),
     path('edit/shutdown_url/<int:shutdown_url_id>/',
          views.edit_shutdown_url, name='edit_shutdown_url'),
@@ -62,4 +63,3 @@ urlpatterns = [
      path('reset/uptime_statistic/<int:server_id>/',
           views.reset_uptime_statistic, name='reset_uptime_statistic'),
 ]
-
