@@ -3,6 +3,9 @@
 Changed:
 - Improved logic of auto discoveres services creation
 
+Added:
+- Default user configurable in .env
+
 ## [1.5.0]
 Added:
 - App state information
