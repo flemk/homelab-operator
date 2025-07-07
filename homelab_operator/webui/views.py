@@ -230,16 +230,21 @@ def auto_discover(request, network_id=None):
         if 'homelab_id' in request.POST:
             homelab_id = request.POST.get('homelab_id')
             try:
-                homelab = Homelab.objects.get(id=homelab_id, user=request.user)
-                request.user.profile.last_selected_homelab = homelab
-                request.user.profile.save()
+                homelab = Homelab.objects.get(id=homelab_id, user=user)
+                user.profile.last_selected_homelab = homelab
+                user.profile.save()
             except Homelab.DoesNotExist:
                 messages.error(request, "Homelab not found.")
                 return redirect('dashboard_default')
         if not homelab_id:
             messages.error(request, "No homelab selected.")
             return redirect('dashboard_default')
-        homelab = Homelab.objects.get(id=homelab_id, user=request.user)
+
+        try:
+            network = Network.objects.get(id=network_id, user=user, homelab=homelab)
+        except Network.DoesNotExist:
+            messages.error(request, "Network not found. Possibly not defined or not in the selected homelab.")
+            return redirect('dashboard_default')
 
         servers = []
         services = []
@@ -280,11 +285,12 @@ def auto_discover(request, network_id=None):
         # Save discovered servers
         for server_data in servers:
             Server.objects.update_or_create(
-                user=request.user,
+                user=user,
                 name=server_data['name'],
                 ip_address=server_data['ip_address'],
                 mac_address=server_data['mac_address'],
                 homelab=homelab,
+                network=network,
             )
 
         # Save discovered services
@@ -292,7 +298,8 @@ def auto_discover(request, network_id=None):
             server = Server.objects.filter(
                 user=request.user,
                 ip_address=service_data['endpoint'],
-                name=service_data['server_name'],  # TODO name can be changed, not reliable
+                #name=service_data['server_name'],  # TODO name can be changed, not reliable
+                network=network,
                 homelab=homelab,
             ).first()
             if server:
@@ -325,6 +332,7 @@ def auto_discover(request, network_id=None):
     homelabs = request.user.homelabs.all()
 
     context = {
+        'network_id': network.id,
         'servers': servers,
         'homelabs': homelabs,
         'user': request.user,

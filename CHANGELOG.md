@@ -1,4 +1,8 @@
 # Changelog
+## [1.5.1]
+Changed:
+- Improved logic of auto discoveres services creation
+
 ## [1.5.0]
 Added:
 - App state information
