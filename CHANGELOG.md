@@ -6,6 +6,9 @@ Changed:
 Added:
 - Default user configurable in .env
 
+Fixed:
+- Fxed create wiki not possible
+
 ## [1.5.0]
 Added:
 - App state information
