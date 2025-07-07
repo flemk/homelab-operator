@@ -17,7 +17,7 @@ This tool is still in development.
 ### Docker Compose
 See `docker-compose.yml` or `docker-compose-build-local.yml` and the `.env` file.
 
-The easiest way to run this application is by using docker compose. A sample configuration coul look like:
+The easiest way to run this application is by using docker compose. A sample configuration could look like:
 
 ```yaml
 services:
