@@ -24,10 +24,7 @@ COPY nginx.conf /etc/nginx/sites-available/default
 
 # Internal cron script to call the homelab-operator cron endpoint
 RUN mkdir -p /app/scripts
-RUN echo '#!/bin/bash\n\
-# Internal cron script to call the homelab-operator cron endpoint\n\
-API_KEY=${API_KEY:-DEFAULT_API_KEY}\n\
-curl -s http://localhost:8000/cron/${API_KEY}/ || echo "Cron call failed at $(date)"' > /app/scripts/internal_cron.sh
+COPY scripts/internal_cron.sh /app/scripts/internal_cron.sh
 RUN chmod +x /app/scripts/internal_cron.sh
 RUN echo "*/10 * * * * root /app/scripts/internal_cron.sh" >> /etc/crontab
 
