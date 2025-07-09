@@ -2,126 +2,80 @@
 
 {% if homelab %}
     {% block title %}
-        {{ homelab.name }} - Auto Discover Results
+        {{ homelab.name }} - Auto Discover in progress
     {% endblock %}
 {% endif %}
 
 {% block content %}
     <div>
         <span style="display: flex;">
-            <h2 style="margin-bottom: .25rem;">Auto Discover Results</h2>
+            <h2 style="margin-bottom: .25rem;">Auto Discovery in progress</h2>
         </span>
-        <span class="soft">
-            This page shows the results of the auto discovery process. It lists all servers found in the specified network range.
-            You can use this to quickly identify devices and services running on your network.
-        </span>
-    </div>
-    <div class="spacer"></div>
-    {% if servers %}
-        <form id="discovery_form" method="post" action="/auto_discover/{{ network_id }}/">
-            {% csrf_token %}
-            <div class="tile">
-                <div style="display: flex;">
-                    <div>
-                        <h3 style="display: flex; margin-bottom: 0;">
-                            Discovered Servers
-                        </h3>
-                        <span class="soft">
-                            Select and edit servers you want to add to your homelab.
-                        </span>
-                    </div>
-                </div>
-                <div class="spacer"></div>
-                <div style="border-top: 1px solid #ccc;"></div>
-                <div class="spacer"></div>
-                {% for server in servers %}
-                    {% with id='server_'|add:server.ip_address %}
-                        <div style="display: flex;">
-                            <div>
-                                {% include 'widgets/checkbox.html' with id=id checked=True %}
-                            </div>
-                            <div style="margin: 0 auto auto .5rem;">
-                                <label for="{{ id }}_name">
-                                    <span class="soft">Server Name</span>
-                                </label>
-                                <div>
-                                    <input type="text" name="{{ id }}_name" value="{{ server.hostname }}" style="width: min-content;" id="{{ id }}_name" placeholder="Server Name">
-                                    <input type="hidden" name="{{ id }}_ip" value="{{ server.ip_address }}">
-                                    <input type="hidden" name="{{ id }}_mac" value="{{ server.mac_address }}">
-                                </div>
-                                <div>
-                                    <span class="soft">{{ server.ip_address }}</span>
-                                    <span class="soft">at</span>
-                                    <span class="soft">{{ server.mac_address }}</span>
-                                </div>
-                                <div class="soft">
-                                    {{ server.services|length }} {{ server.services|length|pluralize:"service,services" }} found on this IP.
-                                </div>
-                            </div>
-                        </div>
-                    {% endwith %}
-                {% endfor %}
-            </div>
-            <div class="spacer"></div>
-            <div class="tile">
-                <div style="display: flex;">
-                    <div>
-                        <h3 style="display: flex;">
-                            Discovered Services
-                        </h3>
-                        <span class="soft">
-                            Select and edit services.
-                        </span>
-                    </div>
-                </div>
-                <div class="spacer"></div>
-                <div style="border-top: 1px solid #ccc;"></div>
-                <div class="spacer"></div>
-                {% for server in servers %}
-                    {% for service in server.services %}
-                        {% with id='service_'|add:service.endpoint|add:'_'|add:service.name %}
-                            <div style="display: flex;">
-                                <div>
-                                    {% include 'widgets/checkbox.html' with id=id checked=True %}
-                                </div>
-                                <div style="margin: 0 auto auto .5rem;">
-                                    <label for="{{ id }}_name">
-                                        <span class="soft">Service Name</span>
-                                    </label>
-                                    <div>
-                                        <input type="text" name="{{ id }}_name" value="{{ service.name }}" style="width: min-content;" id="{{ id }}_name" placeholder="Service Name">
-                                        <input type="hidden" name="{{ id }}_endpoint" value="{{ service.endpoint }}">
-                                        <input type="hidden" name="{{ id }}_port" value="{{ service.port }}">
-                                        <input type="hidden" name="{{ id }}_url" value="{{ service.url }}">
-                                        <input type="hidden" name="{{ id }}_server_name" value="{{ server.hostname }}">
-                                    </div>
-                                    <div class="soft">on {{ server.hostname }} ({{ service.endpoint }})</div>
-                                </div>
-                            </div>
-                        {% endwith %}
-                    {% endfor %}
-                {% endfor %}
-            </div>
-            <div class="spacer"></div>
-            <div class="login">
-                <label for="homelab_select">
-                    <span class="soft">Select Homelab</span>
-                </label>
-                <select id="homelab_select" name="homelab_id">
-                    {% for homelab in homelabs %}
-                        <option value="{{ homelab.id }}" {% if user.profile.last_selected_homelab.id == homelab.id %}selected{% endif %}>{{ homelab.name }}</option>
-                    {% endfor %}
-                </select>
-                <input type="submit" value="Save Discovery Results"></input>
-                <div class="soft" style="text-align: center;">This will save the selected servers and services to your homelab.</div>
-            </div>
-        </form>
-    {% else %}
-        <div>
-            <b style="color: #666;">No servers were found.</b>
-            <div class="soft">
-                No servers were found in the specified network range. Please check your network settings and try again.
-            </div>
+        <div class="soft">
+            Please be patient. The auto discovery process is currently running.
         </div>
-    {% endif %}
+        <div class="soft">
+            Subnetwork: <strong>{{ network_id }}</strong>
+        </div>
+        <div class="soft">
+            Task ID: <strong>{{ task_id }}</strong>
+        </div>
+    </div>
+    <div id="enable-scroll-btn" class="soft info button inline-button" style="margin-top: 1rem; width: min-content;">Disable Auto-Scroll</div>
+    <div style="border: 1px solid var(--border-color); border-radius: 1rem; margin-top: .25rem; background-color: var(--header-background-color);">
+        <iframe id="auto-discover-iframe" src="{% url 'auto_discover_stream' network_id=network_id task_id=task_id %}" style="width: 100%; height: 500px; border: none;">
+            Your browser does not support iframes. Please activate javascript or use a different browser.
+        </iframe>
+    </div>
+    <div class="soft" style="text-align: center;">
+        You will be redirected to the results page once the discovery is complete.
+    </div>
+    <script>
+        // Redirect to results page when the iframe content is fully loaded
+        const iframe_ = document.getElementById('auto-discover-iframe');
+        function checkIframeStatus() {
+            try {
+                if (iframe_.contentDocument && iframe_.contentDocument.readyState === 'complete') {
+                    if (iframe_.contentDocument.body && iframe_.contentDocument.body.innerText.includes('Discovery complete.')) {
+                        window.location.href = "{% url 'auto_discover_results' network_id=network_id task_id=task_id %}";
+                    }
+                }
+            } catch (e) {
+                // Cross-origin, cannot access
+            }
+        }
+        setInterval(checkIframeStatus, 2000);
+    </script>
+    <script>
+        // Auto-scroll functionality for the iframe
+        const iframe = document.getElementById('auto-discover-iframe');
+        const enableScrollBtn = document.getElementById('enable-scroll-btn');
+        let autoScrollEnabled = true;
+
+        enableScrollBtn.addEventListener('click', function() {
+            autoScrollEnabled = !autoScrollEnabled;
+            enableScrollBtn.textContent = autoScrollEnabled ? 'Disable Auto-Scroll' : 'Enable Auto-Scroll';
+            enableScrollBtn.classList.toggle('active', autoScrollEnabled);
+        });
+
+        function scrollIframeToBottom() {
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.documentElement.scrollTop = doc.documentElement.scrollHeight;
+                doc.body.scrollTop = doc.body.scrollHeight;
+            } catch (e) {}
+        }
+
+        iframe.onload = function() {
+            if (autoScrollEnabled) {
+                scrollIframeToBottom();
+            }
+        };
+
+        setInterval(function() {
+            if (autoScrollEnabled) {
+                scrollIframeToBottom();
+            }
+        }, 1000);
+    </script>
 {% endblock %}

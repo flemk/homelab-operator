@@ -218,22 +218,34 @@ def discover_services(ip_str: str):
 
     return services
 
-def discover_network(subnet='192.168.1.0/24'):
+def discover_network_stream(subnet, task_id=None):
+    yield f'<!DOCTYPE html>\n'.encode()
+    yield '<style>html {font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; padding: 1rem;}</style>'.encode()
+
+    yield f"Starting discovery on subnet {subnet}<br><br>".encode()
+
     servers = []
+    servers_found = 0
     net = ipaddress.ip_network(subnet)
+
     for ip in net.hosts():
         ip_str = str(ip)
+        yield f"Pinging {ip_str}... ".encode()
+
         if ping_host(ip_str):
-            # Get hostname via reverse DNS lookup
+            yield f"alive.<br>".encode()
+
+            # Reverse DNS
             try:
                 hostname = socket.gethostbyaddr(ip_str)[0]
             except Exception:
                 hostname = None
+            yield f"- Hostname: {hostname or 'N/A'}<br>".encode()
 
-            # Get MAC address using ARP (Linux only)
+            # MAC address via ARP
+            mac = None
             try:
                 arp_output = subprocess.check_output(['arp', '-n', ip_str]).decode()
-                mac = None
                 for line in arp_output.splitlines():
                     if ip_str in line:
                         parts = line.split()
@@ -244,15 +256,28 @@ def discover_network(subnet='192.168.1.0/24'):
                         if mac:
                             break
             except Exception:
-                mac = None
+                pass
+            yield f"- MAC: {mac or 'N/A'}<br>".encode()
 
+            # Service discovery
             services = discover_services(ip_str)
-            if services:
-                servers.append({
-                    'ip_address': ip_str,
-                    'hostname': hostname,
-                    'mac_address': mac,
-                    'services': services
-                })
 
-    return servers
+            servers.append({
+                'ip_address': ip_str,
+                'hostname': hostname,
+                'mac_address': mac,
+                'services': services
+            })
+
+            if services:
+                servers_found += 1
+                yield f"- Services: {services}<br>".encode()
+            else:
+                yield f"- No services found.<br>".encode()
+        else:
+            yield f"unreachable.<br>".encode()
+        yield f"\n".encode()
+
+    cache.set(f"scan:{task_id}", servers, timeout=3600)
+
+    yield f"<br>Discovery complete. {servers_found} servers found.\n".encode()

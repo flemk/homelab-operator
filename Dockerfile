@@ -28,4 +28,4 @@ COPY scripts/internal_cron.sh /app/scripts/internal_cron.sh
 RUN chmod +x /app/scripts/internal_cron.sh
 RUN echo "*/10 * * * * root /app/scripts/internal_cron.sh" >> /etc/crontab
 
-CMD ["sh", "-c", "service cron start && python ./homelab_operator/manage.py makemigrations && python ./homelab_operator/manage.py migrate && python ./homelab_operator/manage.py create_default_superuser && nginx -c /app/nginx.conf && cd ./homelab_operator && waitress-serve --listen=*:8000 homelab_operator.wsgi:application"]
+CMD ["sh", "-c", "service cron start && python ./homelab_operator/manage.py makemigrations && python ./homelab_operator/manage.py migrate && python ./homelab_operator/manage.py create_default_superuser && nginx -c /app/nginx.conf && cd ./homelab_operator && gunicorn homelab_operator.wsgi:application --bind 127.0.0.1:8000 --worker-class=gevent"]

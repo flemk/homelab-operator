@@ -2,11 +2,14 @@
 ## [1.5.1]
 Changed:
 - Improved logic of auto discoveres services creation
+- Improved auto discovery process
+- Switched from waitress tu gunicorn
 
 Added:
 - Default user configurable in .env
 
 Fixed:
+- Fixed auto discover causes "Not found" (#26)
 - Fxed create wiki not possible
 
 ## [1.5.0]
