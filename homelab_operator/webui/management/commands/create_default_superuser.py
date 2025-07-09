@@ -6,6 +6,9 @@ class Command(BaseCommand):
     help = 'Creates default superuser if not exists'
 
     def handle(self, *args, **kwargs):
+        if os.getenv("SUPERUSER_USERNAME", False) is False or os.getenv("SUPERUSER_EMAIL", False) is False or os.getenv("SUPERUSER_PASSWORD", False) is False:
+            self.stdout.write(self.style.WARNING("SUPERUSER environment variables are not set. Skipping superuser creation."))
+            return
         User = get_user_model()
         username = os.getenv("SUPERUSER_USERNAME", "admin")
         email = os.getenv("SUPERUSER_EMAIL", "admin@example.com")

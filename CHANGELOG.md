@@ -5,6 +5,7 @@ Changed:
 - Improved auto discovery process
 - Switched from waitress tu gunicorn
 - Changed internal cron script
+- Changed superuser creation logic
 
 Added:
 - Default user configurable in .env
