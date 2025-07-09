@@ -15,7 +15,7 @@
             Please be patient. The auto discovery process is currently running.
         </div>
         <div class="soft">
-            Subnetwork: <strong>{{ network_id }}</strong>
+            Subnetwork: <strong>{{ network.id }}</strong>
         </div>
         <div class="soft">
             Task ID: <strong>{{ task_id }}</strong>
@@ -23,11 +23,11 @@
     </div>
     <div id="enable-scroll-btn" class="soft info button inline-button" style="margin-top: 1rem; width: min-content;">Disable Auto-Scroll</div>
     <div style="border: 1px solid var(--border-color); border-radius: 1rem; margin-top: .25rem; background-color: var(--header-background-color);">
-        <iframe id="auto-discover-iframe" src="{% url 'auto_discover_stream' network_id=network_id task_id=task_id %}" style="width: 100%; height: 500px; border: none;">
+        <iframe id="auto-discover-iframe" src="{% url 'auto_discover_stream' network_id=network.id task_id=task_id %}" style="width: 100%; height: 500px; border: none;">
             Your browser does not support iframes. Please activate javascript or use a different browser.
         </iframe>
     </div>
-    <div class="soft" style="text-align: center;">
+    <div class="soft" style="text-align: center; margin-top: .25rem;">
         You will be redirected to the results page once the discovery is complete.
     </div>
     <script>
@@ -37,7 +37,7 @@
             try {
                 if (iframe_.contentDocument && iframe_.contentDocument.readyState === 'complete') {
                     if (iframe_.contentDocument.body && iframe_.contentDocument.body.innerText.includes('Discovery complete.')) {
-                        window.location.href = "{% url 'auto_discover_results' network_id=network_id task_id=task_id %}";
+                        window.location.href = "{% url 'auto_discover_results' network_id=network.id task_id=task_id %}";
                     }
                 }
             } catch (e) {

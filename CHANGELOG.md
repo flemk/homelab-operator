@@ -4,6 +4,7 @@ Changed:
 - Improved logic of auto discoveres services creation
 - Improved auto discovery process
 - Switched from waitress tu gunicorn
+- Changed internal cron script
 
 Added:
 - Default user configurable in .env

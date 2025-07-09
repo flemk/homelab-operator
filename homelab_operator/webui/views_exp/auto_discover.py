@@ -13,11 +13,15 @@ import uuid
 @login_required
 def auto_discover(request, network_id=None):
     task_id = uuid.uuid4().hex
+    network = Network.objects.filter(id=network_id, user=request.user).first()
+    if not network:
+        messages.error(request, "Network not found or you do not have permission to access it.")
+        return redirect('dashboard_default')
+
     context = {
-        'network_id': network_id,
+        'network': network,
         'task_id': task_id,
     }
-
     return render(request, 'html/auto_discover.html', context)
 
 @login_required
