@@ -14,7 +14,9 @@
                         {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/wiki/'|add:wiki_id %}
                     {% endwith %}
                 {% else %}
-                    {% include 'html_components/inline_button.html' with label='Wiki' fa_icon='fa-plus' href='/create/wiki/' %}
+                    {% with homelab_id=homelab.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='Wiki' fa_icon='fa-plus' href='/create/wiki/'|add:homelab_id %}
+                    {% endwith %}
                 {% endif %}
             </span>
         </span>

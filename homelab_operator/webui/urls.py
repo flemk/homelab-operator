@@ -6,8 +6,13 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard_default'),
     path('dashboard/<int:homelab_id>', views.dashboard, name='dashboard'),
     path('app_state/', views.app_state, name='app_state'),
+
+    path('auto_discover_stream/<int:network_id>/<str:task_id>', views.auto_discover_stream, name='auto_discover_stream'),
+    path('auto_discover_results/<int:network_id>/<str:task_id>/', views.auto_discover_results, name='auto_discover_results'),
+    path('auto_discover_results/<int:network_id>/', views.auto_discover_results, name='auto_discover_results'),
+
     path('auto_discover/<int:network_id>/', views.auto_discover, name='auto_discover'),
-    path('auto_discover/', views.auto_discover, name='auto_discover'),
+    path('auto_discover/', views.auto_discover, name='auto_discover'),  # TODO Why extra? Is this even used?
 
     path('search/', views.search, name='search'),
     path('login/', views.login_view, name='login'),

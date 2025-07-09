@@ -17,7 +17,7 @@ This tool is still in development.
 ### Docker Compose
 See `docker-compose.yml` or `docker-compose-build-local.yml` and the `.env` file.
 
-The easiest way to run this application is by using docker compose. A sample configuration coul look like:
+The easiest way to run this application is by using docker compose. A sample configuration could look like:
 
 ```yaml
 services:
@@ -34,11 +34,15 @@ services:
       - BROADCAST_ADDRESS=${BROADCAST_ADDRESS}
       - TIME_ZONE=${TIME_ZONE}
       - API_KEY=${API_KEY}
+      - SUPERUSER_USERNAME=${SUPERUSER_USERNAME}
+      - SUPERUSER_EMAIL=${SUPERUSER_EMAIL}
+      - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
     ports:
       - "${WEB_PORT}:80"
       - "${WEB_SSL_PORT}:443"
     #volumes:
     #  - ./crt:/app/crt  # Use your own certificates
+
   db:
     image: postgres:14
     environment:
@@ -47,6 +51,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ./db-data:/var/lib/postgresql/data
+
 ```
 
 For WOL to work you need to have a route to the target machine(s). You may need to add the docker container to a macvlan network:
