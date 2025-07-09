@@ -6,6 +6,7 @@ Changed:
 - Switched from waitress tu gunicorn
 - Changed internal cron script
 - Changed superuser creation logic
+- Refactored Docerfile: Using an entrypoint script now
 
 Added:
 - Default user configurable in .env
@@ -13,6 +14,7 @@ Added:
 Fixed:
 - Fixed auto discover causes "Not found" (#26)
 - Fxed create wiki not possible
+- Fixed Cronjob not executing
 
 ## [1.5.0]
 Added:
