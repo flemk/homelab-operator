@@ -1,4 +1,21 @@
 # Changelog
+## [1.5.1]
+Changed:
+- Improved logic of auto discoveres services creation
+- Improved auto discovery process
+- Switched from waitress tu gunicorn
+- Changed internal cron script
+- Changed superuser creation logic
+- Refactored Docerfile: Using an entrypoint script now
+
+Added:
+- Default user configurable in .env
+
+Fixed:
+- Fixed auto discover causes "Not found" (#26)
+- Fxed create wiki not possible
+- Fixed Cronjob not executing
+
 ## [1.5.0]
 Added:
 - App state information
