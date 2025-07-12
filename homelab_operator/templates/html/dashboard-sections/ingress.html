@@ -1,0 +1,36 @@
+<div>
+    <span style="display: flex;">
+        <h2 style="margin-bottom: 0.25rem;">
+            Ingresses
+        </h2>
+        <span style="margin: auto 0 0 auto;">
+            {% with homelab_id=homelab.id|stringformat:'s' %}
+                {% include 'html_components/inline_button.html' with label='List' fa_icon='fa-arrow-up-right-from-square' href='/ingress/'|add:homelab_id %}
+            {% endwith %}
+        </span>
+        <span style="margin: auto 0 0 1rem;">
+            {% with homelab_id=homelab.id|stringformat:'s' %}
+                {% include 'html_components/inline_button.html' with label='Ingress' fa_icon='fa-plus' href='/create/ingress/'|add:homelab_id %}
+            {% endwith %}
+        </span>
+    </span>
+</div>
+{% if ingresses %}
+    <div class="tile">
+        {% for ingress in ingresses %}
+            <b>{{ ingress.name }}</b>&nbsp;
+            {% if ingress.enabled %}
+                <i class="fas fa-check" style="color: green;"></i>
+            {% else %}
+                <i class="fas fa-xmark" style="color: red;"></i>
+            {% endif %}
+            <div class="soft">{{ ingress.forward_type }} <strong>{{ ingress.hostname }}{{ ingress.path_prefix }}</strong> to <strong>{{ ingress.target_service.name }}</strong></div>
+            <div class="spacer" style="height: .5rem;"></div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div>
+        <b style="color: #666;">No ingresses were found.</b>
+        <div class="soft">There are no ingress rules associated with this user or homelab.</div>
+    </div>
+{% endif %}

@@ -54,6 +54,11 @@ urlpatterns = [
     path('edit/wiki/<int:wiki_id>/', views.edit_wiki, name='edit_wiki'),
     path('delete/wiki/<int:wiki_id>/', views.delete_wiki, name='delete_wiki'),
 
+    path('ingress/<int:homelab_id>/', views.ingress, name='ingress_list'),
+    path('create/ingress/<int:homelab_id>/', views.create_ingress, name='create_ingress'),
+    path('edit/ingress/<int:ingress_id>/', views.edit_ingress, name='edit_ingress'),
+    path('delete/ingress/<int:ingress_id>/', views.delete_ingress, name='delete_ingress'),
+
     path('create/shutdown_url/<int:server_id>/',
          views.create_shutdown_url, name='create_shutdown_url'),
     path('edit/shutdown_url/<int:shutdown_url_id>/',

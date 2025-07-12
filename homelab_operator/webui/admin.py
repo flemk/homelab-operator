@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki, UserProfile, ServerUptimeStatistic, AppState
+    Wiki, UserProfile, ServerUptimeStatistic, AppState, Ingress
 
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user',)
@@ -41,3 +41,9 @@ admin.site.register(ServerUptimeStatistic, ServerUptimeStatisticAdmin)
 class AppStateAdmin(admin.ModelAdmin):
     list_display = ('last_cron',)
 admin.site.register(AppState, AppStateAdmin)
+
+class IngressAdmin(admin.ModelAdmin):
+    list_display = ('name', 'homelab', 'target_service', 'created_at')
+    list_filter = ('homelab', 'target_service')
+    search_fields = ('name', 'target_service__name')
+admin.site.register(Ingress, IngressAdmin)

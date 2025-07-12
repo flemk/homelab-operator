@@ -9,6 +9,7 @@
     --submit-font-color: #fff;
     --message-info-background-color: #efefef;
     --message-error-background-color: #ffe5e5;
+    --disabled-font-color: #555;
 }
 
 /* Dark mode: add 'dark' class to <html> */
@@ -22,6 +23,7 @@ html.dark {
     --submit-font-color: #000;
     --message-info-background-color: #999898;
     --message-error-background-color: #5e1414;
+    --disabled-font-color: #ccc;
 }
 
 html, body {

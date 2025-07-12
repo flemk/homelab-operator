@@ -71,6 +71,11 @@
             {% include 'html/dashboard-sections/wiki.html' with servers=servers wiki=wiki %}
         {% endif %}
 
+        {# Ingress #}
+        {% if user_show_ingress %}
+            {% include 'html/dashboard-sections/ingress.html' with ingresses=ingresses %}
+        {% endif %}
+
         {# Networks #}
         {% if user_show_networks %}
             {% include 'html/dashboard-sections/networks.html' with networks=networks %}
