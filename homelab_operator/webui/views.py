@@ -14,7 +14,7 @@ from django.db.models import Q
 
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
     UserProfile, ServerUptimeStatistic, AppState
-from .helpers import rate_limit, process_schedules, update_uptime_statistics, \
+from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics, \
     discover_network_stream
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm

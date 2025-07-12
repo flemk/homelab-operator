@@ -6,7 +6,7 @@ from django.core.cache import cache
 
 from ..models import Server, Service, Network, Homelab, \
     AppState
-from ..helpers import discover_network_stream
+from ..helpers.helpers import discover_network_stream
 
 import uuid
 
