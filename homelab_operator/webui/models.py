@@ -341,7 +341,7 @@ class Ingress(models.Model):
     ]
 
     name = models.CharField(max_length=100, help_text='Human-readable name for this rule')
-    hostname = models.CharField(max_length=100, unique=True,
+    hostname = models.CharField(max_length=100, unique=True,  # TODO does not need to be unique
                                help_text='Hostname to match (e.g., service.lan)')
     path_prefix = models.CharField(max_length=200, default='/',
                                   help_text='Path prefix to match (e.g., /api/)')

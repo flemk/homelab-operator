@@ -20,7 +20,6 @@ RUN sed -i 's/%HOMELAB_OPERATOR_VERSION%/'"$HOMELAB_OPERATOR_VERSION"'/g' ./home
 # Create default self-signed SSL certificate + NGINX configuration
 RUN openssl req -x509 -newkey rsa:4096 -keyout ./crt/key.key -out ./crt/cert.crt -days 365 -nodes -subj '/CN=localhost'
 RUN apt-get update && apt-get install -y nginx cron curl iputils-ping && rm -rf /var/lib/apt/lists/*
-COPY nginx.conf /etc/nginx/sites-available/default
 
 # Internal cron script to call the homelab-operator cron endpoint
 RUN mkdir -p /app/scripts

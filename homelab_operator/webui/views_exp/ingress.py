@@ -13,7 +13,7 @@ import time
 
 from ..models import Homelab, Ingress
 from ..forms import IngressForm
-#from ..helpers import generate_nginx_config
+from ..helpers.helpers import generate_ingress_nginx_config
 
 @login_required
 def ingress(request, homelab_id):
@@ -42,8 +42,8 @@ def create_ingress(request, homelab_id):
 
             # Regenerate nginx config
             try:
-                raise NotImplementedError("Nginx config generation not implemented")
-                generate_nginx_config()
+                #raise NotImplementedError("Nginx config generation not implemented")
+                generate_ingress_nginx_config(ingress)
                 messages.success(request, f'Ingress rule "{ingress.name}" created successfully!')
             except Exception as e:
                 messages.warning(request, f'Rule created but nginx config update failed: {str(e)}')
@@ -96,7 +96,6 @@ def delete_ingress(request, ingress_id):
     """Delete an ingress rule."""
     ingress = get_object_or_404(Ingress, id=ingress_id, user=request.user)
     homelab_id = ingress.homelab.id
-    rule_name = ingress.name
 
     ingress.delete()
 
@@ -104,7 +103,7 @@ def delete_ingress(request, ingress_id):
     try:
         raise NotImplementedError("Nginx config generation not implemented")
         generate_nginx_config()
-        messages.success(request, f'Ingress rule "{rule_name}" deleted successfully!')
+        messages.success(request, f'Ingress rule "{ingress.name}" deleted successfully!')
     except Exception as e:
         messages.warning(request, f'Rule deleted but nginx config update failed: {str(e)}')
 

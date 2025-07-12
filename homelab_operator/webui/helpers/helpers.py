@@ -6,6 +6,7 @@ from django.http import HttpResponse
 
 from ..models import Server, WOLSchedule
 from .auto_discover import ping_host, evaluate_service_name, check_http, discover_network_stream
+from .ingress import generate_ingress_nginx_config
 
 def rate_limit(view_func):
     @wraps(view_func)

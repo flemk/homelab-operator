@@ -24,7 +24,7 @@
                         <i class="fas fa-xmark" style="color: red;"></i>
                     {% endif %}
                     <div class="soft">
-                        {{ ingress.forward_type }} <strong>{{ ingress.hostname }}{{ ingress.path_prefix }}</strong> to <strong>{{ ingress.target_service.name }}</strong>
+                        {{ ingress.forward_type }} <strong>{{ ingress.hostname }}{{ ingress.path_prefix }}</strong> to <strong>{{ ingress.target_service.name }}</strong> ({{ ingress.target_service.server.ip_address }})
                     </div>
                     <div class="soft">
                         <span>Priority {{ ingress.priority }}</span>
