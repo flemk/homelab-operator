@@ -48,13 +48,13 @@ def edit_wiki(request, wiki_id):
     wiki = Wiki.objects.get(id=wiki_id, homelab__user=user)
 
     if request.method == 'POST':
-        form = WikiForm(request.POST, instance=wiki)
+        form = WikiForm(request.POST, instance=wiki, homelab=wiki.homelab)
         if form.is_valid():
             wiki = form.save()
             messages.success(request, f"Wiki {wiki.title} updated successfully")
             return redirect('dashboard', homelab_id=wiki.homelab.id)
     else:
-        form = WikiForm(instance=wiki)
+        form = WikiForm(instance=wiki, homelab=wiki.homelab)
 
     context = {
         'form': form,

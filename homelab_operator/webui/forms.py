@@ -172,6 +172,9 @@ class WikiForm(ModelForm):
         if homelab:
             self.fields['homelab'].initial = homelab
             self.fields['homelab'].disabled = True
+            self.fields['pinned_services'].queryset = Service.objects.filter(
+                server__homelab=homelab
+                )
 
     class Meta:
         model = Wiki
