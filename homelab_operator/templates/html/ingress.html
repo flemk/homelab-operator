@@ -19,6 +19,9 @@
         </span>
     </div>
     {% if ingresses %}
+        {# Ingress Diagram#}
+        {% include 'html_components/ingress_diagram.html' with ingresses=ingresses %}
+
         {% for ingress in ingresses %}
             <div class="tile" style="margin-bottom: 1rem;">
                 <div>
