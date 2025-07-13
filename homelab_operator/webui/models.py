@@ -3,8 +3,9 @@ import os
 import requests
 import socket
 from django.db import models
-from django.utils.html import format_html
 from django.utils import timezone
+
+from .helpers.system import is_process_running
 
 class UserProfile(models.Model):
     '''Model representing a user profile.'''
@@ -267,6 +268,16 @@ class AppState(models.Model):
     last_exceptipon = models.DateTimeField(blank=True, null=True)
     exception = models.TextField(default='',)
 
+    def nginx_status(self):
+        '''Returns the status of the nginx ingress.'''
+        pid_file = '/var/run/nginx_ingress.pid'
+
+        if os.path.exists(pid_file):
+            with open(pid_file, 'r') as f:
+                pid = f.read().strip()
+            return is_process_running(pid_file)
+        return False
+
     def time_since_last_cron(self):
         '''Returns the time since the last cron execution as a timedelta.'''
         if self.last_cron:
@@ -289,6 +300,9 @@ class AppState(models.Model):
         if self.last_exceptipon:
             if self.last_exceptipon > timezone.now() - timezone.timedelta(minutes=60 * 24):
                 return 'Error'
+
+        if not self.nginx_status():
+            return 'NGINX'
 
         time_since = self.time_since_last_cron()
         if time_since:
@@ -373,9 +387,7 @@ class Ingress(models.Model):
     def get_target_url(self):
         '''Get the full target URL for this rule.'''
         service = self.target_service
-        if service.url:
-            return service.url
-        else:
+        endpoint = service.server.ip_address
+        if endpoint:
             protocol = 'https' if service.port == 443 else 'http'
-            endpoint = service.endpoint or service.server.ip_address
-            return f"{protocol}://{endpoint}:{service.port}"
+            return f'{protocol}://{endpoint}:{service.port}/'

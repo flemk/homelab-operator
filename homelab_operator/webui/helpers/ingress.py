@@ -3,18 +3,16 @@ import subprocess
 from django.template.loader import render_to_string
 from ..models import Ingress, AppState
 
-def test_nginx_config(config_path=None):
+def test_nginx_ingress_config():
     """Test the nginx configuration for syntax errors."""
     # Run nginx -t to test the configuration
     if os.getenv('DEBUG', False):
         print("Skipping nginx config test in DEBUG mode")
         return True
 
-    if config_path is None:
-        raise ValueError("config_path must be provided for testing nginx config")
+    result = subprocess.run(['nginx', '-t', '-c', '/app/nginx/ingress-handler.conf'],
+                            capture_output=True, text=True)
 
-    result = subprocess.run(['nginx', '-t', config_path], capture_output=True, text=True)
-    
     if result.returncode != 0:
         return False
 
@@ -59,8 +57,8 @@ def generate_ingress_nginx_config(ingress, delete=False):
         config_path = f'/app/nginx/nginx_ingress_{ingress.hostname}.conf'
         if os.getenv('DEBUG', False):
             print("Skipping nginx config generation in DEBUG mode")
-            config_path = f'/home/franz/main/project/homelab-operator/nginx/nginx_ingress_{ingress.hostname}.conf'
-        
+            config_path = f'/home/franz/main/project/homelab-operator/nginx/nginx_ingress_{ingress.hostname}.conf'  # TODO
+
         if os.path.exists(config_path):
             os.remove(config_path)
         return
@@ -75,12 +73,12 @@ def generate_ingress_nginx_config(ingress, delete=False):
     config_path = f'/app/nginx/nginx_ingress_{ingress.hostname}.conf'
     if os.getenv('DEBUG', False):
         print("Using debug path for nginx config in DEBUG mode")
-        config_path = f'/home/franz/main/project/homelab-operator/nginx/nginx_ingress_{ingress.hostname}.conf'
+        config_path = f'/home/franz/main/project/homelab-operator/nginx/nginx_ingress_{ingress.hostname}.conf'  # TODO
 
     with open(config_path, 'w') as f:
         f.write(config_content)
 
-    if test_nginx_config(config_path) is False:
+    if test_nginx_ingress_config(config_path) is False:
         if os.path.exists(config_path):
             os.remove(config_path)
         raise RuntimeError("Nginx configuration test failed. Please check the syntax.")
