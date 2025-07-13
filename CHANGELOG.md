@@ -6,6 +6,9 @@ Added:
 Fixed:
 - Fixed showing unrelated services for pinned services in wiki edit/create
 
+Changed:
+- Mobile Optimizations
+
 ## [1.5.1]
 Changed:
 - Improved logic of auto discoveres services creation

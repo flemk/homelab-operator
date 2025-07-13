@@ -1,4 +1,4 @@
-<div style="margin-bottom: 1rem;">
+<div style="margin-bottom: 1rem; overflow-x: scroll;">
     <ul class="tree" style="margin: 0 auto auto auto; font-size: .9rem;">
         <li>
             <code>nginx (entryoint)</code>
@@ -38,7 +38,7 @@
                                                         <code>
                                                             {{ ingress.target_service.name }}
                                                             <div class="soft">
-                                                                {{ ingress.target_service.url }}
+                                                                {{ ingress.get_target_url }}
                                                             </div>
                                                         </code>
                                                     </li>
