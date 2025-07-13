@@ -80,7 +80,7 @@ def generate_ingress_nginx_config(ingress, delete=False):
     with open(config_path, 'w') as f:
         f.write(config_content)
 
-    if test_nginx_config() is False:
+    if test_nginx_config(config_path) is False:
         if os.path.exists(config_path):
             os.remove(config_path)
         raise RuntimeError("Nginx configuration test failed. Please check the syntax.")

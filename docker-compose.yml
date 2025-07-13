@@ -2,6 +2,7 @@ services:
   web:
     image: ghcr.io/flemk/homelab-operator:latest
     environment:
+      - HOST=${HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

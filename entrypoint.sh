@@ -9,6 +9,10 @@ python ./homelab_operator/manage.py create_default_superuser
 # Write environment variables to /etc/environment
 printenv | grep API_KEY > /etc/environment
 
+# Replace placeholders in nginx configuration files
+sed -i "s/%HOMELAB_OPERATOR_HOST%/${HOST}/g" /app/nginx/homelab-operator.conf
+sed -i "s/%HOMELAB_OPERATOR_HOST%/${HOST}/g" /app/nginx/ingress-forward.conf
+
 # Start cron
 service cron start
 
