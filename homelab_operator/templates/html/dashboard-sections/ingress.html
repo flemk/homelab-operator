@@ -25,7 +25,7 @@
                 <i class="fas fa-xmark" style="color: red;"></i>
             {% endif %}
             <div class="soft">{{ ingress.forward_type }} <strong>{{ ingress.hostname }}{{ ingress.path_prefix }}</strong> to <strong>{{ ingress.target_service.name }}</strong></div>
-            <div class="spacer" style="height: .5rem;"></div>
+            <div class="spacer" style="height: .25rem;"></div>
         {% endfor %}
     </div>
 {% else %}

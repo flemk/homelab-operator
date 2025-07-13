@@ -1,15 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_http_methods
-from django.db.models import Count, Sum, Avg
-from django.utils import timezone
-from datetime import datetime, timedelta
-import json
-import time
 
 from ..models import Homelab, Ingress
 from ..forms import IngressForm
@@ -40,13 +31,15 @@ def create_ingress(request, homelab_id):
             ingress.homelab = homelab
             ingress.save()
 
-            # Regenerate nginx config
-            try:
-                #raise NotImplementedError("Nginx config generation not implemented")
-                generate_ingress_nginx_config(ingress)
-                messages.success(request, f'Ingress rule "{ingress.name}" created successfully!')
-            except Exception as e:
-                messages.warning(request, f'Rule created but nginx config update failed: {str(e)}')
+            # Generate nginx config
+            if ingress.enabled:
+                try:
+                    generate_ingress_nginx_config(ingress)
+                    messages.success(request, f'Ingress rule "{ingress.name}" created successfully!')
+                except Exception as e:
+                    messages.warning(request, f'Rule created but nginx config update failed: {str(e)}')
+            else:
+                messages.success(request, f'Ingress rule "{ingress.name}" created but not enabled.')
 
             return redirect('ingress_list', homelab_id=homelab.id)
     else:
@@ -62,24 +55,23 @@ def create_ingress(request, homelab_id):
 def edit_ingress(request, ingress_id):
     """Edit an existing ingress rule."""
     ingress = get_object_or_404(Ingress, id=ingress_id, user=request.user)
-    
+
     if request.method == 'POST':
         form = IngressForm(request.POST, instance=ingress, user=request.user, homelab=ingress.homelab)
         if form.is_valid():
             form.save()
-            
-            # Regenerate nginx config
+
+            # Regenerate nginx config(s)
             try:
-                raise NotImplementedError("Nginx config generation not implemented")
-                generate_nginx_config()
+                generate_ingress_nginx_config(ingress)
                 messages.success(request, f'Ingress rule "{ingress.name}" updated successfully!')
             except Exception as e:
                 messages.warning(request, f'Rule updated but nginx config update failed: {str(e)}')
-            
+
             return redirect('ingress_list', homelab_id=ingress.homelab.id)
     else:
         form = IngressForm(instance=ingress, user=request.user, homelab=ingress.homelab)
-    
+
     context = {
         'form': form,
         'form_title': 'Create Ingress',
@@ -97,14 +89,12 @@ def delete_ingress(request, ingress_id):
     ingress = get_object_or_404(Ingress, id=ingress_id, user=request.user)
     homelab_id = ingress.homelab.id
 
-    ingress.delete()
-
     # Regenerate nginx config
     try:
-        raise NotImplementedError("Nginx config generation not implemented")
-        generate_nginx_config()
+        generate_ingress_nginx_config(ingress, delete=True)
+        ingress.delete()
         messages.success(request, f'Ingress rule "{ingress.name}" deleted successfully!')
     except Exception as e:
-        messages.warning(request, f'Rule deleted but nginx config update failed: {str(e)}')
+        messages.error(request, f'Failed to delete ingress rule "{ingress.name}": {str(e)}')
 
     return redirect('ingress_list', homelab_id=homelab_id)
