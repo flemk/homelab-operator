@@ -15,6 +15,9 @@ service cron start
 # Start nginx
 nginx -c /app/nginx.conf
 
+# Start nginx for ingress handling
+nginx -c /app/nginx/ingress-handler.conf
+
 # Start gunicorn (in foreground)
 cd ./homelab_operator
 exec gunicorn homelab_operator.wsgi:application --bind 127.0.0.1:8000 --worker-class=gevent

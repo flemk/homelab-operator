@@ -9,6 +9,7 @@ def reload_nginx():
     # TODO rollback on error
     # TODO log in AppState
     # TODO test (new config(s)) before reloading
+    # TODO only reload ingress nginx instance
     try:
         subprocess.run(['nginx', '-s', 'reload'], check=True)
         return True
