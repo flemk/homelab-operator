@@ -55,9 +55,6 @@ def generate_ingress_nginx_config(ingress, delete=False):
     if not ingresses:
         # If no ingresses left, remove the config file
         config_path = f'/app/nginx/nginx_ingress_{ingress.hostname}.conf'
-        if os.getenv('DEBUG', False):
-            print("Skipping nginx config generation in DEBUG mode")
-            config_path = f'/home/franz/main/project/homelab-operator/nginx/nginx_ingress_{ingress.hostname}.conf'  # TODO
 
         if os.path.exists(config_path):
             os.remove(config_path)
@@ -71,9 +68,6 @@ def generate_ingress_nginx_config(ingress, delete=False):
 
     # Write to nginx config file
     config_path = f'/app/nginx/nginx_ingress_{ingress.hostname}.conf'
-    if os.getenv('DEBUG', False):
-        print("Using debug path for nginx config in DEBUG mode")
-        config_path = f'/home/franz/main/project/homelab-operator/nginx/nginx_ingress_{ingress.hostname}.conf'  # TODO
 
     with open(config_path, 'w') as f:
         f.write(config_content)

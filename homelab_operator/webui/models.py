@@ -387,7 +387,10 @@ class Ingress(models.Model):
     def get_target_url(self):
         '''Get the full target URL for this rule.'''
         service = self.target_service
-        endpoint = service.server.ip_address
-        if endpoint:
-            protocol = 'https' if service.port == 443 else 'http'
-            return f'{protocol}://{endpoint}:{service.port}/'
+        url = service.url or service.endpoint or service.server.ip_address
+
+        if url:
+            if not url.startswith(('http://', 'https://')):
+                url = f'http://{url}'
+
+            return f'{url}:{service.port}/'
