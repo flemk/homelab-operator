@@ -9,6 +9,8 @@
     --submit-font-color: #fff;
     --message-info-background-color: #efefef;
     --message-error-background-color: #ffe5e5;
+    --disabled-font-color: #555;
+    --soft-background-color: #f8f8f8;
 }
 
 /* Dark mode: add 'dark' class to <html> */
@@ -22,6 +24,8 @@ html.dark {
     --submit-font-color: #000;
     --message-info-background-color: #999898;
     --message-error-background-color: #5e1414;
+    --disabled-font-color: #ccc;
+    --soft-background-color: #2e2e2e;
 }
 
 html, body {
@@ -113,6 +117,17 @@ a {
     padding: 1rem;
     border: 1px solid var(--border-color);
     border-radius: .5rem;
+}
+
+.log-area {
+    width: 100%;
+    height: 10rem;
+    resize: vertical;
+    overflow: auto;
+    font-family: monospace;
+    background-color: var(--soft-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
 }
 
 .mobile-wrap {

@@ -3,8 +3,9 @@ import os
 import requests
 import socket
 from django.db import models
-from django.utils.html import format_html
 from django.utils import timezone
+
+from .helpers.system import is_process_running
 
 class UserProfile(models.Model):
     '''Model representing a user profile.'''
@@ -15,6 +16,7 @@ class UserProfile(models.Model):
                                               help_text='The last selected homelab for this user')
     show_wiki = models.BooleanField(default=True, help_text='Show or hide the wiki in the UI')
     show_networks = models.BooleanField(default=True, help_text='Show or hide networks in the UI')
+    show_ingress = models.BooleanField(default=True, help_text='Show or hide ingress section in the UI')
     dark_mode = models.BooleanField(default=False,
                                     help_text='Enable Dark Mode (experimental)')
 
@@ -266,6 +268,16 @@ class AppState(models.Model):
     last_exceptipon = models.DateTimeField(blank=True, null=True)
     exception = models.TextField(default='',)
 
+    def nginx_status(self):
+        '''Returns the status of the nginx ingress.'''
+        pid_file = '/var/run/nginx_ingress.pid'
+
+        if os.path.exists(pid_file):
+            with open(pid_file, 'r') as f:
+                pid = f.read().strip()
+            return is_process_running(pid_file)
+        return False
+
     def time_since_last_cron(self):
         '''Returns the time since the last cron execution as a timedelta.'''
         if self.last_cron:
@@ -288,6 +300,9 @@ class AppState(models.Model):
         if self.last_exceptipon:
             if self.last_exceptipon > timezone.now() - timezone.timedelta(minutes=60 * 24):
                 return 'Error'
+
+        if not self.nginx_status():
+            return 'NGINX'
 
         time_since = self.time_since_last_cron()
         if time_since:
@@ -331,3 +346,51 @@ class AppState(models.Model):
     class Meta:
         verbose_name = "App State"
         verbose_name_plural = "App State"
+
+class Ingress(models.Model):
+    '''Model representing an ingress rule for service forwarding.'''
+    FORWARD_TYPE_CHOICES = [
+        ('PROXY', 'Proxy Pass'),
+        ('REDIRECT', '301 Redirect'),
+    ]
+
+    name = models.CharField(max_length=100, help_text='Human-readable name for this rule')
+    hostname = models.CharField(max_length=100, help_text='Hostname to match (e.g., service.lan)')
+    path_prefix = models.CharField(max_length=200, default='/',
+                                  help_text='Path prefix to match (e.g., /api/)')
+    target_service = models.ForeignKey(Service, on_delete=models.CASCADE,
+                                     related_name='ingresses',
+                                     help_text='Service to forward requests to')
+    forward_type = models.CharField(max_length=10, choices=FORWARD_TYPE_CHOICES, 
+                                  default='PROXY')
+    priority = models.IntegerField(default=100,
+                                 help_text='Lower numbers have higher priority')
+    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE,
+                              null=True, blank=True, related_name='ingresses')
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, 
+                           null=True, blank=True)
+    preserve_host = models.BooleanField(default=True,
+                                      help_text='Preserve original Host header')
+    strip_path_prefix = models.BooleanField(default=False,
+                                          help_text='Remove path prefix before forwarding')
+    enabled = models.BooleanField(default=True, 
+                                 help_text='Enable or disable this ingress rule')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['priority', 'hostname', 'path_prefix']
+
+    def __str__(self):
+        return f"{self.hostname}{self.path_prefix} -> {self.target_service}"
+
+    def get_target_url(self):
+        '''Get the full target URL for this rule.'''
+        service = self.target_service
+        url = service.url or service.endpoint or service.server.ip_address
+
+        if url:
+            if not url.startswith(('http://', 'https://')):
+                url = f'http://{url}'
+
+            return f'{url}:{service.port}/'

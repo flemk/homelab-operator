@@ -2,7 +2,7 @@
 
 from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea, ModelMultipleChoiceField, CheckboxSelectMultiple
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki, UserProfile
+    Wiki, UserProfile, Ingress
 from .widgets import HoCheckbox
 from django.utils.safestring import mark_safe
 
@@ -12,6 +12,8 @@ class UserProfileForm(ModelForm):
         label=UserProfile._meta.get_field('show_wiki').help_text), required=False, label='')
     show_networks = BooleanField(widget=HoCheckbox(
         label=UserProfile._meta.get_field('show_networks').help_text), required=False, label='')
+    show_ingress = BooleanField(widget=HoCheckbox(
+        label=UserProfile._meta.get_field('show_ingress').help_text), required=False, label='')
     dark_mode = BooleanField(widget=HoCheckbox(
         label=UserProfile._meta.get_field('dark_mode').help_text), required=False, label='')
 
@@ -170,7 +172,39 @@ class WikiForm(ModelForm):
         if homelab:
             self.fields['homelab'].initial = homelab
             self.fields['homelab'].disabled = True
+            self.fields['pinned_services'].queryset = Service.objects.filter(
+                server__homelab=homelab
+                )
 
     class Meta:
         model = Wiki
+        fields = '__all__'
+
+class IngressForm(ModelForm):
+    enabled = BooleanField(
+        widget=HoCheckbox(
+            label=Ingress._meta.get_field('enabled').help_text), required=False, label='')
+    preserve_host = BooleanField(
+        widget=HoCheckbox(
+            label=Ingress._meta.get_field('preserve_host').help_text), required=False, label='')
+    strip_path_prefix = BooleanField(
+        widget=HoCheckbox(
+            label=Ingress._meta.get_field('strip_path_prefix').help_text), required=False, label='')
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        homelab = kwargs.pop('homelab', None)
+        super().__init__(*args, **kwargs)
+        
+        if user and homelab:
+            self.fields['target_service'].queryset = Service.objects.filter(
+                server__homelab=homelab, server__user=user
+            )
+            self.fields['user'].initial = user
+            self.fields['user'].disabled = True
+            self.fields['homelab'].initial = homelab
+            self.fields['homelab'].disabled = True
+
+    class Meta:
+        model = Ingress
         fields = '__all__'

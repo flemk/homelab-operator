@@ -14,7 +14,7 @@ from django.db.models import Q
 
 from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
     UserProfile, ServerUptimeStatistic, AppState
-from .helpers import rate_limit, process_schedules, update_uptime_statistics, \
+from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics, \
     discover_network_stream
 from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
     ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
@@ -30,6 +30,7 @@ import uuid
 from .views_exp.uptime_statistic import create_uptime_statistic, delete_uptime_statistic, \
     reset_uptime_statistic
 from .views_exp.auto_discover import auto_discover, auto_discover_results, auto_discover_stream
+from .views_exp.ingress import ingress, create_ingress, edit_ingress, delete_ingress
 
 def login_view(request):
     context = {}
@@ -133,8 +134,10 @@ def dashboard(request, homelab_id=None):
         'homelabs': homelabs,
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
+        'ingresses': homelab.ingresses.all(),
         'user_show_wiki': user.profile.show_wiki,
         'user_show_networks': user.profile.show_networks,
+        'user_show_ingress': user.profile.show_ingress,
         'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
     }
     return render(request, 'html/dashboard.html', context)
