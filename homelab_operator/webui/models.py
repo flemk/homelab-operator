@@ -4,6 +4,7 @@ import requests
 import socket
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 from .helpers.system import is_process_running
 
@@ -32,7 +33,7 @@ class Server(models.Model):
                                help_text='Will be used to check if the server is online')
     mac_address = models.CharField(max_length=17, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
-    network = models.ForeignKey('Network', on_delete=models.CASCADE, null=True,
+    network = models.ForeignKey('Network', on_delete=models.SET_NULL, null=True,
                                 blank=True, related_name='servers')
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
@@ -395,3 +396,47 @@ class Ingress(models.Model):
                 url = f'http://{url}'
 
             return f'{url}:{service.port}/'
+
+class MaintenancePlan(models.Model):
+    '''Model representing a maintenance plan for servers or services.'''
+    title = models.CharField(max_length=100, help_text='Title of the maintenance plan')
+    description = models.TextField(null=True, blank=True, help_text='Description of the maintenance plan')
+
+    assignee = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='maintenance_schedules')
+    scheduled_date = models.DateTimeField(help_text='When the maintenance is scheduled')
+    repeat_interval = models.IntegerField(default=0, help_text='Repeat interval in days (0 for no repeat)')
+
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True, blank=True,
+                                 related_name='maintenance_plans',
+                                 help_text='Server this plan applies to')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True,
+                                 related_name='maintenance_plans',
+                                 help_text='Service this plan applies to')
+
+    priority = models.CharField(max_length=10, choices=[
+        ('LOW', 'Low'),
+        ('MEDIUM', 'Medium'),
+        ('HIGH', 'High'),
+        ('CRITICAL', 'Critical'),
+    ], default='MEDIUM')
+
+    def __str__(self):
+        return f"{self.title}"
+
+    def clean(self):
+        if self.server and self.service:
+            raise ValidationError('Only one of server or service can be set.')
+        if not self.server and not self.service:
+            raise ValidationError('One of server or service must be set.')
+
+    class Meta:
+        ordering = ['-scheduled_date']
+
+class MaintenanceReport(models.Model):
+    # OK, mot OK
+    # Certifier
+    # date time
+    # text field
+    maintenance_plan = models.ForeignKey(MaintenancePlan, on_delete=models.CASCADE,
+                                         related_name='reports')
+    ...

@@ -2,6 +2,7 @@
 ## [1.6.0]
 Added:
 - Ingress handling
+- Maintenance functionality
 
 Fixed:
 - Fixed showing unrelated services for pinned services in wiki edit/create
