@@ -154,6 +154,15 @@ class WikiForm(ModelForm):
     show_services = BooleanField(
         widget=HoCheckbox(
             label=Wiki._meta.get_field('show_services').help_text), required=False, label='')
+    pinned_servers = ModelMultipleChoiceField(
+        queryset=Server.objects.all(),
+        required=False,
+        label='Pinned Servers',
+        help_text='Select servers to pin to the wiki for quick access',
+        widget=CheckboxSelectMultiple(attrs={
+            'class': 'soft',
+        }),
+    )
     pinned_services = ModelMultipleChoiceField(
         queryset=Service.objects.all(),
         required=False,

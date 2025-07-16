@@ -116,6 +116,39 @@
                 {% endfor %}
             </div>
         {% endif %}
+        {% if wiki.pinned_servers.all %}
+            {% for server in wiki.pinned_servers.all %}
+                <div class="tile">
+                    <div style="display: flex;">
+                        <div>
+                            <h3 style="display: flex;">
+                                {{ server.name }}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="spacer"></div>
+                    <div style="border-top: 1px solid #ccc;"></div>
+                    <div class="spacer"></div>
+                    {% if server.mac_address %}
+                        {% with server_id=server.id|stringformat:'s' %}
+                            {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='/wake/'|add:server_id %}
+                        {% endwith %}
+                    {% else %}
+                        {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='' %}
+                    {% endif %}
+                    {% if server.shutdown_url.all %}
+                        {% with server_id=server.id|stringformat:'s' %}
+                            {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='/shutdown/'|add:server_id %}
+                        {% endwith %}
+                    {% else %}
+                        {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='' %}
+                    {% endif %}
+                    {% with server_id=server.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/server/'|add:server_id %}
+                    {% endwith %}
+                </div>
+            {% endfor %}
+        {% endif %}
         {% if wiki.public %}
             <div class="tile">
                 <div style="display: flex;">

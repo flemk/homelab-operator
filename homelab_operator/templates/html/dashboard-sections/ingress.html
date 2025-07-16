@@ -5,7 +5,7 @@
         </h2>
         <span style="margin: auto 0 0 auto;">
             {% with homelab_id=homelab.id|stringformat:'s' %}
-                {% include 'html_components/inline_button.html' with label='List' fa_icon='fa-arrow-up-right-from-square' href='/ingress/'|add:homelab_id %}
+                {% include 'html_components/inline_button.html' with label='Details' fa_icon='fa-arrow-up-right-from-square' href='/ingress/'|add:homelab_id %}
             {% endwith %}
         </span>
         <span style="margin: auto 0 0 1rem;">

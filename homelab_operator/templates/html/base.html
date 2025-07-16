@@ -73,6 +73,10 @@
             <div class="menu">
                 <div class="mobile-vanish" style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
                 <div class="spacer" style="width: .5rem;"></div>
+                <div>
+                    {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
+                </div>
+                <div class="spacer" style="width: .5rem;"></div>
                 {% if app_state %}
                     {% if app_state.state == 'OK' %}
                         <div>
@@ -94,7 +98,8 @@
                 {% endif %}
                 <div class="spacer" style="width: .5rem;"></div>
                 <div>
-                    {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
+                    {% include 'html_components/inline_button.html' with fa_icon='fa-bell' %}
+                    <div class="indicator-dot error-dot" style="width: .5rem; height: .5rem; position: absolute; transform: translate(-1rem, 1.3rem); display: none;"></div>
                 </div>
                 <div class="spacer" style="width: .5rem;"></div>
                 <div>

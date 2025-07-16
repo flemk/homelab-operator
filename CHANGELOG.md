@@ -8,6 +8,7 @@ Fixed:
 
 Changed:
 - Mobile Optimizations
+- Miscellaneous improvements
 
 ## [1.5.1]
 Changed:

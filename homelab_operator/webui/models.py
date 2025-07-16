@@ -205,8 +205,9 @@ class Wiki(models.Model):
     show_services = models.BooleanField(default=True, help_text='Show services in the wiki')
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE,
                                 related_name='wiki')  # Homelab expected to only have one wiki
+    pinned_servers = models.ManyToManyField(Server, blank=True,
+                                            help_text='Servers pinned to the wiki for quick access')
     pinned_services = models.ManyToManyField(Service, blank=True,
-                                             related_name='pinned_wikis',
                                              help_text='Services pinned to the wiki for quick access')
 
     def __str__(self):
