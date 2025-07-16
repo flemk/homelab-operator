@@ -1,5 +1,6 @@
 const CACHE_NAME = 'homelab-operator-v1';
 const urlsToCache = [
+  /* For now, don't cache these, since they change regularly
   '/',
   '/static/css/base.css',
   '/static/css/mobile.css',
@@ -10,7 +11,7 @@ const urlsToCache = [
   '/static/css/tooltip.css',
   '/static/css/dropdown-menu.css',
   '/static/css/animation.css',
-  '/static/js/check_online.js',
+  '/static/js/check_online.js',*/
   '/static/img/homelab-operator-192x192.png',
   '/static/img/homelab-operator-512x512.png'
 ];
