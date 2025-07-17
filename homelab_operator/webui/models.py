@@ -399,26 +399,30 @@ class Ingress(models.Model):
 
 class MaintenancePlan(models.Model):
     '''Model representing a maintenance plan for servers or services.'''
-    title = models.CharField(max_length=100, help_text='Title of the maintenance plan')
-    description = models.TextField(null=True, blank=True, help_text='Description of the maintenance plan')
-
-    assignee = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='maintenance_schedules')
-    scheduled_date = models.DateTimeField(help_text='When the maintenance is scheduled')
-    repeat_interval = models.IntegerField(default=0, help_text='Repeat interval in days (0 for no repeat)')
-
-    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True, blank=True,
-                                 related_name='maintenance_plans',
-                                 help_text='Server this plan applies to')
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True,
-                                 related_name='maintenance_plans',
-                                 help_text='Service this plan applies to')
-
-    priority = models.CharField(max_length=10, choices=[
+    PRIORITY_CHOICES = [
         ('LOW', 'Low'),
         ('MEDIUM', 'Medium'),
         ('HIGH', 'High'),
         ('CRITICAL', 'Critical'),
-    ], default='MEDIUM')
+    ]
+    title = models.CharField(max_length=100, help_text='Title of the maintenance plan')
+    description = models.TextField(null=True, blank=True,
+                                   help_text='Description of the maintenance plan')
+
+    assignee = models.ForeignKey(UserProfile, on_delete=models.CASCADE,
+                                 related_name='maintenance_schedules')
+    scheduled_date = models.DateTimeField(help_text='When the maintenance is scheduled')
+    repeat_interval = models.IntegerField(default=0,
+                                          help_text='Repeat interval in days (0 for no repeat)')
+
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True, blank=True,
+                               related_name='maintenance_plans',
+                               help_text='Server this plan applies to')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True,
+                                related_name='maintenance_plans',
+                                help_text='Service this plan applies to')
+
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
 
     def __str__(self):
         return f"{self.title}"
@@ -433,10 +437,36 @@ class MaintenancePlan(models.Model):
         ordering = ['-scheduled_date']
 
 class MaintenanceReport(models.Model):
-    # OK, mot OK
-    # Certifier
-    # date time
-    # text field
-    maintenance_plan = models.ForeignKey(MaintenancePlan, on_delete=models.CASCADE,
-                                         related_name='reports')
-    ...
+    '''Model representing a report for a maintenance task.'''
+    RESULT_CHOICES = [
+        ('OK', 'OK'),
+        ('NOT_OK', 'Not OK'),
+        ('REMARK', 'Remark'),
+        ('ERROR', 'Error'),
+        ('BLOCKED', 'Blocked'),
+        ('SKIPPED', 'Skipped'),
+        ('CANCELLED', 'Cancelled'),
+        ('UNKNOWN', 'Unknown'),
+    ]
+    certifier = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name='maintenance_reports',
+        help_text='User who certified the maintenance task'
+    )
+    result = models.CharField(
+        max_length=15,
+        choices=RESULT_CHOICES,
+        default='OK',
+        help_text='Result of the maintenance task'
+    )
+    maintenance_plan = models.ForeignKey(
+        MaintenancePlan,
+        on_delete=models.SET_NULL,
+        related_name='reports',
+        null=True, blank=True,
+    )
+    date = models.DateTimeField(auto_now_add=True,
+                                help_text='Date of the maintenance task')
+    notes = models.TextField(null=True, blank=True,
+                             help_text='Additional notes about the maintenance task')
