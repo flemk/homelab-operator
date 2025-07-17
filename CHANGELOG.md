@@ -3,6 +3,7 @@
 Added:
 - Ingress handling
 - Maintenance functionality
+- Add pinned servers to dashboard
 
 Fixed:
 - Fixed showing unrelated services for pinned services in wiki edit/create
