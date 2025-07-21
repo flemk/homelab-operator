@@ -20,7 +20,6 @@ from .views_exp.network import create_network, edit_network, delete_network
 from .views_exp.schedule import create_schedule, edit_schedule, delete_schedule
 from .views_exp.shutdown_url import create_shutdown_url, edit_shutdown_url, delete_shutdown_url
 from .views_exp.wiki import public_wiki, create_wiki, edit_wiki, delete_wiki
-import uuid
 from .views_exp.uptime_statistic import create_uptime_statistic, delete_uptime_statistic, \
     reset_uptime_statistic
 from .views_exp.auto_discover import auto_discover, auto_discover_results, auto_discover_stream
@@ -81,7 +80,7 @@ def edit_profile(request):
 def notifications(request):
     '''View to display notifications for the user.'''
     user = request.user
-    notifications = ...
+    notifications = user.profile.get_notifications()
 
     context = {
         'notifications': notifications,

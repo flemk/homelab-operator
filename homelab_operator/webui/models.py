@@ -4,7 +4,6 @@ import requests
 import socket
 from django.db import models
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
@@ -19,16 +18,23 @@ class UserProfile(models.Model):
                                               help_text='The last selected homelab for this user')
     show_wiki = models.BooleanField(default=True, help_text='Show or hide the wiki in the UI')
     show_networks = models.BooleanField(default=True, help_text='Show or hide networks in the UI')
-    show_ingress = models.BooleanField(default=True, help_text='Show or hide ingress section in the UI')
+    show_ingress = models.BooleanField(default=True,
+                                       help_text='Show or hide ingress section in the UI')
     dark_mode = models.BooleanField(default=False,
                                     help_text='Enable Dark Mode (experimental)')
+    # notifications = ...  # TODO: Implement notifications
 
     def __str__(self):
         return f"Profile of {self.user.username}"
 
     def get_notifications(self):
         '''Returns notifications for the user profile.'''
-        ...
+        maintenance_notifications = self.maintenance_schedules.filter(
+            scheduled_date__gte=timezone.now() - timezone.timedelta(days=2),
+            scheduled_date__lte=timezone.now() + timezone.timedelta(days=7),
+        )
+
+        return [{'title': 'Upcoming Maintenance Plan.', 'date': s.scheduled_date , 'content': s.title,} for s in maintenance_notifications.all()]
 
 class Server(models.Model):
     '''Model representing a server.'''
@@ -44,7 +50,8 @@ class Server(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE, null=True, blank=True,
                                 related_name='servers')
-    auto_wake = models.BooleanField(default=False, help_text='Automatically wake the server on access')
+    auto_wake = models.BooleanField(default=False,
+                                    help_text='Automatically wake the server on access')
     # TODO Shutdown URL configuration (related_name): implement as shutdown_adapther, which can be
     # a ShutdownURLConfiguration, ShutdownSSLConfiguration, similar ...
 
