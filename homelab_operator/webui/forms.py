@@ -4,7 +4,7 @@ from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Text
     ModelMultipleChoiceField, CheckboxSelectMultiple, ChoiceField, Select, ValidationError, \
     DateInput
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki, UserProfile, Ingress, MaintenancePlan
+    Wiki, UserProfile, Ingress, MaintenancePlan, MaintenanceReport
 from .widgets import HoCheckbox
 from django.utils.safestring import mark_safe
 
@@ -282,15 +282,12 @@ class MaintenancePlanForm(ModelForm):
 
         # Set initial value if editing
         if self.instance and self.instance.pk:
-            if isinstance(self.instance.instance, Server):
-                self.fields['instance_choice'].initial = f'server_{self.instance.instance.id}'
-            elif isinstance(self.instance.instance, Service):
-                self.fields['instance_choice'].initial = f'service_{self.instance.instance.id}'
+            self.fields['instance_choice'].initial = f'service_{self.instance.instance.id}'
 
     def clean_instance_choice(self):
         choice = self.cleaned_data.get('instance_choice')
         if not choice:
-            raise ValidationError('Please select a server or service.')
+            raise ValidationError('Please select an entity.')
 
         choice_type, choice_id = choice.split('_', 1)
         try:
@@ -322,4 +319,22 @@ class MaintenancePlanForm(ModelForm):
         exclude = ['content_type', 'object_id']
         widgets = {
             'scheduled_date': DateInput(attrs={'type': 'date'}),
+        }
+
+class MaintenanceReportForm(ModelForm):
+    '''Form for creating and updating MaintenanceReport instances.'''
+    def __init__(self, *args, **kwargs):
+        certifier = kwargs.pop('certifier', None)
+        super(MaintenanceReportForm, self).__init__(*args, **kwargs)
+
+        if certifier:
+            self.fields['certifier'].initial = certifier
+            self.fields['certifier'].disabled = True
+
+    class Meta:
+        model = MaintenanceReport
+        fields = '__all__'
+        widgets = {
+            'report_date': DateInput(attrs={'type': 'date'}),
+            'content': Textarea(attrs={'rows': 5}),
         }

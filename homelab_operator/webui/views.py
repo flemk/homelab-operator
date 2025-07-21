@@ -8,7 +8,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Server, Service, Homelab, UserProfile, AppState
+from .models import Server, Service, Homelab, UserProfile, AppState, MaintenancePlan
 from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics
 from .forms import UserProfileForm, MaintenancePlanForm
 
@@ -91,14 +91,18 @@ def maintenance(request, homelab_id):
     '''View to display maintenance plans for a specific homelab.'''
     user = request.user
     homelab = get_object_or_404(Homelab, id=homelab_id, user=user)
+    
     maintenance_plans_upcoming = homelab.maintenance_plans.filter(
-        scheduled_date__gte=timezone.now()).order_by('scheduled_date')
+        scheduled_date__gte=timezone.now(), repeat_interval=0)
+    maintenance_plans_repeat = homelab.maintenance_plans.filter(
+        repeat_interval__gt=0)
     maintenance_plans_past = homelab.maintenance_plans.filter(
-        scheduled_date__lt=timezone.now()).order_by('-scheduled_date')
+        scheduled_date__lt=timezone.now(), repeat_interval=0).order_by('-scheduled_date')
 
     context = {
         'homelab': homelab,
         'maintenance_plans_upcoming': maintenance_plans_upcoming,
+        'maintenance_plans_repeat': maintenance_plans_repeat,
         'maintenance_plans_past': maintenance_plans_past,
     }
     return render(request, 'html/maintenance.html', context)
@@ -124,6 +128,38 @@ def create_maintenance(request, homelab_id):
         'form': form,
         'form_title': 'Create Maintenance Plan',
         'homelab': homelab,
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def edit_maintenance(request, maintenance_id):
+    '''View to edit an existing maintenance plan.'''
+    user = request.user
+    maintenance_plan = get_object_or_404(MaintenancePlan, id=maintenance_id, homelab__user=user)
+    homelab = maintenance_plan.homelab
+
+    if request.method == 'GET' and request.GET.get('delete', '') == 'True':
+        maintenance_plan.delete()
+        messages.success(request, "Maintenance plan deleted successfully")
+        return redirect('maintenance', homelab_id=homelab.id)
+
+    if request.method == 'POST':
+        form = MaintenancePlanForm(request.POST, instance=maintenance_plan, user=user, homelab=homelab)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Maintenance plan updated successfully")
+            return redirect('maintenance', homelab_id=homelab.id)
+    else:
+        form = MaintenancePlanForm(instance=maintenance_plan, user=user, homelab=homelab)
+
+    context = {
+        'form': form,
+        'form_title': 'Edit Maintenance Plan',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/edit/maintenance/{maintenance_plan.id}/?delete=True",
+        'delete_url_declined': f"/edit/maintenance/{maintenance_plan.id}/",
+        'delete_title': 'Delete Maintenance Plan',
+        'delete_message': f"You are about to delete Maintenance Plan {maintenance_plan.title}. Do you want to proceed?",
     }
     return render(request, 'html_components/form.html', context)
 

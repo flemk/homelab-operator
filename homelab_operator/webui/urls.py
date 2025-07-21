@@ -57,6 +57,7 @@ urlpatterns = [
 
     path('maintenance/<int:homelab_id>/', views.maintenance, name='maintenance'),
     path('create/maintenance/<int:homelab_id>/', views.create_maintenance, name='create_maintenance'),
+    path('edit/maintenance/<int:maintenance_id>/', views.edit_maintenance, name='edit_maintenance'),
 
     path('ingress/<int:homelab_id>/', views.ingress, name='ingress_list'),
     path('create/ingress/<int:homelab_id>/', views.create_ingress, name='create_ingress'),
