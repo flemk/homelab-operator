@@ -8,9 +8,10 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Server, Service, Homelab, UserProfile, AppState, MaintenancePlan
+from .models import Server, Service, Homelab, UserProfile, AppState, MaintenancePlan, \
+    MaintenanceReport
 from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics
-from .forms import UserProfileForm, MaintenancePlanForm
+from .forms import UserProfileForm, MaintenancePlanForm, MaintenanceReportForm
 
 from .views_exp.homelab import create_homelab, edit_homelab, delete_homelab
 from .views_exp.server import edit_server, delete_server, create_server
@@ -98,12 +99,15 @@ def maintenance(request, homelab_id):
         repeat_interval__gt=0)
     maintenance_plans_past = homelab.maintenance_plans.filter(
         scheduled_date__lt=timezone.now(), repeat_interval=0).order_by('-scheduled_date')
+    
+    reports = MaintenanceReport.objects.filter(maintenance_plan__homelab=homelab).order_by('-date')
 
     context = {
         'homelab': homelab,
         'maintenance_plans_upcoming': maintenance_plans_upcoming,
         'maintenance_plans_repeat': maintenance_plans_repeat,
         'maintenance_plans_past': maintenance_plans_past,
+        'reports': reports,
     }
     return render(request, 'html/maintenance.html', context)
 
@@ -128,6 +132,76 @@ def create_maintenance(request, homelab_id):
         'form': form,
         'form_title': 'Create Maintenance Plan',
         'homelab': homelab,
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def create_report(request, maintenance_id):
+    '''View to create a new report for a specific maintenance plan.'''
+    user = request.user
+    maintenance_plan = get_object_or_404(MaintenancePlan, id=maintenance_id, assignee=user.profile)
+
+    if request.method == 'POST':
+        form = MaintenanceReportForm(request.POST, certifier=user.profile, maintenance_plan=maintenance_plan)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.maintenance_plan = maintenance_plan
+            report.save()
+            messages.success(request, "Report created successfully")
+            return redirect('maintenance', homelab_id=maintenance_plan.homelab.id)
+    else:
+        form = MaintenanceReportForm(certifier=user.profile, maintenance_plan=maintenance_plan)
+
+    context = {
+        'form': form,
+        'form_title': 'Create Report',
+        'homelab': maintenance_plan.homelab,
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
+def edit_report(request, report_id):
+    '''View to edit an existing report for a specific maintenance plan.'''
+    user = request.user
+    report = get_object_or_404(MaintenanceReport, id=report_id, certifier=user.profile)
+    maintenance_plan = report.maintenance_plan
+    homelab = maintenance_plan.homelab
+    immutable = report.result is not None
+
+    if request.method == 'GET' and request.GET.get('delete', '') == 'True':
+        report.delete()
+        messages.success(request, "Report deleted successfully")
+        return redirect('maintenance', homelab_id=homelab.id)
+
+    if request.method == 'POST':
+        messages.error(request, "Editing reports is not allowed when the report is immutable.")
+        return redirect('edit_report', report_id=report_id)
+
+        form = MaintenanceReportForm(request.POST, instance=report, certifier=user.profile, maintenance_plan=maintenance_plan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Report updated successfully")
+            return redirect('maintenance', homelab_id=homelab.id)
+    else:
+        form = MaintenanceReportForm(instance=report, certifier=user.profile, maintenance_plan=maintenance_plan, immutable=immutable)
+
+    additional_information = []
+    if immutable:
+        additional_information = [{
+            'title': 'Immutable Report',
+            'description': format_html(
+                f'This report is immutable and cannot be modified. It was created on <strong>{report.date.strftime('%Y-%m-%d %H:%M:%S')}</strong> by <strong>{report.certifier.user.username}</strong>.'),
+        }]
+
+    context = {
+        'form': form,
+        'form_title': 'Edit Report',
+        'show_delete_option': True,
+        'delete_url_confirmed': f"/edit/report/{report.id}/?delete=True",
+        'delete_url_declined': f"/edit/report/{report.id}/",
+        'delete_title': 'Delete Report',
+        'delete_message': f"You are about to delete Report {report.id}. Do you want to proceed?",
+        'additional_information': additional_information,
     }
     return render(request, 'html_components/form.html', context)
 

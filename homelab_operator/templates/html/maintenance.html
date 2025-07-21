@@ -19,7 +19,7 @@
     </div>
     <div class="tile">
         <b>
-            <i class="fa-solid fa-asterisk"></i>
+            <i class="fa-solid fa-calendar-days"></i>
             Upcoming Maintenance Plans
         </b>
         <div>
@@ -64,7 +64,7 @@
     <div class="spacer"></div>
     <div class="tile">
         <b>
-            <i class="fa-solid fa-asterisk"></i>
+            <i class="fa-solid fa-arrows-rotate"></i>
             Repeating Maintenance Plans
         </b>
         <div>
@@ -72,9 +72,23 @@
                 {% for plan in maintenance_plans_repeat %}
                     <div style="display: flex;"> 
                         <a href="{% url 'edit_maintenance' plan.id %}" style="text-decoration: none; color: inherit;">
-                            <div style="margin-top: .5rem;">
-                                {{ plan.title }}
-                                <span class="soft">{{ plan.content_type.model }}</span>
+                            <div style="margin-top: .5rem; display: flex;">
+                                <div style="width: 1rem; margin-right: .5rem;">
+                                    {% if plan.priority == 'LOW' %}
+                                        <i class="fa-solid fa-angle-down" style="color: var(--info-color);"></i>
+                                    {% elif plan.priority == 'MEDIUM' %}
+                                        <i class="fa-solid fa-angle-up" style="color: var(--info-color);"></i>
+                                    {% elif plan.priority == 'HIGH' %}
+                                        <i class="fa-solid fa-angles-up" style="color: var(--warning-color);"></i>
+                                    {% elif plan.priority == 'CRITICAL' %}
+                                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--error-color);"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-square" style="color: var(--unknown-color)"></i>
+                                    {% endif %}
+                                </div>
+                                <span>
+                                    {{ plan.title }}&nbsp;<span class="soft">{{ plan.content_type.model }}</span>
+                                </span>
                             </div>
                             <div class="soft">
                                 from {{ plan.scheduled_date|date:"Y-m-d" }} every {{ plan.repeat_interval }} {{ plan.repeat_interval|pluralize:'day,days' }}
@@ -95,7 +109,7 @@
     <div class="spacer"></div>
     <div class="tile">
         <b>
-            <i class="fa-solid fa-file"></i>
+            <i class="fa-solid fa-asterisk"></i>
             Past Maintenance Plans
         </b>
         <div>
@@ -106,18 +120,39 @@
                             {{ plan.title }}
                             <span class="soft">{{ plan.content_type.model }}</span>
                         </div>
-                        <div class="soft">
-                            on {{ plan.scheduled_date|date:"Y-m-d" }}
-                        </div>
-                        <div style="margin-left: 1rem;">
-                            {% for report in plan.reports.all %}
-                                <span class="soft">> Report: {{ report.title }}</span>
-                            {% endfor %}
-                        </div>
                     </a>
+                    {% for report in plan.reports.all %}
+                        <a href="{% url 'edit_report' report.id %}" style="text-decoration: none; color: inherit;">
+                            <span class="soft">
+                                <i class="fa-solid fa-file"></i>
+                                &nbsp;<strong>{{ report.result }}</strong>&nbsp;{{ report.date|date:"Y-m-d H:i:s" }}
+                            </span>
+                        </a>
+                    {% endfor %}
                 {% endfor %}
             {% else %}
                 <div class="soft">No past maintenance plans.</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tile">
+        <b>
+            <i class="fa-solid fa-file"></i>
+            All Reports
+        </b>
+        <div>
+            {% if reports %}
+                {% for report in reports %}
+                    <a href="{% url 'edit_report' report.id %}" style="text-decoration: none; color: inherit;">
+                        <span class="soft">
+                            <i class="fa-solid fa-file"></i>
+                            &nbsp;<strong>{{ report.maintenance_plan }}</strong>&nbsp;{{ report.date|date:"Y-m-d H:i:s" }}&nbsp;<strong>{{ report.result }}</strong>
+                        </span>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div class="soft">No Reports.</div>
             {% endif %}
         </div>
     </div>

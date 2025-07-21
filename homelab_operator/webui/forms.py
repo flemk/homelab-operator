@@ -282,7 +282,7 @@ class MaintenancePlanForm(ModelForm):
 
         # Set initial value if editing
         if self.instance and self.instance.pk:
-            self.fields['instance_choice'].initial = f'service_{self.instance.instance.id}'
+            self.fields['instance_choice'].initial = f'{self.instance.content_type.model}_{self.instance.object_id}'
 
     def clean_instance_choice(self):
         choice = self.cleaned_data.get('instance_choice')
@@ -325,11 +325,23 @@ class MaintenanceReportForm(ModelForm):
     '''Form for creating and updating MaintenanceReport instances.'''
     def __init__(self, *args, **kwargs):
         certifier = kwargs.pop('certifier', None)
+        maintenance_plan = kwargs.pop('maintenance_plan', None)
+        immutable = kwargs.pop('immutable', False)
+
         super(MaintenanceReportForm, self).__init__(*args, **kwargs)
 
         if certifier:
             self.fields['certifier'].initial = certifier
             self.fields['certifier'].disabled = True
+        
+        if maintenance_plan:
+            self.fields['maintenance_plan'].initial = maintenance_plan
+            self.fields['maintenance_plan'].disabled = True
+
+        if immutable:
+            for field in self.fields:
+                self.fields[field].disabled = True
+            self.fields['notes'].widget = Textarea(attrs={'rows': 5, 'readonly': True})
 
     class Meta:
         model = MaintenanceReport
