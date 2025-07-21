@@ -7,7 +7,7 @@
 </p>
 
 # Homelab Operator
-Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and ssh-shutdown. You can also create an overview of your services running on your machines. You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered by a cron job +/-5min).
+Homelab Operator displays your homelab infrastructure and provides actions such as wake-on-lan and shutdown. It offers a function to auto scan your network and discover services running on it. Homelab Operator can also act as routing and can forward (proxy-pass) requests to your services based on ingress rules You can enable auto-wake where this tool wakes your servers based on usage heuristic (tbd) or create schedules to wake/shutdown your server (which are triggered by a cron job +/-5min).
 
 This tool is still in development.
 
@@ -24,6 +24,7 @@ services:
   web:
     image: ghcr.io/flemk/homelab-operator:latest
     environment:
+      - HOST=${HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

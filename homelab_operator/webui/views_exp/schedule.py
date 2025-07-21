@@ -1,13 +1,8 @@
-import os
-from datetime import datetime
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from ..models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
-from ..forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm, HomelabForm
+from ..models import WOLSchedule
+from ..forms import WOLScheduleForm
 
 @login_required
 def create_schedule(request):

@@ -1,4 +1,4 @@
-@media screen and (max-width: 970px) {
+html.mobile {
     .header {
         height: 7rem;
         display: block;
@@ -36,6 +36,7 @@
 
     .mobile-wrap {
         display: block;
+        padding-top: .05rem;
     }
 
     .mobile-vanish {

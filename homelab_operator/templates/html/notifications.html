@@ -1,0 +1,28 @@
+{% extends 'html/base.html' %}
+
+{% block content %}
+    <div>
+        <span class="mobile-wrap">
+            <h2 style="margin-bottom: 0.25rem;">
+                Your Notifications
+            </h2>
+        </span>
+    </div>
+    <div class="tile">
+        {% if notifications %}
+            {% for notification in notifications %}
+                <div class="notification">
+                    <span>
+                        <i class="fa-solid fa-bell"></i>
+                        {{ notification.title }}
+                    </span>
+                    <div class="soft">
+                        <strong>{{ notification.content }}</strong>&nbsp;{{ notification.date|date:"Y-m-d H:i:s" }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="soft">No notifications available.</div>
+        {% endif %}
+    </div>
+{% endblock %}

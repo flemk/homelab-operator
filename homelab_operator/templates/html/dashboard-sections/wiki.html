@@ -1,14 +1,20 @@
     <div>
-        <span style="display: flex;">
-            <h2 style="margin-bottom: 0.25rem;">
+        <span class="mobile-wrap">
+            <h2 style="margin-bottom: 0;">
                 {% if wiki %}
                     {{ wiki.title }}
                 {% else %}
                     Wiki
                 {% endif %}
             </h2>
-            <div style="width: 1rem;"></div>
+            <div class="spacer" style="height: 0.25rem;"></div>
             <span style="margin: auto 0 0 auto;">
+                {% with homelab_id=homelab.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Maintenance' fa_icon='fa-wrench' href='/maintenance/'|add:homelab_id %}
+                {% endwith %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 0 0;">
                 {% if wiki %}
                     {% with wiki_id=wiki.id|stringformat:'s' %}
                         {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/wiki/'|add:wiki_id %}
@@ -116,6 +122,53 @@
                 {% endfor %}
             </div>
         {% endif %}
+        {% if wiki.pinned_servers.all %}
+            {% for server in wiki.pinned_servers.all %}
+                <div class="tile">
+                    <div style="display: flex;">
+                        <div>
+                            <h3 style="display: flex;">
+                                {{ server.name }}
+                                {% if api_key %}
+                                    <div class="indicator-dot loading-dot" id="server__{{ server.id }}" style="font-weight: normal; font-size: initial;">
+                                        &nbsp;
+                                    </div>
+                                    <script>
+                                        check_online("/is_online/{{ api_key }}/0/{{ server.id }}/", "server__{{ server.id }}");
+                                    </script>
+                                {% else %}
+                                    {% if server.is_online %}
+                                        <div class="indicator-dot success-dot">&nbsp;</div>
+                                    {% else %}
+                                        <div class="indicator-dot error-dot">&nbsp;</div>
+                                    {% endif %}
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="spacer"></div>
+                    <div style="border-top: 1px solid #ccc;"></div>
+                    <div class="spacer"></div>
+                    {% if server.mac_address %}
+                        {% with server_id=server.id|stringformat:'s' %}
+                            {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='/wake/'|add:server_id %}
+                        {% endwith %}
+                    {% else %}
+                        {% include 'html_components/inline_button.html' with label='Wake' fa_icon='fa-bolt' href='' %}
+                    {% endif %}
+                    {% if server.shutdown_url.all %}
+                        {% with server_id=server.id|stringformat:'s' %}
+                            {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='/shutdown/'|add:server_id %}
+                        {% endwith %}
+                    {% else %}
+                        {% include 'html_components/inline_button.html' with label='Shutdown' fa_icon='fa-power-off' href='' %}
+                    {% endif %}
+                    {% with server_id=server.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/server/'|add:server_id %}
+                    {% endwith %}
+                </div>
+            {% endfor %}
+        {% endif %}
         {% if wiki.public %}
             <div class="tile">
                 <div style="display: flex;">
@@ -128,9 +181,9 @@
                 <div class="spacer"></div>
                 <div style="border-top: 1px solid #ccc;"></div>
                 <div class="spacer"></div>
-                This wiki is set to be available public.
                 {% with wiki_id=wiki.id|stringformat:'s' %}
                     {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href='/pwiki/'|add:wiki_id %}
+                    This wiki is set to be available public. <span class="soft">via <u>{{ '/pwiki/'|add:wiki_id }}</u></span>
                 {% endwith %}
             </div>
         {% endif %}

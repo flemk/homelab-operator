@@ -1,23 +1,17 @@
 import os
-from datetime import datetime
-from time import sleep
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, \
-    StreamingHttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
 from django.db.models import Q
 
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
-    UserProfile, ServerUptimeStatistic, AppState
-from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics, \
-    discover_network_stream
-from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
+from .models import Server, Service, Homelab, UserProfile, AppState, MaintenancePlan, \
+    MaintenanceReport
+from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics
+from .forms import UserProfileForm, MaintenancePlanForm, MaintenanceReportForm
 
 from .views_exp.homelab import create_homelab, edit_homelab, delete_homelab
 from .views_exp.server import edit_server, delete_server, create_server
@@ -26,11 +20,12 @@ from .views_exp.network import create_network, edit_network, delete_network
 from .views_exp.schedule import create_schedule, edit_schedule, delete_schedule
 from .views_exp.shutdown_url import create_shutdown_url, edit_shutdown_url, delete_shutdown_url
 from .views_exp.wiki import public_wiki, create_wiki, edit_wiki, delete_wiki
-import uuid
 from .views_exp.uptime_statistic import create_uptime_statistic, delete_uptime_statistic, \
     reset_uptime_statistic
 from .views_exp.auto_discover import auto_discover, auto_discover_results, auto_discover_stream
 from .views_exp.ingress import ingress, create_ingress, edit_ingress, delete_ingress
+from .views_exp.maintenance import maintenance, create_maintenance, edit_maintenance, \
+    create_report, edit_report
 
 def login_view(request):
     context = {}
@@ -80,6 +75,18 @@ def edit_profile(request):
                 'User Agent: ' + request.META.get('HTTP_USER_AGENT', 'Unknown')),
         },]
     return render(request, 'html_components/form.html', context)
+
+@login_required
+def notifications(request):
+    '''View to display notifications for the user.'''
+    user = request.user
+    notifications = user.profile.get_notifications()
+
+    context = {
+        'notifications': notifications,
+        'user': user,
+    }
+    return render(request, 'html/notifications.html', context)
 
 @login_required
 def dashboard(request, homelab_id=None):
@@ -135,9 +142,6 @@ def dashboard(request, homelab_id=None):
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
         'ingresses': homelab.ingresses.all(),
-        'user_show_wiki': user.profile.show_wiki,
-        'user_show_networks': user.profile.show_networks,
-        'user_show_ingress': user.profile.show_ingress,
         'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
     }
     return render(request, 'html/dashboard.html', context)

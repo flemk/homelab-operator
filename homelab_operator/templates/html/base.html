@@ -35,6 +35,7 @@
 </head>
 <body>
     <script src="{% static 'js/check_online.js' %}"></script>
+    <script src="{% static 'js/check_mobile.js' %}"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register("{% static 'js/service-worker.js' %}");
@@ -73,6 +74,10 @@
             <div class="menu">
                 <div class="mobile-vanish" style="margin: auto; min-width: max-content;">Welcome <i>{{ user.username }}</i>.</div>
                 <div class="spacer" style="width: .5rem;"></div>
+                <div>
+                    {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
+                </div>
+                <div class="spacer" style="width: .5rem;"></div>
                 {% if app_state %}
                     {% if app_state.state == 'OK' %}
                         <div>
@@ -94,7 +99,10 @@
                 {% endif %}
                 <div class="spacer" style="width: .5rem;"></div>
                 <div>
-                    {% include 'html_components/inline_button.html' with fa_icon='fa-arrows-rotate' href='/' %}
+                    {% include 'html_components/inline_button.html' with fa_icon='fa-bell' href='/notifications/' %}
+                    {% if user.profile.get_notifications %}
+                        <div class="indicator-dot error-dot" style="width: .5rem; height: .5rem; position: absolute; transform: translate(-1rem, 1.3rem); pointer-events: none;"></div>
+                    {% endif %}
                 </div>
                 <div class="spacer" style="width: .5rem;"></div>
                 <div>

@@ -1,13 +1,8 @@
-import os
-from datetime import datetime
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from ..models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab
-from ..forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm, HomelabForm
+from ..models import Server
+from ..forms import ServerForm
 
 @login_required
 def edit_server(request, server_id):
@@ -54,6 +49,7 @@ def edit_server(request, server_id):
                     ]
                 }
             )
+
     if server.uptime_statistic.all():
         additional_information.append(
             {
@@ -82,6 +78,34 @@ def edit_server(request, server_id):
                     {
                         'url': f'/create/uptime_statistic/{server.id}/',
                         'label': 'Enable',
+                        'fa_icon': 'fa-plus',
+                    }
+                ]
+            }
+        )
+    
+    if server.maintenance_plans.all():
+        additional_information.append(
+            {
+                'title': 'Maintenance Plans',
+                'description': 'This server has maintenance plans configured.',
+                'links': [
+                    {
+                        'url': f'/edit/maintenance_plan/{server.maintenance_plans.all().first().id}/',
+                        'label': 'View',
+                    },
+                ]
+            }
+        )
+    else:
+        additional_information.append(
+            {
+                'title': 'No Maintenance Plans',
+                'description': 'No maintenance plans are configured for this server.',
+                'links': [
+                    {
+                        'url': f'/create/maintenance_plan/{server.id}/',
+                        'label': 'Create Maintenance Plan',
                         'fa_icon': 'fa-plus',
                     }
                 ]

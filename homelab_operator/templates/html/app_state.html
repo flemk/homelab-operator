@@ -52,7 +52,7 @@
                 NGINX
             </b>
             <div>
-                <div>{{ app_state.nginx_status }}</div>
+                <div>NGINX is {% if not app_state.nginx_status %}<u>not</u>&nbsp;{% endif %}running</div>
                 <div class="soft">nginx: ingress-handler.conf</div>
             </div>
         </div>
