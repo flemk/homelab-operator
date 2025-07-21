@@ -1,4 +1,4 @@
-@media screen and (max-width: 970px) {
+html.mobile {
     .header {
         height: 7rem;
         display: block;

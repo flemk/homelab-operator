@@ -10,7 +10,7 @@ from django.db.models import Q
 
 from .models import Server, Service, Homelab, UserProfile, AppState
 from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics
-from .forms import UserProfileForm
+from .forms import UserProfileForm, MaintenancePlanForm
 
 from .views_exp.homelab import create_homelab, edit_homelab, delete_homelab
 from .views_exp.server import edit_server, delete_server, create_server
@@ -75,6 +75,59 @@ def edit_profile(request):
     return render(request, 'html_components/form.html', context)
 
 @login_required
+def notifications(request):
+    '''View to display notifications for the user.'''
+    user = request.user
+    notifications = ...
+
+    context = {
+        'notifications': notifications,
+        'user': user,
+    }
+    return render(request, 'html/notifications.html', context)
+
+@login_required
+def maintenance(request, homelab_id):
+    '''View to display maintenance plans for a specific homelab.'''
+    user = request.user
+    homelab = get_object_or_404(Homelab, id=homelab_id, user=user)
+    maintenance_plans_upcoming = homelab.maintenance_plans.filter(
+        scheduled_date__gte=timezone.now()).order_by('scheduled_date')
+    maintenance_plans_past = homelab.maintenance_plans.filter(
+        scheduled_date__lt=timezone.now()).order_by('-scheduled_date')
+
+    context = {
+        'homelab': homelab,
+        'maintenance_plans_upcoming': maintenance_plans_upcoming,
+        'maintenance_plans_past': maintenance_plans_past,
+    }
+    return render(request, 'html/maintenance.html', context)
+
+@login_required
+def create_maintenance(request, homelab_id):
+    '''View to create a new maintenance plan for a specific homelab.'''
+    user = request.user
+    homelab = get_object_or_404(Homelab, id=homelab_id, user=user)
+
+    if request.method == 'POST':
+        form = MaintenancePlanForm(request.POST, user=user, homelab=homelab)
+        if form.is_valid():
+            maintenance_plan = form.save(commit=False)
+            maintenance_plan.homelab = homelab
+            maintenance_plan.save()
+            messages.success(request, "Maintenance plan created successfully")
+            return redirect('maintenance', homelab_id=homelab.id)
+    else:
+        form = MaintenancePlanForm(user=user, homelab=homelab)
+
+    context = {
+        'form': form,
+        'form_title': 'Create Maintenance Plan',
+        'homelab': homelab,
+    }
+    return render(request, 'html_components/form.html', context)
+
+@login_required
 def dashboard(request, homelab_id=None):
     '''Dashboard view for the user, showing servers, networks, and homelabs.'''
     user = request.user
@@ -128,9 +181,6 @@ def dashboard(request, homelab_id=None):
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,
         'ingresses': homelab.ingresses.all(),
-        'user_show_wiki': user.profile.show_wiki,
-        'user_show_networks': user.profile.show_networks,
-        'user_show_ingress': user.profile.show_ingress,
         'api_key': os.environ.get('API_KEY', 'DEFAULT_API_KEY'),
     }
     return render(request, 'html/dashboard.html', context)

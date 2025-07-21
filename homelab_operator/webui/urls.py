@@ -28,6 +28,7 @@ urlpatterns = [
          name='is_online'),
 
     path('edit/profile/', views.edit_profile, name='edit_profile'),
+    path('notifications/', views.notifications, name='notifications'),
 
     path('create/homelab/', views.create_homelab, name='create_homelab'),
     path('edit/homelab/<int:homelab_id>/', views.edit_homelab, name='edit_homelab'),
@@ -53,6 +54,9 @@ urlpatterns = [
     path('create/wiki/<int:homelab_id>/', views.create_wiki, name='create_wiki'),
     path('edit/wiki/<int:wiki_id>/', views.edit_wiki, name='edit_wiki'),
     path('delete/wiki/<int:wiki_id>/', views.delete_wiki, name='delete_wiki'),
+
+    path('maintenance/<int:homelab_id>/', views.maintenance, name='maintenance'),
+    path('create/maintenance/<int:homelab_id>/', views.create_maintenance, name='create_maintenance'),
 
     path('ingress/<int:homelab_id>/', views.ingress, name='ingress_list'),
     path('create/ingress/<int:homelab_id>/', views.create_ingress, name='create_ingress'),

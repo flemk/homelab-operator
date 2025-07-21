@@ -1,7 +1,8 @@
 '''Forms for the web UI of the homelab operator project.'''
 
 from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea, \
-    ModelMultipleChoiceField, CheckboxSelectMultiple
+    ModelMultipleChoiceField, CheckboxSelectMultiple, ChoiceField, Select, ValidationError, \
+    DateInput
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
     Wiki, UserProfile, Ingress, MaintenancePlan
 from .widgets import HoCheckbox
@@ -104,6 +105,7 @@ class WOLScheduleForm(ModelForm):
             label='Logs',
             disabled=True
         )
+
     class Meta:
         model = WOLSchedule
         fields = '__all__'
@@ -221,16 +223,103 @@ class IngressForm(ModelForm):
 
 class MaintenancePlanForm(ModelForm):
     '''Form for creating and updating MaintenancePlan instances.'''
+    instance_choice = ChoiceField(
+        label='Select Entity',
+        widget=Select()
+    )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
-
+        homelab = kwargs.pop('homelab', None)
+        
         super(MaintenancePlanForm, self).__init__(*args, **kwargs)
 
+        # Build choices dynamically
+        choices = [('', 'Select...')]
+
         if user:
-            self.fields['assignee'].initial = user
+            self.fields['assignee'].initial = user.profile
             self.fields['assignee'].disabled = True
+
+            if homelab:
+                servers = Server.objects.filter(user=user, homelab=homelab)
+                services = Service.objects.filter(server__user=user, server__homelab=homelab)
+                networks = Network.objects.filter(user=user, homelab=homelab)
+                ingresses = Ingress.objects.filter(homelab=homelab, user=user)
+            else:
+                servers = Server.objects.filter(user=user)
+                services = Service.objects.filter(server__user=user)
+                networks = Network.objects.filter(user=user)
+                ingresses = Ingress.objects.filter(user=user)
+            homelabs = Homelab.objects.filter(user=user, id=homelab.id)
+
+            # Add homelab choices
+            homelab_choices = [(f'homelab_{homelab.id}', f'{homelab.name}') for homelab in homelabs]
+            if homelab_choices:
+                choices.append(('Homelabs', homelab_choices))
+
+            # Add server choices
+            server_choices = [(f'server_{s.id}', f'{s.name}') for s in servers]
+            if server_choices:
+                choices.append(('Servers', server_choices))
+
+            # Add service choices
+            service_choices = [(f'service_{s.id}', f'{s.name} ({s.server.name})') for s in services]
+            if service_choices:
+                choices.append(('Services', service_choices))
+            
+            # Add network choices
+            network_choices = [(f'network_{network.id}', f'{network.name}') for network in networks]
+            if network_choices:
+                choices.append(('Networks', network_choices))
+            
+            # Add ingress choices
+            ingress_choices = [(f'ingress_{ingress.id}', f'{ingress.name}') for ingress in ingresses]
+            if ingress_choices:
+                choices.append(('Ingresses', ingress_choices))
+
+        self.fields['instance_choice'].choices = choices
+
+        # Set initial value if editing
+        if self.instance and self.instance.pk:
+            if isinstance(self.instance.instance, Server):
+                self.fields['instance_choice'].initial = f'server_{self.instance.instance.id}'
+            elif isinstance(self.instance.instance, Service):
+                self.fields['instance_choice'].initial = f'service_{self.instance.instance.id}'
+
+    def clean_instance_choice(self):
+        choice = self.cleaned_data.get('instance_choice')
+        if not choice:
+            raise ValidationError('Please select a server or service.')
+
+        choice_type, choice_id = choice.split('_', 1)
+        try:
+            if choice_type == 'server':
+                return Server.objects.get(id=choice_id)
+            elif choice_type == 'service':
+                return Service.objects.get(id=choice_id)
+            elif choice_type == 'homelab':
+                return Homelab.objects.get(id=choice_id)
+            elif choice_type == 'network':
+                return Network.objects.get(id=choice_id)
+            elif choice_type == 'ingress':
+                return Ingress.objects.get(id=choice_id)
+        except (Server.DoesNotExist, Service.DoesNotExist):
+            raise ValidationError('Invalid selection.')
+
+        raise ValidationError('Invalid choice format.')
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.instance = self.cleaned_data.get('instance_choice')
+
+        if commit:
+            instance.save()
+        return instance
 
     class Meta:
         model = MaintenancePlan
-        fields = '__all__'
+        exclude = ['content_type', 'object_id']
+        widgets = {
+            'scheduled_date': DateInput(attrs={'type': 'date'}),
+        }

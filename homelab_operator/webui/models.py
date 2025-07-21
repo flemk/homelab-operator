@@ -421,20 +421,17 @@ class MaintenancePlan(models.Model):
     object_id = models.PositiveIntegerField()
     instance = GenericForeignKey('content_type', 'object_id')
 
-    scheduled_date = models.DateTimeField(help_text='When the maintenance is scheduled')
+    scheduled_date = models.DateField(help_text='When the maintenance is scheduled')
     repeat_interval = models.IntegerField(default=0,
                                           help_text='Repeat interval in days (0 for no repeat)')
 
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
 
+    homelab = models.ForeignKey('Homelab', on_delete=models.CASCADE,
+                                related_name='maintenance_plans')
+
     def __str__(self):
         return f"{self.title}"
-
-    def clean(self):
-        if self.server and self.service:
-            raise ValidationError('Only one of server or service can be set.')
-        if not self.server and not self.service:
-            raise ValidationError('One of server or service must be set.')
 
     class Meta:
         ordering = ['-scheduled_date']

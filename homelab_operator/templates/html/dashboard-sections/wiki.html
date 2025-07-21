@@ -9,7 +9,9 @@
             </h2>
             <div class="spacer" style="height: 0.25rem;"></div>
             <span style="margin: auto 0 0 auto;">
-                {% include 'html_components/inline_button.html' with label='Maintenance' fa_icon='fa-wrench' href='#/' %}
+                {% with homelab_id=homelab.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Maintenance' fa_icon='fa-wrench' href='/maintenance/'|add:homelab_id %}
+                {% endwith %}
             </span>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 0;">

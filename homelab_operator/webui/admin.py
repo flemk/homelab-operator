@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki, UserProfile, ServerUptimeStatistic, AppState, Ingress, MaintenancePlan
+    Wiki, UserProfile, ServerUptimeStatistic, AppState, Ingress, MaintenancePlan, \
+    MaintenanceReport
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -53,3 +54,7 @@ class IngressAdmin(admin.ModelAdmin):
 @admin.register(MaintenancePlan)
 class MaintenancePlanAdmin(admin.ModelAdmin):
     list_display = ('title', 'assignee', 'priority', 'scheduled_date', 'repeat_interval')
+
+@admin.register(MaintenanceReport)
+class MaintenanceReportAdmin(admin.ModelAdmin):
+    list_display = ('certifier', 'result', 'date')
