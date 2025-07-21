@@ -1,6 +1,7 @@
 '''Forms for the web UI of the homelab operator project.'''
 
-from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea, ModelMultipleChoiceField, CheckboxSelectMultiple
+from django.forms import ModelForm, DateTimeInput, BooleanField, CharField, Textarea, \
+    ModelMultipleChoiceField, CheckboxSelectMultiple
 from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
     Wiki, UserProfile, Ingress, MaintenancePlan
 from .widgets import HoCheckbox
@@ -220,31 +221,15 @@ class IngressForm(ModelForm):
 
 class MaintenancePlanForm(ModelForm):
     '''Form for creating and updating MaintenancePlan instances.'''
-    #repeat_interval = IntegerField(
-    #    required=False,
-    #    help_text='Repeat interval in days (0 for no repeat)',
-    #    label='Repeat Interval (days)',
-    #    initial=0
-    #)
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
-        server = kwargs.pop('server', None)
-        service = kwargs.pop('service', None)
 
         super(MaintenancePlanForm, self).__init__(*args, **kwargs)
 
         if user:
             self.fields['assignee'].initial = user
             self.fields['assignee'].disabled = True
-        
-        if server:
-            self.fields['server'].initial = server
-            self.fields['server'].disabled = True
-        
-        if service:
-            self.fields['service'].initial = service
-            self.fields['service'].disabled = True
 
     class Meta:
         model = MaintenancePlan

@@ -1,5 +1,5 @@
 <div>
-    <span style="display: flex;">
+    <span class="mobile-wrap">
         <h2 style="margin-bottom: 0.25rem;">
             Ingresses
         </h2>
@@ -8,7 +8,8 @@
                 {% include 'html_components/inline_button.html' with label='Details' fa_icon='fa-arrow-up-right-from-square' href='/ingress/'|add:homelab_id %}
             {% endwith %}
         </span>
-        <span style="margin: auto 0 0 1rem;">
+        <div style="width: 1rem;"></div>
+        <span style="margin: auto 0 0 0;">
             {% with homelab_id=homelab.id|stringformat:'s' %}
                 {% include 'html_components/inline_button.html' with label='Ingress' fa_icon='fa-plus' href='/create/ingress/'|add:homelab_id %}
             {% endwith %}

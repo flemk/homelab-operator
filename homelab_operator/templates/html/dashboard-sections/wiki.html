@@ -1,14 +1,18 @@
     <div>
-        <span style="display: flex;">
-            <h2 style="margin-bottom: 0.25rem;">
+        <span class="mobile-wrap">
+            <h2 style="margin-bottom: 0;">
                 {% if wiki %}
                     {{ wiki.title }}
                 {% else %}
                     Wiki
                 {% endif %}
             </h2>
-            <div style="width: 1rem;"></div>
+            <div class="spacer" style="height: 0.25rem;"></div>
             <span style="margin: auto 0 0 auto;">
+                {% include 'html_components/inline_button.html' with label='Maintenance' fa_icon='fa-wrench' href='#/' %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 0 0;">
                 {% if wiki %}
                     {% with wiki_id=wiki.id|stringformat:'s' %}
                         {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-pen-to-square' href='/edit/wiki/'|add:wiki_id %}
@@ -177,7 +181,7 @@
                 <div class="spacer"></div>
                 {% with wiki_id=wiki.id|stringformat:'s' %}
                     {% include 'html_components/inline_button.html' with label='Open' fa_icon='fa-arrow-up-right-from-square' href='/pwiki/'|add:wiki_id %}
-                    This wiki is set to be available public <span class="soft">via <u>{{ '/pwiki/'|add:wiki_id }}</u></span>
+                    This wiki is set to be available public. <span class="soft">via <u>{{ '/pwiki/'|add:wiki_id }}</u></span>
                 {% endwith %}
             </div>
         {% endif %}

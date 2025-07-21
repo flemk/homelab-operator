@@ -1,23 +1,16 @@
 import os
-from datetime import datetime
-from time import sleep
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, \
-    StreamingHttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.html import format_html
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
 from django.db.models import Q
 
-from .models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, \
-    UserProfile, ServerUptimeStatistic, AppState
-from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics, \
-    discover_network_stream
-from .forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm, HomelabForm, UserProfileForm
+from .models import Server, Service, Homelab, UserProfile, AppState
+from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics
+from .forms import UserProfileForm
 
 from .views_exp.homelab import create_homelab, edit_homelab, delete_homelab
 from .views_exp.server import edit_server, delete_server, create_server

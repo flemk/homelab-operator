@@ -5,6 +5,8 @@ import socket
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from .helpers.system import is_process_running
 
@@ -23,6 +25,10 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"Profile of {self.user.username}"
+
+    def get_notifications(self):
+        '''Returns notifications for the user profile.'''
+        ...
 
 class Server(models.Model):
     '''Model representing a server.'''
@@ -408,19 +414,16 @@ class MaintenancePlan(models.Model):
     title = models.CharField(max_length=100, help_text='Title of the maintenance plan')
     description = models.TextField(null=True, blank=True,
                                    help_text='Description of the maintenance plan')
-
     assignee = models.ForeignKey(UserProfile, on_delete=models.CASCADE,
                                  related_name='maintenance_schedules')
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    instance = GenericForeignKey('content_type', 'object_id')
+
     scheduled_date = models.DateTimeField(help_text='When the maintenance is scheduled')
     repeat_interval = models.IntegerField(default=0,
                                           help_text='Repeat interval in days (0 for no repeat)')
-
-    server = models.ForeignKey(Server, on_delete=models.CASCADE, null=True, blank=True,
-                               related_name='maintenance_plans',
-                               help_text='Server this plan applies to')
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True,
-                                related_name='maintenance_plans',
-                                help_text='Service this plan applies to')
 
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
 
