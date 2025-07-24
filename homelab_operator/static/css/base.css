@@ -54,6 +54,7 @@ html {
     position: fixed;
     height: 5.5rem;
     z-index: 1;
+    backdrop-filter: blur(2px);
 }
 
 .main {
