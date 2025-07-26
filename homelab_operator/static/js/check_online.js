@@ -8,7 +8,6 @@ async function check_online(endpoint, dotId) {
         const response = await fetch(endpoint, { method: 'GET' });
 
         const dots = document.querySelectorAll(`#${dotId}`);
-        console.log(dots)
         dots.forEach(async function(dot) {
             //const dot = document.getElementById(dotId);
 

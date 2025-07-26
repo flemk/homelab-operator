@@ -34,7 +34,10 @@ class UserProfile(models.Model):
             scheduled_date__lte=timezone.now() + timezone.timedelta(days=7),
         )
 
-        return [{'title': 'Upcoming Maintenance Plan.', 'date': s.scheduled_date , 'content': s.title,} for s in maintenance_notifications.all()]
+        return [{
+            'title': 'Upcoming Maintenance Plan.',
+            'date': s.scheduled_date,
+            'content': s.title,} for s in maintenance_notifications]
 
 class Server(models.Model):
     '''Model representing a server.'''
