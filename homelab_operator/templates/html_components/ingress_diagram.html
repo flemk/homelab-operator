@@ -1,0 +1,57 @@
+<div style="margin-bottom: 1rem; overflow-x: scroll;">
+    <ul class="tree" style="margin: 0 auto auto auto; font-size: .9rem;">
+        <li>
+            <code>nginx (entryoint)</code>
+            <ul>
+                <li>
+                    <code class="soft">localhost</code>
+                    <ul>
+                        <li>
+                            <code>Homelab Operator</code>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <code class="soft">~^(?!localhost$).*</code>
+                    <ul>
+                        <li>
+                            <code>nginx (ingress-forward)</code>
+                            <ul>
+                                {% for ingress in ingresses %}
+                                    <li>
+                                        <code class="soft">{{ ingress.hostname }}</code>
+                                        <ul>
+                                            <li>
+                                                <code>
+                                                    {% if ingress.enabled %}
+                                                        <i class="fas fa-check" style="color: green;"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-xmark" style="color: red;"></i>
+                                                    {% endif %}
+                                                    {{ ingress.target_service.server.name }}
+                                                    <div class="soft">
+                                                        {{ ingress.target_service.server.ip_address }}
+                                                    </div>
+                                                </code>
+                                                <ul>
+                                                    <li>
+                                                        <code>
+                                                            {{ ingress.target_service.name }}
+                                                            <div class="soft">
+                                                                {{ ingress.get_target_url }}
+                                                            </div>
+                                                        </code>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>

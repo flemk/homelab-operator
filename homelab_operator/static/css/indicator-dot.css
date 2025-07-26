@@ -1,3 +1,11 @@
+:root {
+    --success-color: #4CAF50;
+    --error-color: #f44336;
+    --info-color: #2196F3;
+    --warning-color: orange;
+    --unknown-color: #9E9E9E;
+}
+
 .indicator-dot {
     margin: auto 0 auto .25rem;
     border-radius: 50%;
@@ -12,17 +20,17 @@
 }
 
 .indicator-dot.success-dot {
-    background-color: #4CAF50;
+    background-color: var(--success-color);
 }
 .indicator-dot.error-dot {
-    background-color: #f44336;
+    background-color: var(--error-color);
 }
 .indicator-dot.info-dot {
-    background-color: #2196F3;
+    background-color: var(--info-color);
 }
 .indicator-dot.warning-dot {
-    background-color: orange;
+    background-color: var(--warning-color);
 }
 .indicator-dot.unknown-dot {
-    background-color: #9E9E9E;
+    background-color: var(--unknown-color);
 }

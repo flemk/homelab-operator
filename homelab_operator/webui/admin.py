@@ -1,43 +1,60 @@
 from django.contrib import admin
-from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
-    Wiki, UserProfile, ServerUptimeStatistic, AppState
+from django.contrib.contenttypes.admin import GenericTabularInline
 
+from .models import Server, Service, Network, WOLSchedule, ShutdownURLConfiguration, Homelab, \
+    Wiki, UserProfile, ServerUptimeStatistic, AppState, Ingress, MaintenancePlan, \
+    MaintenanceReport
+
+@admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user',)
-admin.site.register(UserProfile, UserProfileAdmin)
 
+@admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):
     list_display = ('name', 'ip_address', 'mac_address')
-admin.site.register(Server, ServerAdmin)
 
+@admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('name', 'server', 'port')
-admin.site.register(Service, ServiceAdmin)
 
+@admin.register(Network)
 class NetworkAdmin(admin.ModelAdmin):
     list_display = ('name', 'user')
-admin.site.register(Network, NetworkAdmin)
 
+@admin.register(WOLSchedule)
 class WOLScheduleAdmin(admin.ModelAdmin):
     list_display = ('server', 'schedule_time', 'repeat', 'repeat_type')
-admin.site.register(WOLSchedule, WOLScheduleAdmin)
 
+@admin.register(ShutdownURLConfiguration)
 class ShutdownURLConfigurationAdmin(admin.ModelAdmin):
     list_display = ('name', 'url', 'server')
-admin.site.register(ShutdownURLConfiguration, ShutdownURLConfigurationAdmin)
 
+@admin.register(Homelab)
 class HomelabAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'user')
-admin.site.register(Homelab, HomelabAdmin)
 
+@admin.register(Wiki)
 class WikiAdmin(admin.ModelAdmin):
     list_display = ('homelab',)
-admin.site.register(Wiki, WikiAdmin)
 
+@admin.register(ServerUptimeStatistic)
 class ServerUptimeStatisticAdmin(admin.ModelAdmin):
     list_display = ('server',)
-admin.site.register(ServerUptimeStatistic, ServerUptimeStatisticAdmin)
 
+@admin.register(AppState)
 class AppStateAdmin(admin.ModelAdmin):
     list_display = ('last_cron',)
-admin.site.register(AppState, AppStateAdmin)
+
+@admin.register(Ingress)
+class IngressAdmin(admin.ModelAdmin):
+    list_display = ('name', 'homelab', 'target_service', 'created_at')
+    list_filter = ('homelab', 'target_service')
+    search_fields = ('name', 'target_service__name')
+
+@admin.register(MaintenancePlan)
+class MaintenancePlanAdmin(admin.ModelAdmin):
+    list_display = ('title', 'assignee', 'priority', 'scheduled_date', 'repeat_interval')
+
+@admin.register(MaintenanceReport)
+class MaintenanceReportAdmin(admin.ModelAdmin):
+    list_display = ('certifier', 'result', 'date')

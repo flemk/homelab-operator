@@ -1,0 +1,83 @@
+{% extends 'html/base.html' %}
+
+{% block content %}
+    <div>
+        <span class="mobile-wrap">
+            <h2 style="margin-bottom: 0.25rem;">
+                Ingresses
+            </h2>
+            <span style="margin: auto 0 0 auto;">
+                {% with homelab_id=homelab.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Restart ingress-handler' fa_icon='fa-rotate' %}
+                {% endwith %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 0 0;">
+                {% with homelab_id=homelab.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Reload Configs' fa_icon='fa-rotate' %}
+                {% endwith %}
+            </span>
+            <div style="width: 1rem;"></div>
+            <span style="margin: auto 0 0 0;">
+                {% with homelab_id=homelab.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Ingress' fa_icon='fa-plus' href='/create/ingress/'|add:homelab_id %}
+                {% endwith %}
+            </span>
+        </span>
+    </div>
+    {% if ingresses %}
+        {# Ingress Diagram#}
+        {% include 'html_components/ingress_diagram.html' with ingresses=ingresses %}
+
+        {% for ingress in ingresses %}
+            <div class="tile" style="margin-bottom: 1rem;">
+                <div>
+                    <b>{{ ingress.name }}</b>&nbsp;
+                    {% if ingress.enabled %}
+                        <i class="fas fa-check" style="color: green;"></i>
+                    {% else %}
+                        <i class="fas fa-xmark" style="color: red;"></i>
+                    {% endif %}
+                    <div class="soft">
+                        {{ ingress.forward_type }} <strong>{{ ingress.hostname }}{{ ingress.path_prefix }}</strong> to <strong>{{ ingress.target_service.name }}</strong> ({{ ingress.target_service.server.ip_address }})
+                    </div>
+                    <div class="soft">
+                        <span>Priority {{ ingress.priority }}</span>
+                        <span> | </span>
+                        <span>
+                            {% if ingress.preserve_host %}
+                                Preserve Host
+                            {% else %}
+                                Do not preserve Host
+                            {% endif %}
+                        </span>
+                        <span> | </span>
+                        <span>
+                            {% if ingress.strip_path_prefix %}
+                                Strip Path Prefix
+                            {% else %}
+                                Do not strip Path Prefix
+                            {% endif %}
+                        </span>
+                    </div>
+                    <span class="soft">
+                        <span style="text-decoration: underline; cursor: pointer;" onclick="event.preventDefault(); this.parentElement.querySelector('.dropdown-content').classList.toggle('dropdown-show'); this.parentElement.querySelector('.fa-chevron-down').classList.toggle('hidden'); this.parentElement.querySelector('.fa-chevron-up').classList.toggle('hidden');">Preview Configuration</span>
+                        <i class="soft fa-solid fa-chevron-down" style="font-size: .65rem !important; margin: auto auto auto .15rem;"></i>
+                        <i class="soft fa-solid fa-chevron-up fa-1x hidden" style="font-size: .65rem !important; margin: auto auto auto .15rem;"></i>
+                        <textarea class="soft log-area dropdown-content" style="position: unset !important;">{% include 'nginx/ingress.conf' with ingress=ingress hostname=ingress.hostname %}</textarea>
+                    </span>
+                </div>
+                <div style="width: min-content;">
+                    {% with ingress_id=ingress.id|stringformat:'s' %}
+                        {% include 'html_components/inline_button.html' with label='Edit' fa_icon='fa-edit' href='/edit/ingress/'|add:ingress_id %}
+                    {% endwith %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div>
+            <b style="color: #666;">No ingresses were found.</b>
+            <div class="soft">There are no ingress rules associated with this user or homelab.</div>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'html/base.html' %}
+
+{% block headline %}
+    <a href="/" style="text-decoration: none; color: inherit;">Maintenance</a>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <span class="mobile-wrap">
+            <h2 style="margin-bottom: 0.25rem;">
+                Maintenance
+            </h2>
+            <div style="margin: auto 0 0 auto;">
+                {% with homelab_id=homelab.id|stringformat:'s' %}
+                    {% include 'html_components/inline_button.html' with label='Maintenance Plan' fa_icon='fa-plus' href='/create/maintenance/'|add:homelab_id %}
+                {% endwith %}
+            </div>
+        </span>
+    </div>
+    <div class="tile">
+        <b>
+            <i class="fa-solid fa-calendar-days"></i>
+            Upcoming Maintenance Plans
+        </b>
+        <div>
+            {% if maintenance_plans_upcoming %}
+                {% for plan in maintenance_plans_upcoming %}
+                    <div style="display: flex;"> 
+                        <a href="{% url 'edit_maintenance' plan.id %}" style="text-decoration: none; color: inherit;">
+                            <div style="margin-top: .5rem; display: flex;">
+                                <div style="width: 1rem; margin-right: .5rem;">
+                                    {% if plan.priority == 'LOW' %}
+                                        <i class="fa-solid fa-angle-down" style="color: var(--info-color);"></i>
+                                    {% elif plan.priority == 'MEDIUM' %}
+                                        <i class="fa-solid fa-angle-up" style="color: var(--info-color);"></i>
+                                    {% elif plan.priority == 'HIGH' %}
+                                        <i class="fa-solid fa-angles-up" style="color: var(--warning-color);"></i>
+                                    {% elif plan.priority == 'CRITICAL' %}
+                                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--error-color);"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-square" style="color: var(--unknown-color)"></i>
+                                    {% endif %}
+                                </div>
+                                <span>
+                                    {{ plan.title }}&nbsp;<span class="soft">{{ plan.content_type.model }}</span>
+                                </span>
+                            </div>
+                            <div class="soft">
+                                on {{ plan.scheduled_date|date:"Y-m-d" }}
+                            </div>
+                        </a>
+                        <div style="margin: auto 0 0 auto;">
+                            {% with plan_id=plan.id|stringformat:'s' %}
+                                {% include 'html_components/inline_button.html' with label='Report' fa_icon='fa-plus' href='/create/report/'|add:plan_id %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="soft">No upcoming maintenance plans.</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tile">
+        <b>
+            <i class="fa-solid fa-arrows-rotate"></i>
+            Repeating Maintenance Plans
+        </b>
+        <div>
+            {% if maintenance_plans_repeat %}
+                {% for plan in maintenance_plans_repeat %}
+                    <div style="display: flex;"> 
+                        <a href="{% url 'edit_maintenance' plan.id %}" style="text-decoration: none; color: inherit;">
+                            <div style="margin-top: .5rem; display: flex;">
+                                <div style="width: 1rem; margin-right: .5rem;">
+                                    {% if plan.priority == 'LOW' %}
+                                        <i class="fa-solid fa-angle-down" style="color: var(--info-color);"></i>
+                                    {% elif plan.priority == 'MEDIUM' %}
+                                        <i class="fa-solid fa-angle-up" style="color: var(--info-color);"></i>
+                                    {% elif plan.priority == 'HIGH' %}
+                                        <i class="fa-solid fa-angles-up" style="color: var(--warning-color);"></i>
+                                    {% elif plan.priority == 'CRITICAL' %}
+                                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--error-color);"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-square" style="color: var(--unknown-color)"></i>
+                                    {% endif %}
+                                </div>
+                                <span>
+                                    {{ plan.title }}&nbsp;<span class="soft">{{ plan.content_type.model }}</span>
+                                </span>
+                            </div>
+                            <div class="soft">
+                                from {{ plan.scheduled_date|date:"Y-m-d" }} every {{ plan.repeat_interval }} {{ plan.repeat_interval|pluralize:'day,days' }}
+                            </div>
+                        </a>
+                        <div style="margin: auto 0 0 auto;">
+                            {% with plan_id=plan.id|stringformat:'s' %}
+                                {% include 'html_components/inline_button.html' with label='Report' fa_icon='fa-plus' href='/create/report/'|add:plan_id %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="soft">No upcoming maintenance plans.</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tile">
+        <b>
+            <i class="fa-solid fa-asterisk"></i>
+            Past Maintenance Plans
+        </b>
+        <div>
+            {% if maintenance_plans_past %}
+                {% for plan in maintenance_plans_past %}
+                    <a href="{% url 'edit_maintenance' plan.id %}" style="text-decoration: none; color: inherit;">
+                        <div style="margin-top: .5rem;">
+                            {{ plan.title }}
+                            <span class="soft">{{ plan.content_type.model }}</span>
+                        </div>
+                    </a>
+                    {% for report in plan.reports.all %}
+                        <a href="{% url 'edit_report' report.id %}" style="text-decoration: none; color: inherit;">
+                            <span class="soft">
+                                <i class="fa-solid fa-file"></i>
+                                &nbsp;<strong>{{ report.result }}</strong>&nbsp;{{ report.date|date:"Y-m-d H:i:s" }}
+                            </span>
+                        </a>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="soft">No past maintenance plans.</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tile">
+        <b>
+            <i class="fa-solid fa-file"></i>
+            All Reports
+        </b>
+        <div>
+            {% if reports %}
+                {% for report in reports %}
+                    <a href="{% url 'edit_report' report.id %}" style="text-decoration: none; color: inherit;">
+                        <span class="soft">
+                            <i class="fa-solid fa-file"></i>
+                            &nbsp;<strong>{{ report.maintenance_plan }}</strong>&nbsp;{{ report.date|date:"Y-m-d H:i:s" }}&nbsp;<strong>{{ report.result }}</strong>
+                        </span>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div class="soft">No Reports.</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock%}

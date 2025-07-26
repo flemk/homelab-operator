@@ -67,12 +67,17 @@
     {% else %}
 
         {# Wiki #}
-        {% if user_show_wiki %}
+        {% if user.profile.show_wiki %}
             {% include 'html/dashboard-sections/wiki.html' with servers=servers wiki=wiki %}
         {% endif %}
 
+        {# Ingress #}
+        {% if user.profile.show_ingress %}
+            {% include 'html/dashboard-sections/ingress.html' with ingresses=ingresses %}
+        {% endif %}
+
         {# Networks #}
-        {% if user_show_networks %}
+        {% if user.profile.show_networks %}
             {% include 'html/dashboard-sections/networks.html' with networks=networks %}
         {% endif %}
 

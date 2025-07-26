@@ -1,4 +1,17 @@
 # Changelog
+## [1.6.0]
+Added:
+- Ingress handling
+- Maintenance functionality
+- Add pinned servers to dashboard
+
+Fixed:
+- Fixed showing unrelated services for pinned services in wiki edit/create
+
+Changed:
+- Mobile Optimizations
+- Miscellaneous improvements
+
 ## [1.5.1]
 Changed:
 - Improved logic of auto discoveres services creation

@@ -28,11 +28,11 @@
                     <h3 style="display: flex;">
                         {{ server.name }}
                         {% if api_key %}
-                            <div class="indicator-dot loading-dot" id="server__{{ server.id }}" style="font-weight: normal; font-size: initial;">
+                            <div class="indicator-dot loading-dot" id="server_{{ server.id }}" style="font-weight: normal; font-size: initial;">
                                 &nbsp;
                             </div>
                             <script>
-                                check_online("/is_online/{{ api_key }}/0/{{ server.id }}/", "server__{{ server.id }}");
+                                check_online("/is_online/{{ api_key }}/0/{{ server.id }}/", "server_{{ server.id }}");
                             </script>
                         {% else %}
                             {% if server.is_online %}

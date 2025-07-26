@@ -6,36 +6,40 @@
 async function check_online(endpoint, dotId) {
     try {
         const response = await fetch(endpoint, { method: 'GET' });
-        const dot = document.getElementById(dotId);
 
-        if (!dot) return;
+        const dots = document.querySelectorAll(`#${dotId}`);
+        dots.forEach(async function(dot) {
+            //const dot = document.getElementById(dotId);
 
-        // Remove all possible status classes first
-        dot.classList.remove('success-dot', 'error-dot', 'warning-dot', 'unknown-dot');
+            if (!dot) return;
 
-        if (response.status === 200) {
-            dot.classList.add('success-dot'); // Online
-        } else if (response.status === 503) {
-            dot.classList.add('error-dot');   // Offline
-        } else if (response.status === 400 || response.status === 403) {
-            dot.classList.add('unknown-dot'); // Unknown
-        } else {
-            dot.classList.add('warning-dot'); // Bad request
-            const body = await response.text();
+            // Remove all possible status classes first
+            dot.classList.remove('success-dot', 'error-dot', 'warning-dot', 'unknown-dot');
 
-            dot.classList.add('tooltip');
-            tooltiptext = document.createElement('span');
-            tooltiptext.className = 'tooltiptext';
-            dot.appendChild(tooltiptext);
-            tooltiptext.innerHTML = body;
-        }
-        dot.classList.remove('loading-dot');
+            if (response.status === 200) {
+                dot.classList.add('success-dot'); // Online
+            } else if (response.status === 503) {
+                dot.classList.add('error-dot');   // Offline
+            } else if (response.status === 400 || response.status === 403) {
+                dot.classList.add('unknown-dot'); // Unknown
+            } else {
+                dot.classList.add('warning-dot'); // Bad request
+                const body = await response.text();
+
+                dot.classList.add('tooltip');
+                tooltiptext = document.createElement('span');
+                tooltiptext.className = 'tooltiptext';
+                dot.appendChild(tooltiptext);
+                tooltiptext.innerHTML = body;
+            }
+            dot.classList.remove('loading-dot');
+        });
     } catch (error) {
-        const dot = document.getElementById(dotId);
-        if (dot) {
+        const dots = document.querySelectorAll(`#${dotId}`);
+        dots.forEach(dot => {
             dot.classList.remove('success-dot', 'error-dot', 'warning-dot', 'unknown-dot');
             dot.classList.add('unknown-dot'); // Network error
-        }
+        });
     }
 }
 

@@ -1,13 +1,9 @@
 import os
-from datetime import datetime
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from ..models import Server, Service, Network, ShutdownURLConfiguration, WOLSchedule, Homelab, Wiki
-from ..forms import ServerForm, ServiceForm, NetworkForm, WOLScheduleForm, \
-    ShutdownURLConfigurationForm, HomelabForm, WikiForm
+from ..models import Homelab, Wiki
+from ..forms import WikiForm
 
 def public_wiki(request, wiki_id):
     wiki = get_object_or_404(Wiki, id=wiki_id)
@@ -48,13 +44,13 @@ def edit_wiki(request, wiki_id):
     wiki = Wiki.objects.get(id=wiki_id, homelab__user=user)
 
     if request.method == 'POST':
-        form = WikiForm(request.POST, instance=wiki)
+        form = WikiForm(request.POST, instance=wiki, homelab=wiki.homelab)
         if form.is_valid():
             wiki = form.save()
             messages.success(request, f"Wiki {wiki.title} updated successfully")
             return redirect('dashboard', homelab_id=wiki.homelab.id)
     else:
-        form = WikiForm(instance=wiki)
+        form = WikiForm(instance=wiki, homelab=wiki.homelab)
 
     context = {
         'form': form,

@@ -134,3 +134,7 @@ input[type=submit]:hover, .button:hover {
     border: 1px solid black !important;
     /*background-color: white; *//* Too neo-brutalistic for now... might be something for the future*/
 }
+
+select[disabled] {
+    color: var(--disabled-font-color);
+}
