@@ -82,6 +82,8 @@ html {
 
 a {
     margin: 0;
+    text-decoration: none;
+    color: inherit;
 }
 
 .login {

@@ -125,6 +125,7 @@ def dashboard(request, homelab_id=None):
     networks_select = [{'name': network.name,
                         'id': network.id,
                         'subname': network.subnet or 'No subnet defined',
+                        'confirm': True,
                         'title': 'Performing Auto-Discover',
                         'message': 'Do you want to auto-discover servers and services in ' + \
                             f'your homelab on <u>{network.subnet}</u>?<br><br>After confirming, ' + \
@@ -133,11 +134,21 @@ def dashboard(request, homelab_id=None):
                             'as a background task.<br><br>Do not refresh this page.',
                         'redirect_url_confirmed': f'/auto_discover/{network.id}/',
                         'redirect_url_declined': '/dashboard/',} for network in networks]
+    server_select = [{'name': 'Server',
+                      'subname': 'Create a Server',
+                      'href': '/create/server/'},
+                      {'name': 'Service',
+                      'subname': 'Create a Service',
+                      'href': '/create/service/'},
+                      {'name': 'Schedule',
+                      'subname': 'Create a Schedule',
+                      'href': '/create/schedule/'},]
 
     context = {
         'servers': servers,
         'networks': networks,
         'networks_select': networks_select,
+        'server_select': server_select,
         'homelabs': homelabs,
         'homelab': homelab,
         'wiki': homelab.wiki.first() if homelab.wiki.exists() else None,

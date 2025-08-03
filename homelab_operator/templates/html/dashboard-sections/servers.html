@@ -9,15 +9,7 @@
             </span>
             <div style="width: 1rem;"></div>
             <span style="margin: auto 0 0 0;">
-                {% include 'html_components/inline_button.html' with label='Server' fa_icon='fa-plus' href='/create/server/' %}
-            </span>
-            <div style="width: 1rem;"></div>
-            <span style="margin: auto 0 0 0;">
-                {% include 'html_components/inline_button.html' with label='Service' fa_icon='fa-plus' href='/create/service/' %}
-            </span>
-            <div style="width: 1rem;"></div>
-            <span style="margin: auto 0 0 0;">
-                {% include 'html_components/inline_button.html' with label='Schedule' fa_icon='fa-plus' href='/create/schedule' %}
+                {% include 'html_components/dropdown_select_button.html' with label='Create' fa_icon='fa-plus' select=server_select select_label='Select Action' %}
             </span>
         </span>
     </div>

@@ -15,24 +15,39 @@
             </div>
             <div class="spacer" style="height: .5rem;"></div>
             {% for option in select %}
-                <form method="post" action="/confirm">
-                    {% csrf_token %}
-                    <input type="hidden" name="redirect_url_confirmed" value="{{ option.redirect_url_confirmed }}">
-                    <input type="hidden" name="redirect_url_declined" value="{{ option.redirect_url_declined }}">
-                    <input type="hidden" name="title" value="{{ option.title }}">
-                    <input type="hidden" name="message" value="{{ option.message }}">
+                {% if option.confirm %}
+                    <form method="post" action="/confirm">
+                        {% csrf_token %}
+                        <input type="hidden" name="redirect_url_confirmed" value="{{ option.redirect_url_confirmed }}">
+                        <input type="hidden" name="redirect_url_declined" value="{{ option.redirect_url_declined }}">
+                        <input type="hidden" name="title" value="{{ option.title }}">
+                        <input type="hidden" name="message" value="{{ option.message }}">
 
-                    <div class="dropdown-item" style="display: block; padding: .1rem .1rem .1rem .5rem; cursor: pointer;" onclick="event.preventDefault(); this.closest('form').submit();">
-                        <div>
-                            {{ option.name }}
+                        <div class="dropdown-item" style="display: block; padding: .1rem .1rem .1rem .5rem; cursor: pointer;" onclick="event.preventDefault(); this.closest('form').  submit();">
+                            <div>
+                                {{ option.name }}
+                            </div>
+                            {% if option.subname %}
+                                <span class="soft">{{ option.subname }}</span>
+                            {% else %}
+                                <span class="soft">No subname defined</span>
+                            {% endif %}
                         </div>
-                        {% if option.subname %}
-                            <span class="soft">{{ option.subname }}</span>
-                        {% else %}
-                            <span class="soft">No subname defined</span>
-                        {% endif %}
-                    </div>
-                </form>
+                    </form>
+                {% else %}
+                    <a href="{{ option.href|default_if_none:'#' }}">
+                        <div class="dropdown-item" style="display: block; padding: .1rem .1rem .1rem .5rem; cursor: pointer;">
+                            <div>
+                                {{ option.name }}
+                            </div>
+                            {% if option.subname %}
+                                <span class="soft">{{ option.subname }}</span>
+                            {% else %}
+                                <span class="soft">No subname defined</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endif %}
             {% endfor %}
         {% else %}
             <div class="soft dropdown-item" style="display: block; padding: .1rem .1rem .1rem .5rem;">

@@ -71,6 +71,8 @@
             {% include 'html/dashboard-sections/wiki.html' with servers=servers wiki=wiki %}
         {% endif %}
 
+        {# ByteBuddies #}
+
         {# Ingress #}
         {% if user.profile.show_ingress %}
             {% include 'html/dashboard-sections/ingress.html' with ingresses=ingresses %}
