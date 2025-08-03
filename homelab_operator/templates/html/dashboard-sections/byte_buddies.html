@@ -1,0 +1,25 @@
+<div>
+    <span class="mobile-wrap">
+        <h2 style="margin-bottom: 0.25rem;">
+            <i class="fa-solid fa-user-group"></i>
+            ByteBuddies
+        </h2>
+        <div style="width: 1rem;"></div>
+        <span style="margin: auto 0 0 auto;">
+            {% with homelab_id=homelab.id|stringformat:'s' %}
+                {% include 'html_components/inline_button.html' with label='Link Buddy' fa_icon='fa-link' href='/link/buddy/'|add:homelab_id %}
+            {% endwith %}
+        </span>
+    </span>
+</div>
+{% if buddies %}
+    {% for server in buddies %}
+        <div class="tile" style="display: grid; margin-bottom: 1rem;" id="{{ buddy.name }}">
+        </div>
+    {% endfor %}
+{% else %}
+    <div>
+        <b style="color: #666;">No Buddies were found.</b>
+        <div class="soft">You haven't linked a Buddy so far.</div>
+    </div>
+{% endif %}
