@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
 from .models import Server, Service, Homelab, UserProfile, AppState, MaintenancePlan, \
-    MaintenanceReport
+    MaintenanceReport, Wiki
 from .helpers.helpers import rate_limit, process_schedules, update_uptime_statistics
 from .forms import UserProfileForm, MaintenancePlanForm, MaintenanceReportForm
 
@@ -40,6 +40,8 @@ def login_view(request):
 
     if request.user.is_authenticated:
         return redirect('dashboard_default')
+    
+    context['public_wikis'] = Wiki.objects.filter(public=True).order_by('-title')[:3]
 
     return render(request, 'html/login.html', context)
 

@@ -16,4 +16,19 @@
         </form>
     </div>
     <div class="spacer"></div>
+    {% if public_wikis %}
+        <div class="login">
+            <h2>Explore these Public Wikis!</h2>
+            <div style="margin-left: 1rem;">
+                {% for wiki in public_wikis %}
+                    <div style="margin-bottom: .5rem;">
+                        <a href="/pwiki/{{ wiki.id }}">
+                            <b>{{ wiki.title }}</b>
+                            <div class="soft">{{ wiki.description }}</div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

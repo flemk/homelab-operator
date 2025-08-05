@@ -58,7 +58,7 @@ html {
 }
 
 .main {
-    min-height: calc(100vh - 5.5rem);
+    min-height: calc(100vh - (5.5rem + 5.5rem));
     margin-top: 5.5rem;
     width: 70vw;
     margin-left: auto;
@@ -67,6 +67,7 @@ html {
 }
 
 .footer {
+    min-height: 5.5rem;
     border-top: 1px solid var(--border-color);
     background-color: var(--header-background-color);
     width: -moz-available;
